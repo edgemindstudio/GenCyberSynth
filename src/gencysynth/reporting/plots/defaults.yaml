@@ -1,0 +1,27 @@
+# src/gencysynth/reporting/plots/defaults.yaml
+
+# gencysynth.reporting.plots defaults
+# These defaults are intentionally conservative and artifact-friendly.
+
+enabled_groups:
+  core: true
+  imbalance: true
+  diversity: true
+  qual: true
+
+# Output formats to write. "png" is the default for portability.
+formats:
+  - png
+
+# Default image DPI for saved plots.
+dpi: 200
+
+# Qualitative plotting (sample grids, galleries).
+qual_max_images: 64
+qual_grid_cols: 8
+
+# If true, overwrite existing files for the same run.
+overwrite: true
+
+# If true, plotters should skip expensive visualizations when possible.
+fast_mode: false

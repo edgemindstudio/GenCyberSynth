@@ -1,0 +1,151 @@
+// schemas/run_manifest.schema.json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "schemas/run_manifest.schema.json",
+  "title": "GenCyberSynth Run Manifest (synthetic samples)",
+  "description": "Per-run manifest describing generated synthetic samples and the run context. Designed for multi-dataset scaling. Typically written at: artifacts/runs/<dataset_id>/<model_tag>/<run_id>/manifest.json",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "dataset_id",
+    "model_tag",
+    "run_id",
+    "samples"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "description": "Manifest schema version. Bump when breaking changes occur.",
+      "examples": ["run_manifest_v1"]
+    },
+    "created_at": {
+      "type": "string",
+      "description": "UTC timestamp when manifest was written (ISO-8601).",
+      "examples": ["2026-02-08T11:03:44Z"]
+    },
+
+    "dataset_id": {
+      "type": "string",
+      "description": "Stable dataset identifier used for scalable artifacts layout.",
+      "examples": ["USTC-TFC2016_40x40_gray"]
+    },
+
+    "model_tag": {
+      "type": "string",
+      "description": "Variant-aware model tag (family/model). Used in artifacts paths.",
+      "examples": ["gan/dcgan", "diffusion/ddpm", "vae/cvae"]
+    },
+
+    "run_id": {
+      "type": "string",
+      "description": "Unique identifier for this run within (dataset_id, model_tag). Should match folder name under artifacts.",
+      "examples": ["A_seed42_pc1000", "seed7", "B_seed123"]
+    },
+
+    "seed": {
+      "type": "integer",
+      "description": "RNG seed used for this run. Optional but strongly recommended.",
+      "examples": [42]
+    },
+
+    "config": {
+      "type": "object",
+      "description": "Optional run config/provenance block. Store only lightweight fields; avoid embedding huge configs unless needed.",
+      "properties": {
+        "config_id": { "type": "string", "description": "e.g., gan_A or diffusion_B" },
+        "config_variant": { "type": "string", "description": "Short variant label, e.g., A or B." },
+        "config_path": { "type": "string", "description": "Path to YAML config used for this run (if available)." },
+        "config_sha1": { "type": "string", "description": "SHA-1 hash of config file contents (if available)." },
+        "git_commit": { "type": "string", "description": "Git commit hash at run time (if available)." },
+        "caps": {
+          "type": "object",
+          "description": "Caps used during generation/evaluation (per-class caps, FID caps, etc.).",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+
+    "image_spec": {
+      "type": "object",
+      "description": "Optional description of how images are stored / shaped.",
+      "properties": {
+        "image_hw": {
+          "type": "array",
+          "description": "Image size [H,W] expected for this dataset.",
+          "items": { "type": "integer" },
+          "minItems": 2,
+          "maxItems": 2,
+          "examples": [[40, 40]]
+        },
+        "channels": {
+          "type": "integer",
+          "description": "Number of channels stored for this dataset (1 gray, 3 RGB, etc.).",
+          "examples": [1, 3]
+        },
+        "pixel_range": {
+          "type": "string",
+          "description": "Expected pixel range convention of stored images.",
+          "enum": ["[0,1]", "[0,255]", "[-1,1]", "unknown"]
+        },
+        "format": {
+          "type": "string",
+          "description": "On-disk image format (png/jpg/npy/etc.) if known.",
+          "examples": ["png"]
+        }
+      },
+      "additionalProperties": true
+    },
+
+    "budget_per_class": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Target generated samples per class. Prefer manifest truth (actual counts) when possible."
+    },
+
+    "per_class_counts": {
+      "type": "object",
+      "description": "Actual generated counts per class (string keys recommended for JSON compatibility).",
+      "additionalProperties": { "type": "integer" },
+      "examples": [{ "0": 1000, "1": 1000, "2": 950 }]
+    },
+
+    "samples": {
+      "type": "array",
+      "description": "List of generated sample entries. This is the canonical field. For backwards compatibility, some tools may also accept 'paths'.",
+      "minItems": 0,
+      "items": {
+        "type": "object",
+        "required": ["path", "label"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Filesystem path to the generated sample. Absolute or relative paths are allowed; prefer relative-to-run-root for portability."
+          },
+          "label": {
+            "type": "integer",
+            "description": "Integer class id for the sample."
+          },
+          "sha256": {
+            "type": "string",
+            "description": "Optional SHA-256 for integrity checking and deduplication."
+          },
+          "meta": {
+            "type": "object",
+            "description": "Optional per-sample metadata (e.g., prompt, latent seed, augmentation flags).",
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+
+    "paths": {
+      "type": "array",
+      "description": "Backwards-compatible alias for 'samples'. Prefer 'samples' going forward.",
+      "items": { "$ref": "#/properties/samples/items" }
+    }
+  },
+  "additionalProperties": true
+}

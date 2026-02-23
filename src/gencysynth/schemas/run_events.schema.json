@@ -1,0 +1,141 @@
+// schemas/run_events.schema.json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "schemas/run_events.schema.json",
+  "title": "GenCyberSynth Run Events (jsonl stream)",
+  "description": "Schema for a single event record in a run event stream (JSON Lines). Used to trace end-to-end execution across train/synth/eval while staying scalable across datasets and model variants. Typical location: artifacts/events/<dataset_id>/<model_tag>/<run_id>/events.jsonl",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "timestamp",
+    "dataset_id",
+    "model_tag",
+    "run_id",
+    "event"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "description": "Run events schema version.",
+      "examples": ["run_events_v1"]
+    },
+    "timestamp": {
+      "type": "string",
+      "description": "UTC timestamp (ISO-8601) when the event was emitted.",
+      "examples": ["2026-02-14T18:23:10Z"]
+    },
+
+    "dataset_id": {
+      "type": "string",
+      "description": "Stable dataset identifier used for scalable artifacts layout.",
+      "examples": ["USTC-TFC2016_40x40_gray"]
+    },
+    "model_tag": {
+      "type": "string",
+      "description": "Variant-aware model tag (family/model). Used in artifacts paths.",
+      "examples": ["gan/dcgan", "restrictedboltzmann/c-rbm-bernoulli", "vae/c-vae"]
+    },
+    "run_id": {
+      "type": "string",
+      "description": "Unique identifier for this run within (dataset_id, model_tag). Should match artifacts folder name.",
+      "examples": ["seed42_smoke", "A_seed42_pc25", "quick_5ep_seed7"]
+    },
+    "seed": {
+      "type": ["integer", "null"],
+      "description": "Optional RNG seed for this run.",
+      "examples": [42]
+    },
+
+    "event": {
+      "type": "string",
+      "description": "Event type/category.",
+      "enum": [
+        "run_start",
+        "run_end",
+        "stage_start",
+        "stage_end",
+        "checkpoint_saved",
+        "artifact_written",
+        "metric",
+        "warning",
+        "error",
+        "info"
+      ]
+    },
+    "level": {
+      "type": ["string", "null"],
+      "description": "Logging level (if applicable).",
+      "enum": ["debug", "info", "warning", "error", null]
+    },
+    "stage": {
+      "type": ["string", "null"],
+      "description": "Optional stage name (e.g., data_load, train, synth, eval).",
+      "examples": ["data_load", "train", "synth", "eval"]
+    },
+    "message": {
+      "type": ["string", "null"],
+      "description": "Human-readable message for the event."
+    },
+
+    "metrics": {
+      "type": ["object", "null"],
+      "description": "Metrics payload when event='metric'. Use short names and numeric values where possible.",
+      "additionalProperties": { "type": ["number", "integer", "null"] },
+      "examples": [
+        { "loss": 0.123, "recon": 0.08, "kl": 0.043 },
+        { "fid_macro": 67.2, "cfid_macro": 59.9 }
+      ]
+    },
+
+    "paths": {
+      "type": ["object", "null"],
+      "description": "Optional artifact paths written/used by this event (checkpoint, manifest, grid, logs, etc.).",
+      "additionalProperties": { "type": "string" },
+      "examples": [
+        {
+          "checkpoint": "artifacts/runs/USTC-TFC2016_40x40_gray/vae/c-vae/seed42_smoke/checkpoints/D_best.weights.h5",
+          "manifest": "artifacts/runs/USTC-TFC2016_40x40_gray/vae/c-vae/seed42_smoke/manifest.json"
+        }
+      ]
+    },
+
+    "run_meta": {
+      "type": ["object", "null"],
+      "description": "Optional provenance block (git commit, config hash, host info, caps, slurm ids, etc.).",
+      "properties": {
+        "git_commit": { "type": ["string", "null"] },
+        "config_path": { "type": ["string", "null"] },
+        "config_sha1": { "type": ["string", "null"] },
+        "hostname": { "type": ["string", "null"] },
+        "pid": { "type": ["integer", "null"] },
+        "slurm_job_id": { "type": ["string", "null"] },
+        "slurm_array_task_id": { "type": ["string", "null"] },
+        "caps": {
+          "type": ["object", "null"],
+          "description": "Caps used during generation/evaluation (per-class caps, FID caps, etc.).",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+
+    "exception": {
+      "type": ["object", "null"],
+      "description": "Optional exception payload when event='error'.",
+      "properties": {
+        "type": { "type": ["string", "null"] },
+        "message": { "type": ["string", "null"] },
+        "traceback": { "type": ["string", "null"] }
+      },
+      "additionalProperties": true
+    },
+
+    "payload": {
+      "type": ["object", "null"],
+      "description": "Free-form payload for event-specific data. Keep it lightweight; store big blobs in files and reference via paths.",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}
+

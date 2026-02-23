@@ -1,0 +1,1 @@
+# src/gencysynth/data/registry.py

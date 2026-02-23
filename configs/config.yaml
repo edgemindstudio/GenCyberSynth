@@ -1,0 +1,167 @@
+# configs/config.yaml
+# =============================================================================
+# GenCyberSynth — Global experiment configuration (single source of truth)
+#
+# This file is read by the repo orchestrator (train/synth/eval runners).
+# It contains:
+#   - Global dataset + shape + scaling (shared across ALL families)
+#   - Artifact root configuration (portable across workstation/HPC)
+#   - Evaluation defaults (FID/cFID caps, feature extractor selection)
+#   - Family-level hyperparameters (diffusion/gan/vae/...)
+#   - Optional "model selector" to pick a family+variant for a single run
+#
+# IMPORTANT:
+# - Keep `scale` consistent with your actual preprocessing across ALL families.
+#   If training uses [-1, 1], it MUST be [-1, 1] here.
+# =============================================================================
+
+# Prefer using random_seeds for experiments; keep SEED only if some trainer reads it.
+SEED: 42
+random_seeds: [42, 43, 44]
+
+# Dataset root (NHWC .npy layout expected by your shared loader)
+DATA_DIR: "/home/bruno.fonkeng/gencys/data/USTC-TFC2016_malware_nhwc"
+
+# -----------------------------------------------------------------------------
+# Paths
+# -----------------------------------------------------------------------------
+paths:
+  # Absolute path is fine on HPC; if you symlink repo ./artifacts -> ~/gencys/artifacts
+  # you can set this to "artifacts" instead.
+  artifacts: "/home/bruno.fonkeng/gencys/artifacts"
+
+  # Keep this RELATIVE so the repo is portable:
+  # resolved as: {paths.artifacts}/{paths.summaries_dir}
+  summaries_dir: "summaries"
+
+# -----------------------------------------------------------------------------
+# Global data spec (shared across all model families)
+# -----------------------------------------------------------------------------
+IMG_SHAPE: [40, 40, 1]
+NUM_CLASSES: 9
+
+# Range used by training pipelines (DCGAN expects [-1, 1] internally)
+scale: [-1, 1]
+
+# -----------------------------------------------------------------------------
+# Optional: which module to run (useful for single-run CLI orchestration)
+# If not present, your runner can default to the command-line selection.
+# -----------------------------------------------------------------------------
+model:
+  family: "gan"
+  variant: "dcgan"
+
+# -----------------------------------------------------------------------------
+# Synthesis (smoke-test defaults; override for real runs)
+# -----------------------------------------------------------------------------
+synth:
+  # number of synthetic samples per class
+  n_per_class: 25
+
+# -----------------------------------------------------------------------------
+# Evaluation defaults
+# -----------------------------------------------------------------------------
+evaluator:
+  per_class_cap: 200
+  save_grids: true
+  save_nn_stats: true
+  compute_fid: true
+  compute_cfid: true
+  feature_extractor: "domain"
+  fid_split: "val"
+  domain_encoder: "malware_encoder_v1"
+
+# -----------------------------------------------------------------------------
+# Provenance / reproducibility guardrails
+# NOTE: Only set require=true if your eval runner ENFORCES this (fails closed).
+# -----------------------------------------------------------------------------
+provenance:
+  require: true
+
+# If you need "num_real" for reporting, prefer having the runner compute it.
+# Keep this out unless it is guaranteed constant for your pipeline.
+# run_meta:
+#   expected_num_real: 90000
+
+# -----------------------------------------------------------------------------
+# Early stopping (safe to keep even if not implemented; runner may ignore)
+# -----------------------------------------------------------------------------
+early_stop:
+  metric: "cFID_mean"
+  minimize: true
+  delta: 0.5
+  patience: 4
+  eval_every_steps: 2000
+
+# =============================================================================
+# Model-family blocks
+# =============================================================================
+
+diffusion:
+  LR: 2.0e-4
+  BATCH: 256
+  EMA: 0.9999
+  SCHEDULE: cosine
+  TIMESTEPS: 1000
+  BASE_FILTERS: 64
+  DEPTH: 2
+  TIME_EMB_DIM: 128
+  TOTAL_STEPS: 200000
+  SAMPLER_STEPS: 200
+  GUIDANCE_WEIGHT: 1.5
+
+gan:
+  # DCGAN/conditional-GAN variants frequently need a latent dim:
+  LATENT_DIM: 100
+
+  # Generic GAN family defaults (variants can override these in their defaults.yaml)
+  LR_G: 1.0e-4
+  LR_D: 2.0e-4
+  BETAS: [0.5, 0.999]
+  D_UPDATES_PER_G: 2
+  BATCH: 128
+  TOTAL_STEPS: 150000
+  REG: "R1"
+  SPECTRAL_NORM: true
+  EMA:
+    ENABLED: true
+    DECAY: 0.999
+
+vae:
+  LR: 1.0e-3
+  BATCH: 256
+  BETA: 1.0
+  KL_WARMUP_STEPS: 2000
+  TOTAL_STEPS: 80000
+
+autoregressive:
+  LR: 1.0e-3
+  BATCH: 256
+  TOTAL_STEPS: 100000
+  SAMPLING:
+    TEMPERATURE: 0.95
+    TOP_K: 100
+    TOP_P: 0.95
+
+restrictedboltzmann:
+  LR: 5.0e-4
+  CD_K: 5
+  HIDDEN: 512
+  BATCH: 256
+  EPOCHS: 50
+  PER_CLASS_CAP: 25
+
+gaussianmixture:
+  GMM_COMPONENTS: 5
+  GMM_COVARIANCE: diag
+  GMM_REG_COVAR: 1e-3
+  GMM_MAX_ITER: 300
+  GMM_TRAIN_GLOBAL: true
+
+maskedautoflow:
+  LR: 1.0e-3
+  BATCH: 256
+  DEPTH: 8
+  WIDTH: 256
+  TOTAL_STEPS: 80000
+  DEQUANT_NOISE: 0.01

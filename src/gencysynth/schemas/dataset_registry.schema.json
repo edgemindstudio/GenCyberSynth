@@ -1,0 +1,122 @@
+// schemas/dataset_registry.schema.json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "schemas/dataset_registry.schema.json",
+  "title": "GenCyberSynth Dataset Registry (multi-dataset scaling)",
+  "description": "A registry listing datasets available to the repo, with stable dataset_id entries and pointers to their fingerprints. Intended to support scaling to many datasets while keeping run/eval artifacts consistently partitioned by dataset_id. Typical location: data/dataset_registry.json or artifacts/datasets/registry.json",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "datasets"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "description": "Registry schema version.",
+      "examples": ["dataset_registry_v1"]
+    },
+    "created_at": {
+      "type": "string",
+      "description": "UTC ISO timestamp when the registry was written.",
+      "examples": ["2026-02-14T18:21:00Z"]
+    },
+    "default_dataset_id": {
+      "type": ["string", "null"],
+      "description": "Optional default dataset_id used when a config does not explicitly specify one."
+    },
+    "datasets": {
+      "type": "array",
+      "description": "List of datasets known to the repository.",
+      "minItems": 1,
+      "items": { "$ref": "#/definitions/dataset_entry" }
+    },
+    "notes": {
+      "type": ["string", "null"],
+      "description": "Optional freeform notes (e.g., who updated the registry and why)."
+    }
+  },
+  "definitions": {
+    "dataset_entry": {
+      "type": "object",
+      "required": [
+        "dataset_id",
+        "dataset_root",
+        "format",
+        "image_shape",
+        "num_classes",
+        "fingerprint_path"
+      ],
+      "properties": {
+        "dataset_id": {
+          "type": "string",
+          "description": "Stable dataset identifier used for scalable artifacts layout.",
+          "examples": ["USTC-TFC2016_40x40_gray"]
+        },
+        "dataset_root": {
+          "type": "string",
+          "description": "Filesystem directory where the dataset is loaded from (source of truth for loaders).",
+          "examples": ["data/ustc", "data/USTC-TFC2016_malware"]
+        },
+        "format": {
+          "type": "string",
+          "description": "Dataset loader format key (e.g., npy_ustc, image_folder, hf_dataset).",
+          "examples": ["npy_ustc", "image_folder", "hf_dataset"]
+        },
+        "image_shape": {
+          "type": "array",
+          "description": "Image shape [H, W, C] for this dataset.",
+          "items": { "type": "integer" },
+          "minItems": 3,
+          "maxItems": 3,
+          "examples": [[40, 40, 1]]
+        },
+        "num_classes": {
+          "type": "integer",
+          "minimum": 2,
+          "description": "Number of label classes.",
+          "examples": [9]
+        },
+        "label_names": {
+          "type": ["array", "null"],
+          "description": "Optional human-readable label names aligned with class ids.",
+          "items": { "type": "string" }
+        },
+        "fingerprint_path": {
+          "type": "string",
+          "description": "Path to the dataset fingerprint JSON for this dataset instance (recommended stable artifact).",
+          "examples": [
+            "artifacts/datasets/USTC-TFC2016_40x40_gray/fingerprint.json",
+            "data/USTC-TFC2016_40x40_gray/fingerprint.json"
+          ]
+        },
+        "fingerprint": {
+          "type": ["object", "null"],
+          "description": "Optional inline fingerprint object. Prefer fingerprint_path for portability; inline is allowed for convenience.",
+          "$ref": "schemas/dataset_fingerprint.schema.json"
+        },
+        "file_map": {
+          "type": ["object", "null"],
+          "description": "Optional mapping of canonical split files (especially useful for npy datasets).",
+          "additionalProperties": { "type": "string" }
+        },
+        "tags": {
+          "type": ["array", "null"],
+          "description": "Optional tags for filtering/selecting datasets (e.g., grayscale, malware, 40x40).",
+          "items": { "type": "string" }
+        },
+        "enabled": {
+          "type": ["boolean", "null"],
+          "description": "Optional toggle to temporarily disable a dataset from orchestration runs."
+        },
+        "notes": {
+          "type": ["string", "null"],
+          "description": "Optional dataset-specific notes (provenance, caveats, etc.)."
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}
+

@@ -1,0 +1,61 @@
+# src/gencysynth/metrics/defaults.yaml
+# Default metrics suite for GenCyberSynth.
+#
+# Rule A:
+# - These are lightweight, dependency-minimal checks suitable for smoke tests.
+# - Heavier metrics (FID/cFID, deep feature distances) can be added later as plugins.
+
+  options:
+    diversity.duplicates:
+      max_samples: 20000
+      hash_size: 8
+      near_hamming: 0
+      per_class: false
+
+    diversity.coverage:
+      max_real: 5000
+      max_synth: 5000
+      feature_dim: 256
+      chunk: 512
+      per_class: false
+
+
+metrics:
+  enabled:
+    - "sanity.basic_stats"
+    - "sanity.shape_checks"
+    - "distribution.pixel_hist_l1"
+    - "distribution.js_kl_hist"
+    - "distribution.mmd_rbf"
+    - "distribution.kid"
+    - "distribution.fid"
+    - "diversity.duplicates"
+    - "diversity.coverage"
+
+  options:
+    distribution.js_kl_hist:
+      bins: 32
+      eps: 1e-8
+      per_class: false
+    distribution.mmd_rbf:
+      max_samples: 4096
+      feature_dim: 256
+      sigma: "median"
+    distribution.kid:
+      max_samples: 4096
+      feature_dim: 256
+      degree: 3
+      gamma: 1.0
+      coef0: 1.0
+    distribution.fid:
+      max_samples: 4096
+      feature_dim: 256
+
+  # Optional global preprocessing applied before metrics
+  binarize: false
+  bin_threshold: 0.5
+
+  # Per-metric options live here
+  options:
+    distribution.pixel_hist_l1:
+      bins: 32

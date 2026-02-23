@@ -1,0 +1,147 @@
+# src/gencysynth/models/gan/variants/dcgan/defaults.yaml
+# GenCyberSynth — GAN family — DCGAN variant (Conditional)
+# --------------------------------------------------------
+# This file contains the *default* configuration knobs for the Conditional DCGAN
+# variant. The orchestrator (app/main) should load this as the base config for
+# gan/dcgan, then allow overrides from experiment YAMLs or CLI flags.
+#
+# Key design goals:
+# - Variant identity is explicit (family + variant).
+# - Paths are variant-scoped to prevent collisions with other GAN variants.
+# - Works on CPU-only machines and GPU machines without code changes.
+# - Compatible with Keras 3 weight naming: *.weights.h5
+#
+# NOTE: Dataset paths are *environment-specific*; prefer overriding paths.data_root
+# in a run config (or via environment variables in your HPC launcher).
+
+# -------------------------------------------------------------------
+# Identity (always keep these)
+# -------------------------------------------------------------------
+identity:
+  family: gan
+  variant: dcgan
+  name: "Conditional DCGAN"
+
+# -------------------------------------------------------------------
+# Run metadata (override per job on HPC)
+# -------------------------------------------------------------------
+run:
+  # Recommended: set this per run (e.g., slurm job id, timestamp, exp name)
+  # Examples:
+  #   run_id: "paper01_gan_dcgan_seed42"
+  #   run_id: "slurm_${SLURM_JOB_ID}_seed42"
+  run_id: "dev"
+
+  # Reproducibility
+  seed: 42
+
+# -------------------------------------------------------------------
+# Data configuration
+# -------------------------------------------------------------------
+data:
+  # Prefer overriding this in your experiment config.
+  # Should point to folder containing the dataset .npy files expected by load_dataset_npy(...)
+  # Example: "/scratch/<user>/datasets/USTC-TFC2016_malware"
+  root: "data/USTC-TFC2016_malware"
+
+  # Train/val split control (load_dataset_npy uses this to split the original "test" into val+test)
+  val_fraction: 0.5
+
+# -------------------------------------------------------------------
+# Model / training hyperparameters
+# -------------------------------------------------------------------
+model:
+  img_shape: [40, 40, 1]
+  num_classes: 9
+
+gan:
+  latent_dim: 100
+  lr: 0.0002
+  beta_1: 0.5
+
+train:
+  epochs: 2000
+  batch_size: 256
+
+  # Stabilization tricks used in your training/pipeline code
+  label_smooth: [0.9, 1.0]     # real label smoothing range
+  fake_label_range: [0.0, 0.1] # fake label targets range
+
+  noise_after: 200             # start Gaussian noise injection after this epoch
+  noise_std: 0.01
+
+  # Evaluation cadence
+  eval_every: 25               # FID every N epochs (if available)
+  save_every: 50               # checkpoint every N epochs
+
+  # Optional: preview grid saved during training
+  # Set to null to disable, or [rows, cols] to enable
+  grid: null
+
+  # Optional resume (weights)
+  # Leave null unless you want to resume a specific run checkpoint.
+  resume:
+    g_weights: null
+    d_weights: null
+
+# -------------------------------------------------------------------
+# Synthesis defaults (post-train and standalone sample.py synth)
+# -------------------------------------------------------------------
+synth:
+  samples_per_class: 1000
+
+  # output format: "png" for sample.py (per-image) and "npy" for pipeline post-train dumps
+  # (your code supports both styles; keep as documentation + future router hint)
+  format: ["png", "npy"]
+
+# -------------------------------------------------------------------
+# Paths (professional, collision-proof)
+# -------------------------------------------------------------------
+paths:
+  # Global artifact root for the dissertation repo (override per environment)
+  artifacts: "artifacts"
+
+  # Optional canonical location for logs or extra outputs
+  logs: "artifacts/runs"
+
+  # Optional explicit data root override (preferred)
+  # If set, loaders should use this over data.root.
+  data_root: null
+
+artifacts:
+  # Canonical variant-scoped layout (run_id is required for collision-proof runs)
+  #
+  # NOTE: Your code can either:
+  # - compute these from (paths.artifacts, identity, run.run_id), OR
+  # - read these directly if you want explicit control.
+  #
+  # These paths are written by:
+  # - train.py: checkpoints + summaries + tensorboard
+  # - pipeline.py: checkpoints + synthetic npy
+  # - sample.py: reads checkpoints + writes png outputs (via output_root argument)
+  models_root: "${paths.artifacts}/models/${identity.family}/${identity.variant}"
+  checkpoints: "${artifacts.models_root}/checkpoints/${run.run_id}"
+  summaries: "${artifacts.models_root}/summaries/${run.run_id}"
+
+  synth_root: "${paths.artifacts}/synth/${run.run_id}/${identity.family}/${identity.variant}"
+
+  tensorboard: "${paths.artifacts}/runs/${run.run_id}/tensorboard"
+
+# -------------------------------------------------------------------
+# Hardware/runtime notes (no code changes required)
+# -------------------------------------------------------------------
+runtime:
+  # TensorFlow selects GPU automatically if available.
+  # Enabling memory growth is recommended on shared GPUs.
+  gpu:
+    enable_memory_growth: true
+
+  # Optional: set to true if you want to force CPU in some runs (router can apply this)
+  force_cpu: false
+
+# -------------------------------------------------------------------
+# Optional callbacks/integration hooks (router-owned)
+# -------------------------------------------------------------------
+hooks:
+  # Optional logging callback used by pipeline.py: LOG_CB(epoch, d_loss|(d_loss,d_acc), g_loss)
+  log_cb: null

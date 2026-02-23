@@ -1,0 +1,69 @@
+# src/gencysynth/models/restrictedboltzmann/variants/c-rbm-bernoulli/defaults.yaml
+# -----------------------------------------------------------------------------
+# GenCyberSynth "Rule A" defaults for the conditional Bernoulli RBM baseline.
+#
+# Key idea:
+# - This variant trains **one RBM per class** (class-conditional) and writes
+#   evaluator-friendly synthetic dumps.
+# - All artifact paths are derived from `paths.artifacts` + a run-scoped bundle
+#   (dataset + variant + run_id) so multiple datasets can coexist cleanly.
+# -----------------------------------------------------------------------------
+
+variant:
+  family: restrictedboltzmann
+  name: c-rbm-bernoulli
+  version: 1
+
+# Dataset bundle identity (used for artifact scoping)
+# Your orchestrator should set these per run (or keep defaults for quick tests).
+data:
+  dataset_id: USTC-TFC2016_malware
+  split_id: default
+  root: data/USTC-TFC2016_malware
+
+# Global paths (Rule A: everything hangs off paths.artifacts)
+paths:
+  artifacts: artifacts
+
+# A run identifier (orchestrator can overwrite). Used to avoid clobbering runs.
+run:
+  run_id: dev
+  seed: 42
+
+# Model + training hyperparameters (mostly identical to pipeline defaults)
+model:
+  img_shape: [40, 40, 1]
+  num_classes: 9
+
+rbm:
+  hidden_units: 256
+  cd_k: 1
+  lr: 1.0e-3
+  weight_decay: 0.0
+  train_mode: cd        # cd | mse
+  binarize: true
+  bin_threshold: 0.5
+
+train:
+  epochs: 10
+  batch_size: 256
+  patience: 10
+  val_split: 0.10       # used only if no explicit val set is provided
+
+synth:
+  samples_per_class: 1000
+  sample_k_steps: null  # if null, defaults to rbm.cd_k (pipeline behavior)
+
+# Rule A artifact layout (scoped by dataset + variant + run_id)
+# NOTE: config.py will expand these placeholders into concrete Paths.
+artifacts:
+  scope:
+    dataset_id: ${data.dataset_id}
+    variant: ${variant.family}/${variant.name}
+    run_id: ${run.run_id}
+
+  # Expanded paths will look like:
+  # artifacts/runs/<dataset_id>/<variant>/<run_id>/{checkpoints,summaries,synthetic}
+  checkpoints: ${paths.artifacts}/runs/${artifacts.scope.dataset_id}/${artifacts.scope.variant}/${artifacts.scope.run_id}/checkpoints
+  summaries:   ${paths.artifacts}/runs/${artifacts.scope.dataset_id}/${artifacts.scope.variant}/${artifacts.scope.run_id}/summaries
+  synthetic:   ${paths.artifacts}/runs/${artifacts.scope.dataset_id}/${artifacts.scope.variant}/${artifacts.scope.run_id}/synthetic

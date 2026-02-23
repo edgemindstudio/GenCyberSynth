@@ -1,0 +1,62 @@
+# src/gencysynth/models/gaussianmixture/variants/c-gmm-full/defaults.yaml
+# GenCyberSynth — GaussianMixture — c-gmm-full (defaults)
+#
+# This file defines variant-scoped defaults. The orchestrator should still supply:
+#   dataset.id, model.tag, run_id, run_meta.seed
+#
+# Rule A output locations are determined by RunContext:
+#   artifacts/runs/<dataset_id>/<model_tag>/<run_id>/
+#
+# These defaults are intentionally conservative to be stable across datasets.
+
+model:
+  tag: gaussianmixture/c-gmm-full
+
+dataset:
+  id: USTC-TFC2016_40x40_gray
+
+run_meta:
+  seed: 42
+
+img:
+  shape: [40, 40, 1]
+
+data:
+  num_classes: 9
+
+# -----------------------------------------------------------------------------
+# Training (per-class GMMs)
+# -----------------------------------------------------------------------------
+gmm:
+  components: 10
+  covariance_type: full     # full | tied | diag | spherical
+  tol: 1.0e-3
+  reg_covar: 1.0e-6
+  max_iter: 300
+  n_init: 1
+  init_params: kmeans
+  verbose: 0
+  train_global_fallback: true
+
+  # Optional overrides: component count per class label
+  # components_by_class:
+  #   4: 16
+
+# -----------------------------------------------------------------------------
+# Optional PCA front-end
+# -----------------------------------------------------------------------------
+pca:
+  use: false
+  # dim: 128                 # if omitted/null, runtime will pick min(128, D)
+  whiten: true
+  svd_solver: auto
+
+# -----------------------------------------------------------------------------
+# Synthesis budget (used by sampler)
+# -----------------------------------------------------------------------------
+synth:
+  n_per_class: 25
+  # Optional overrides: samples per class label
+  # n_per_class_by_class:
+  #   4: 400
+  #   7: 400

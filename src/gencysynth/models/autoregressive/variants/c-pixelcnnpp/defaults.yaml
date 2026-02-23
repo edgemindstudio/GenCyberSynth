@@ -1,0 +1,69 @@
+# src/gencysynth/models/autoregressive/variants/c-pixelcnnpp/defaults.yaml
+#
+# Rule A: Variant defaults are dataset-agnostic, and all outputs are routed through
+# paths.artifacts + dataset identity. The orchestrator (gencs) should be able to
+# swap datasets without touching code.
+
+# ----------------------------- dataset ----------------------------- #
+data:
+  # A stable dataset identifier (used in artifact paths). Example values:
+  # - USTC-TFC2016_40x40_gray
+  # - MNIST_28x28
+  # - CIFAR10_32x32_rgb
+  name: USTC-TFC2016_40x40_gray
+
+  # Root directory containing train/test .npy files OR whatever your shared loader expects.
+  # Under Rule A, this should be a dataset-specific folder.
+  root: data/USTC-TFC2016_40x40_gray
+
+# ----------------------------- model ----------------------------- #
+model:
+  family: autoregressive
+  variant: c-pixelcnnpp
+
+  # Image shape (channels-last)
+  img_shape: [40, 40, 1]
+  num_classes: 9
+
+  # PixelCNN++-style baseline knobs (compact for CPU / small GPU)
+  filters: 64
+  masked_layers: 6
+  label_channels: 1
+
+# ----------------------------- training ----------------------------- #
+train:
+  seed: 42
+  epochs: 200
+  batch_size: 256
+  lr: 2.0e-4
+  beta_1: 0.5
+
+  # BCE on pixels; model outputs probabilities (sigmoid), so from_logits=false
+  from_logits: false
+
+  # Validation split for loaders that derive val from test
+  val_fraction: 0.5
+
+  # Checkpointing & early stop
+  patience: 10
+  save_every: 25
+
+# ----------------------------- synthesis ----------------------------- #
+synth:
+  seed: 42
+  # Default per-class sample count used by pipelines
+  samples_per_class: 1000
+
+# ----------------------------- paths (Rule A) ----------------------------- #
+paths:
+  # Global artifacts root. Code will nest dataset/family/variant under here.
+  artifacts: artifacts
+
+# Optional: allow explicit override of subpaths (usually leave empty).
+# If provided, these should still include the dataset in the path.
+artifacts:
+  # Example:
+  # checkpoints: artifacts/<dataset>/autoregressive/c-pixelcnnpp/checkpoints
+  # synthetic:   artifacts/<dataset>/autoregressive/c-pixelcnnpp/synthetic
+  # summaries:   artifacts/<dataset>/autoregressive/c-pixelcnnpp/summaries
+  {}

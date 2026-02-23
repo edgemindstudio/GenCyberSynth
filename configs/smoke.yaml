@@ -1,0 +1,86 @@
+# configs/smoke/smoke.yaml
+# ------------------------------------------------------------
+# Smoke suite: tiny end-to-end runs that validate wiring + Rule A
+# Goal: <5 epochs, small synthetic budget, fast metrics (optional)
+# ------------------------------------------------------------
+
+# These keys are intentionally redundant (aliases) so each model family
+# can normalize what it needs without breaking the suite.
+SEED: 42
+EPOCHS: 3
+epochs: 3
+
+SAMPLES_PER_CLASS: 16
+samples_per_class: 16
+
+# Rule A artifacts root (orchestrator should honor this)
+paths:
+  artifacts: "artifacts"
+
+# Dataset selection happens in the CLI/orchestrator (dataset_id),
+# but some components may still read a dataset root/path from config.
+data:
+  root: "data"    # adapter will resolve actual dataset based on dataset_id
+
+# ------------------------
+# Stage toggles (fast smoke)
+# ------------------------
+TRAIN:
+  enabled: true
+  max_epochs: 3
+
+SYNTH:
+  enabled: true
+  samples_per_class: 16
+  # Optional: emit png galleries during smoke (often off to keep it fast)
+  emit_png: false
+
+EVAL:
+  enabled: true
+
+  # Keep distribution metrics on (FID/KID/etc) only if your smoke pipeline supports
+  # fast feature extraction; otherwise set these false.
+  enable_distribution: true
+  enable_diversity: true
+
+  # Disable slow/high-variance tasks during smoke (can be enabled in CI nightly)
+  enable_downstream: false
+  enable_calibration: false
+  enable_privacy: false
+
+REPORTING:
+  enabled: false
+
+# ------------------------
+# Family-level overrides
+# (Adapters may optionally read these)
+# ------------------------
+families:
+  gan:
+    EPOCHS: 3
+  vae:
+    EPOCHS: 3
+  diffusion:
+    EPOCHS: 3
+  autoregressive:
+    EPOCHS: 3
+  gaussianmixture:
+    # not epoch-based; keep any iterative fit minimal
+    max_iters: 25
+  maskedautoflow:
+    EPOCHS: 3
+  restrictedboltzmann:
+    EPOCHS: 3
+    cd_k: 1
+
+# ------------------------
+# Variant-level overrides (optional)
+# ------------------------
+variants:
+  # Example: if a specific variant needs smaller batch
+  dcgan:
+    BATCH_SIZE: 64
+  c-vae:
+    BATCH_SIZE: 64
+  c-ddpm:
+    BATCH_SIZE: 64

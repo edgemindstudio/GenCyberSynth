@@ -1,0 +1,41 @@
+# configs/datasets.yaml
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "schemas/dataset_registry.schema.json",
+  "title": "GenCyberSynth Dataset Registry",
+  "description": "Optional registry listing all datasets available in the repo. Useful for multi-dataset orchestration and validation.",
+  "type": "object",
+  "required": ["datasets"],
+  "properties": {
+    "datasets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "root", "format", "image_shape", "num_classes"],
+        "properties": {
+          "id": { "type": "string" },
+          "root": { "type": "string" },
+          "format": { "type": "string" },
+          "image_shape": {
+            "type": "array",
+            "items": { "type": "integer" },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "num_classes": { "type": "integer", "minimum": 2 },
+          "val_fraction": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+          "seed": { "type": "integer" },
+          "files": {
+            "type": "object",
+            "description": "Optional npy file overrides.",
+            "additionalProperties": { "type": "string" }
+          },
+          "notes": { "type": ["string", "null"] }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

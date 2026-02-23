@@ -1,0 +1,197 @@
+// schemas/eval_summary.schema.json
+
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "schemas/eval_summary.schema.json",
+  "title": "GenCyberSynth Evaluation Summary (dataset-scalable)",
+  "description": "One evaluation record for a single (dataset_id, model_tag, run_id, seed). Written to latest.json and appended into summary.jsonl under artifacts/eval/<dataset_id>/<model_tag>/<run_id>/",
+  "type": "object",
+  "required": [
+    "timestamp",
+    "dataset_id",
+    "model_tag",
+    "run_id",
+    "seed",
+    "images",
+    "generative"
+  ],
+  "properties": {
+    "timestamp": {
+      "type": "string",
+      "description": "UTC timestamp (ISO-8601) when the summary was produced.",
+      "examples": ["2026-02-08T11:03:44Z"]
+    },
+
+    "dataset_id": {
+      "type": "string",
+      "description": "Stable dataset identifier used for scalable artifacts layout.",
+      "examples": ["USTC-TFC2016_40x40_gray"]
+    },
+
+    "model": {
+      "type": "string",
+      "description": "Legacy/short model family name (optional). Kept for compatibility.",
+      "examples": ["gan", "diffusion", "vae"]
+    },
+
+    "model_tag": {
+      "type": "string",
+      "description": "Variant-aware model tag (family/model). Used in artifacts paths.",
+      "examples": ["gan/dcgan", "diffusion/ddpm"]
+    },
+
+    "run_id": {
+      "type": "string",
+      "description": "Unique run id (must match the run directory name under artifacts).",
+      "examples": ["A_seed42_pc1000", "seed7"]
+    },
+
+    "seed": {
+      "type": "integer",
+      "description": "RNG seed for the run.",
+      "examples": [42]
+    },
+
+    "manifest_path": {
+      "type": ["string", "null"],
+      "description": "Resolved manifest path used by the evaluator (truth for audit)."
+    },
+
+    "images": {
+      "type": "object",
+      "description": "Counts of REAL and SYNTH images used for evaluation.",
+      "required": ["train_real", "synthetic"],
+      "properties": {
+        "train_real": { "type": ["integer", "null"] },
+        "val_real":   { "type": ["integer", "null"] },
+        "test_real":  { "type": ["integer", "null"] },
+        "synthetic":  { "type": ["integer", "null"] }
+      },
+      "additionalProperties": true
+    },
+
+    "generative": {
+      "type": "object",
+      "description": "Generative distribution metrics. Some may be null when optional deps are missing or metrics are skipped.",
+      "required": ["ms_ssim", "fid", "fid_macro", "cfid_macro", "kid"],
+      "properties": {
+        "ms_ssim":   { "type": ["number", "null"], "description": "Intra-class similarity proxy. Higher => less diverse." },
+
+        "fid":       { "type": ["number", "null"], "description": "FID pooled (often macro pooled); may equal fid_macro." },
+        "fid_macro": { "type": ["number", "null"], "description": "Macro/pool FID across capped per-class subsets." },
+
+        "cfid_macro": {
+          "type": ["number", "null"],
+          "description": "Class-conditional FID macro average."
+        },
+
+        "cfid_per_class": {
+          "type": ["array", "null"],
+          "description": "Optional per-class cFID values, aligned with class ids.",
+          "items": { "type": ["number", "null"] }
+        },
+
+        "kid": {
+          "type": ["number", "null"],
+          "description": "Kernel Inception Distance (or domain KID), if computed."
+        },
+
+        "js": {
+          "type": ["number", "null"],
+          "description": "Jensen-Shannon divergence on pixel intensity histogram (optional)."
+        },
+        "kl": {
+          "type": ["number", "null"],
+          "description": "KL divergence on pixel intensity histogram (optional)."
+        },
+        "diversity": {
+          "type": ["number", "null"],
+          "description": "Simple diversity proxy (e.g., pixel variance) (optional)."
+        },
+
+        "fid_domain": {
+          "type": ["number", "null"],
+          "description": "Optional FID computed in caller-provided embedding space."
+        },
+
+        "gen_precision": {
+          "type": ["number", "null"],
+          "description": "Optional generative precision (if defined)."
+        },
+        "gen_recall": {
+          "type": ["number", "null"],
+          "description": "Optional generative recall (if defined)."
+        },
+
+        "feature_extractor": {
+          "type": ["string", "null"],
+          "description": "Name/path of embedding extractor used for domain metrics (optional)."
+        }
+      },
+      "additionalProperties": true
+    },
+
+    "utility_real_only": {
+      "type": ["object", "null"],
+      "description": "Downstream utility results when training on REAL only.",
+      "additionalProperties": true
+    },
+
+    "utility_real_plus_synth": {
+      "type": ["object", "null"],
+      "description": "Downstream utility results when training on REAL+SYNTH.",
+      "additionalProperties": true
+    },
+
+    "deltas_RS_minus_R": {
+      "type": ["object", "null"],
+      "description": "Delta metrics: (Real+Synth) - (Real-only).",
+      "additionalProperties": true
+    },
+
+    "memorization": {
+      "type": ["object", "null"],
+      "description": "Optional memorization proxy stats (e.g., NN distances).",
+      "properties": {
+        "nn_dist_mean": { "type": ["number", "null"] },
+        "nn_dist_min":  { "type": ["number", "null"] }
+      },
+      "additionalProperties": true
+    },
+
+    "run_meta": {
+      "type": ["object", "null"],
+      "description": "Provenance block injected by orchestrator/CLI (config hash, git commit, caps, etc.).",
+      "additionalProperties": true
+    },
+
+    "_warnings": {
+      "type": "array",
+      "description": "Warnings emitted during evaluation; should be preserved for auditability.",
+      "items": { "type": "string" }
+    },
+
+    "metrics_meta": {
+      "type": ["object", "null"],
+      "description": "Metadata describing metric versions / modes used.",
+      "additionalProperties": true
+    },
+
+    "counts.num_real": { "type": ["integer", "null"], "description": "Legacy flattened key (train_real)." },
+    "counts.num_fake": { "type": ["integer", "null"], "description": "Legacy flattened key (synthetic)." },
+
+    "metrics.fid":        { "type": ["number", "null"] },
+    "metrics.fid_macro":  { "type": ["number", "null"] },
+    "metrics.cfid":       { "type": ["number", "null"] },
+    "metrics.cfid_macro": { "type": ["number", "null"] },
+    "metrics.kid":        { "type": ["number", "null"] },
+    "metrics.ms_ssim":    { "type": ["number", "null"] },
+
+    "metrics.gen_precision": { "type": ["number", "null"] },
+    "metrics.gen_recall":    { "type": ["number", "null"] },
+
+    "metrics.downstream.macro_f1":  { "type": ["number", "null"] },
+    "metrics.nn_dist_mean":         { "type": ["number", "null"] }
+  },
+  "additionalProperties": true
+}

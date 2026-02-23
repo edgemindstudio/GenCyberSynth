@@ -1,0 +1,119 @@
+# --- Python ---
+__pycache__/
+*.pyc
+.venv/
+env.from_history.yml
+conda-*.txt
+constraints-*.txt
+requirements.lock.txt
+
+# --- Editors/OS ---
+.DS_Store
+__MACOSX/
+
+# --- Project artifacts ---
+artifacts/
+artifacts_summary.csv
+phase1_summaries.jsonl
+
+# --- Slurm & logs ---
+*.out
+*.err
+logs/
+slurm/logs/
+gcs-*.out
+gcs-*.err
+gcs-suite.*.out
+gcs-suite.*.err
+hello.*.out
+hello.*.err
+
+# --- Backups / scratch ---
+.makefile_backups/
+Makefile.*.[0-9]*
+Makefile.backup.*
+Makefile.before-*
+Makefile.cleanup.*
+Makefile.restore-*
+Makefile.fix*
+
+# --- Local datasets / generated data ---
+USTC-TFC2016_malware/
+
+# --- Local backups / scratch ---
+artifacts.repo_backup.*/
+overrides/
+
+phase1_table.csv
+
+# artifacts symlink or dir
+artifacts
+
+# --- Local scratch / experiments ---
+hello.slurm
+hello_conda.slurm
+eval/runner.patched.py
+
+# Optional local presets (commit if you want them official)
+configs/config.gan_fast.yaml
+configs/config.gmm_stable.yaml
+
+# Local artifacts (do not commit)
+artifacts__local_*/
+
+# Slurm / cluster logs (keep out of git)
+*.out
+*.err
+gcs-suite.*.out
+gcs-suite.*.err
+slurm-tuning.*.out
+slurm-tuning.*.err
+
+# Local run dirs / artifacts
+logs/
+artifacts__local_*/
+artifacts.repo_backup.*
+
+# OS noise
+.DS_Store
+configs/_merged_*.yaml
+tree_share.txt
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Envs
+.venv/
+venv/
+.env
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Artifacts & logs (Rule A output)
+artifacts/
+logs/
+**/artifacts/
+**/logs/
+
+# Slurm
+slurm-*.out
+slurm-*.err
+*.out
+*.err
+
+# OS
+.DS_Store
+
+# Datasets (never commit)
+USTC-TFC2016_malware/
+data/raw/
+data/processed/

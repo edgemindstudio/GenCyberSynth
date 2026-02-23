@@ -1,0 +1,145 @@
+// schemas/dataset_fingerprint.schema.json
+
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "schemas/dataset_fingerprint.schema.json",
+  "title": "GenCyberSynth Dataset Fingerprint (dataset-scalable)",
+  "description": "A stable fingerprint describing one dataset instance and its REAL splits. Used to prevent accidental dataset drift across experiments. Recommended location: artifacts/datasets/<dataset_id>/fingerprint.json (or data/<dataset_id>/fingerprint.json).",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "dataset_id",
+    "dataset_root",
+    "format",
+    "image_shape",
+    "num_classes",
+    "splits"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "description": "Fingerprint schema version.",
+      "examples": ["dataset_fingerprint_v1"]
+    },
+    "created_at": {
+      "type": "string",
+      "description": "UTC ISO timestamp when the fingerprint was created.",
+      "examples": ["2026-02-08T11:03:44Z"]
+    },
+
+    "dataset_id": {
+      "type": "string",
+      "description": "Stable dataset identifier used for scalable artifacts layout.",
+      "examples": ["USTC-TFC2016_40x40_gray"]
+    },
+
+    "dataset_root": {
+      "type": "string",
+      "description": "Filesystem directory where the dataset was loaded from.",
+      "examples": ["data/ustc"]
+    },
+
+    "format": {
+      "type": "string",
+      "description": "Dataset loader format key (e.g., npy_ustc).",
+      "examples": ["npy_ustc", "image_folder", "hf_dataset"]
+    },
+
+    "image_shape": {
+      "type": "array",
+      "description": "Image shape [H, W, C] for this dataset.",
+      "items": { "type": "integer" },
+      "minItems": 3,
+      "maxItems": 3,
+      "examples": [[40, 40, 1]]
+    },
+
+    "num_classes": {
+      "type": "integer",
+      "minimum": 2,
+      "description": "Number of label classes.",
+      "examples": [9]
+    },
+
+    "label_names": {
+      "type": ["array", "null"],
+      "description": "Optional human-readable label names aligned with class ids.",
+      "items": { "type": "string" }
+    },
+
+    "file_map": {
+      "type": ["object", "null"],
+      "description": "Optional mapping of canonical split files (especially useful for npy datasets).",
+      "additionalProperties": { "type": "string" },
+      "examples": [
+        {
+          "train_data": "train_data.npy",
+          "train_labels": "train_labels.npy",
+          "test_data": "test_data.npy",
+          "test_labels": "test_labels.npy"
+        }
+      ]
+    },
+
+    "splits": {
+      "type": "object",
+      "description": "Split-specific fingerprints and counts.",
+      "required": ["train", "val", "test"],
+      "properties": {
+        "train": { "$ref": "#/definitions/split_fingerprint" },
+        "val":   { "$ref": "#/definitions/split_fingerprint" },
+        "test":  { "$ref": "#/definitions/split_fingerprint" }
+      },
+      "additionalProperties": true
+    },
+
+    "val_fraction": {
+      "type": ["number", "null"],
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "If the dataset provided only train/test, the fraction of test used as val."
+    },
+
+    "seed": {
+      "type": ["integer", "null"],
+      "description": "Split seed used when constructing val/test splits."
+    },
+
+    "notes": {
+      "type": ["string", "null"],
+      "description": "Optional freeform notes about dataset provenance."
+    }
+  },
+
+  "definitions": {
+    "split_fingerprint": {
+      "type": "object",
+      "required": ["count", "label_hist", "content_hash"],
+      "properties": {
+        "count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of samples in this split."
+        },
+        "label_hist": {
+          "type": "object",
+          "description": "Histogram of labels (string keys recommended for JSON compatibility).",
+          "additionalProperties": { "type": "integer" }
+        },
+        "content_hash": {
+          "type": "string",
+          "description": "Stable hash summarizing this split (e.g., sha256 over file hashes or sampled bytes)."
+        },
+        "paths": {
+          "type": ["array", "null"],
+          "description": "Optional list of source files contributing to this split (useful for npy datasets).",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+
+  "additionalProperties": true
+}
