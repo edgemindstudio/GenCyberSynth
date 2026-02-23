@@ -1,0 +1,12 @@
+[project]
+name = "gencysynth"
+version = "0.0.0"
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8",
+  "ruff",
+  "black",
+  "mypy",
+  "pre-commit",
+]
