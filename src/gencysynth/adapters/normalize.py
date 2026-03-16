@@ -55,6 +55,22 @@ def labels_to_onehot(y: np.ndarray, *, num_classes: int, dtype=np.float32) -> np
     out = np.zeros((len(ids), K), dtype=dtype)
     out[np.arange(len(ids)), ids] = 1.0
     return out
+    
+
+def ensure_onehot(y: np.ndarray, *, num_classes: int, dtype=np.float32) -> np.ndarray:
+    """
+    Ensure labels are one-hot (N,K). Accepts (N,) ints or (N,K) one-hot.
+    Thin wrapper for adapter code readability.
+    """
+    return labels_to_onehot(y, num_classes=num_classes, dtype=dtype)
+
+
+def ensure_int_labels(y: np.ndarray, *, num_classes: int) -> np.ndarray:
+    """
+    Ensure labels are integer ids (N,). Accepts (N,) ints or (N,K) one-hot.
+    Thin wrapper for adapter code readability.
+    """
+    return labels_to_int(y, num_classes=num_classes)
 
 
 # =============================================================================
@@ -87,6 +103,10 @@ def flatten_nhwc(x: np.ndarray, img_shape: Tuple[int, int, int]) -> np.ndarray:
     H, W, C = map(int, img_shape)
     return x.reshape((-1, H * W * C))
 
+
+def ensure_float32(x: np.ndarray) -> np.ndarray:
+    """Ensure array is float32 (no range scaling)."""
+    return np.asarray(x).astype(np.float32, copy=False)
 
 # =============================================================================
 # Ranges
@@ -124,6 +144,11 @@ def to_01(x: np.ndarray) -> np.ndarray:
         return np.clip((x + 1.0) / 2.0, 0.0, 1.0)
 
     return np.clip(x, 0.0, 1.0)
+    
+    
+def from_minus1_1(x: np.ndarray) -> np.ndarray:
+    """Alias: map [-1,1] (or [0,255]) to [0,1]."""
+    return to_01(x)
 
 
 # =============================================================================

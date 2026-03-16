@@ -61,3 +61,49 @@ def resolve_model_adapter(*, family: str, variant: str) -> ModelAdapter:
 def list_model_adapters() -> List[str]:
     """Return registered adapters as strings: ['family/variant', ...]."""
     return [f"{f}/{v}" for (f, v) in sorted(_REGISTRY.keys())]
+
+
+def register_builtin_adapters() -> None:
+    """
+    Import all built-in adapter family registries so they register variants.
+
+    This is deliberately best-effort: missing optional deps should not crash the CLI.
+    """
+    from gencysynth.adapters.registry import SKIPPED_IMPORTS
+
+    families = [
+        "autoregressive",
+        "diffusion",
+        "gan",
+        "gaussianmixture",
+        "maskedautoflow",
+        "restrictedboltzmann",
+        "vae",
+    ]
+
+    for fam in families:
+        mod = f"gencysynth.adapters.models.{fam}.registry"
+        try:
+            __import__(mod, fromlist=["*"])
+        except Exception as e:
+            SKIPPED_IMPORTS[mod] = f"{type(e).__name__}: {e}"
+            
+def register_builtin_adapters() -> None:
+    """
+    Import all adapter-family registry modules so they can register variants.
+
+    This is the single bootstrap entrypoint the CLI (or tests) should call.
+    """
+    import importlib
+
+    # Importing these modules triggers filesystem discovery + register_model_adapter(...)
+    for mod in [
+        "gencysynth.adapters.models.gan.registry",
+        "gencysynth.adapters.models.vae.registry",
+        "gencysynth.adapters.models.diffusion.registry",
+        "gencysynth.adapters.models.autoregressive.registry",
+        "gencysynth.adapters.models.gaussianmixture.registry",
+        "gencysynth.adapters.models.maskedautoflow.registry",
+        "gencysynth.adapters.models.restrictedboltzmann.registry",
+    ]:
+        importlib.import_module(mod)

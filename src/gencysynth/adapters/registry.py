@@ -18,7 +18,8 @@ from typing import Callable, Dict, List
 from .contracts import Adapter
 from .errors import AdapterNotFoundError
 
-
+# Public diagnostic: adapters skipped due to optional import failures.
+SKIPPED_IMPORTS: dict[str, str] = {}
 # A factory returns a new Adapter instance (avoid cross-run state leaks).
 AdapterFactory = Callable[[], Adapter]
 
@@ -54,3 +55,7 @@ def resolve_adapter(model_tag: str) -> Adapter:
 def list_adapters() -> List[str]:
     """Return registered model_tags (sorted)."""
     return sorted(_REGISTRY.keys())
+
+def make_adapter(model_tag: str) -> Adapter:
+    """CLI-friendly alias for resolve_adapter()."""
+    return resolve_adapter(model_tag)

@@ -9,7 +9,6 @@ This package contains:
 Variants register themselves under:
   gencysynth.adapters.models.registry (global registry)
 via this family's registry module.
-"""
 
 from .base import GANAdapterBase
 from .registry import (
@@ -22,3 +21,6 @@ __all__ = [
     "register_gan_variant",
     "import_gan_variants",
 ]
+"""
+
+# package marker (imports intentionally minimal)

@@ -13,6 +13,7 @@ datasets and multiple variants never collide.
 """
 
 from __future__ import annotations
+from dataclasses import dataclass
 
 from pathlib import Path
 from typing import Union
@@ -75,3 +76,94 @@ def ensure_run_dirs(run_paths: RunPaths, logs_paths: LogsPaths, eval_paths: Eval
 
     if eval_paths is not None:
         ensure_dir(eval_paths.root_dir)
+
+
+@dataclass(frozen=True)
+class RunIO:
+    """
+    Convenience wrapper holding canonical Rule-A paths for a single run.
+
+    This keeps adapter code clean:
+      io = RunIO(artifacts_root, dataset_id, model_tag, run_id)
+      io.ensure_dirs()
+      io.run_paths.manifest_path ...
+    """
+    artifacts_root: PathLike
+    dataset_id: str
+    model_tag: str
+    run_id: str
+
+    @property
+    def run_paths(self) -> RunPaths:
+        return resolve_run_paths(
+            artifacts_root=self.artifacts_root,
+            dataset_id=self.dataset_id,
+            model_tag=self.model_tag,
+            run_id=self.run_id,
+        )
+
+    @property
+    def logs_paths(self) -> LogsPaths:
+        return resolve_logs_paths(
+            artifacts_root=self.artifacts_root,
+            dataset_id=self.dataset_id,
+            model_tag=self.model_tag,
+            run_id=self.run_id,
+        )
+
+    @property
+    def eval_paths(self) -> EvalPaths:
+        return resolve_eval_paths(
+            artifacts_root=self.artifacts_root,
+            dataset_id=self.dataset_id,
+            model_tag=self.model_tag,
+            run_id=self.run_id,
+        )
+
+    def ensure_dirs(self, *, include_eval: bool = True) -> None:
+        """Create standard directories for this run."""
+        ensure_run_dirs(
+            self.run_paths,
+            self.logs_paths,
+            self.eval_paths if include_eval else None,
+        )
+
+    @classmethod
+    def from_run_ctx(cls, run_ctx) -> "RunIO":
+        """
+        Best-effort construction from a run_ctx object.
+
+        Expected attributes on run_ctx (common patterns):
+          - artifacts_root OR artifacts
+          - dataset_id
+          - model_tag
+          - run_id
+        """
+        # Try common attribute names
+        artifacts_root = getattr(run_ctx, "artifacts_root", None) or getattr(run_ctx, "artifacts", None)
+        dataset_id = getattr(run_ctx, "dataset_id", None)
+        model_tag = getattr(run_ctx, "model_tag", None)
+        run_id = getattr(run_ctx, "run_id", None)
+
+        missing = [k for k, v in {
+            "artifacts_root": artifacts_root,
+            "dataset_id": dataset_id,
+            "model_tag": model_tag,
+            "run_id": run_id,
+        }.items() if not v]
+
+        if missing:
+            raise ValueError(f"RunIO.from_run_ctx missing fields on run_ctx: {missing}")
+
+        return cls(
+            artifacts_root=artifacts_root,
+            dataset_id=str(dataset_id),
+            model_tag=str(model_tag),
+            run_id=str(run_id),
+        )
+
+__all__ = ["RunIO",
+           "resolve_run_paths",
+           "resolve_eval_paths",
+           "resolve_logs_paths",
+           "ensure_run_dirs"]

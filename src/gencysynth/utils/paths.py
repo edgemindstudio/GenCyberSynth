@@ -113,6 +113,27 @@ def resolve_eval_paths(
     )
 
 
+def resolve_run_manifest_paths(
+    *,
+    artifacts_root: Union[str, Path],
+    dataset_id: str,
+    model_tag: str,
+    run_id: str,
+) -> RunPaths:
+    """
+    Back-compat alias for code that only needs the per-run manifest path.
+
+    Returns a RunPaths object, which includes:
+      - .manifest_path  (the manifest.json Path)
+    """
+    return resolve_run_paths(
+        artifacts_root=artifacts_root,
+        dataset_id=dataset_id,
+        model_tag=model_tag,
+        run_id=run_id,
+    )
+
+
 # =============================================================================
 # 2) Run outputs (training + sampling)
 # =============================================================================
@@ -207,6 +228,7 @@ __all__ = [
     "resolve_eval_paths",
     "RunPaths",
     "resolve_run_paths",
+    "resolve_run_manifest_paths",
     "LogsPaths",
     "resolve_logs_paths",
 ]

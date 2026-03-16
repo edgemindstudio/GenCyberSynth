@@ -70,18 +70,18 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
+from gencysynth.adapters.models.registry import register_builtin_adapters
+register_builtin_adapters()
+
 # ----------------------------
 # Local imports (repo modules)
 # ----------------------------
 # Keep these imports "thin": the registry should lazy-import heavy model code.
 from gencysynth.adapters.registry import SKIPPED_IMPORTS, list_adapters, make_adapter
-from gencysynth.eval.runner import evaluate_model_suite
 from gencysynth.models.registry import register_builtin_models
-register_builtin_models()
-from gencysynth.models.registry import make_model_from_config
-model = make_model_from_config(cfg)
-
-
+# somewhere during runtime init:
+from gencysynth.adapters.models.registry import register_builtin_adapters
+register_builtin_adapters()
 # Optional dependency: only required when a config path is provided.
 try:
     import yaml  # type: ignore
@@ -611,6 +611,7 @@ def cmd_eval(args: argparse.Namespace) -> int:
     Audit requirement:
       Ensure eval summary writing copies cfg["run_meta"] for provenance.
     """
+    from gencysynth.eval.runner import evaluate_model_suite
     cfg = load_config(args.config)
 
     if args.overrides:
@@ -648,19 +649,35 @@ def cmd_eval(args: argparse.Namespace) -> int:
 
 
 def cmd_list(_: argparse.Namespace) -> int:
-    """List registered adapters and any adapters skipped due to import errors."""
+    """List registered adapters (global + model-adapters) and any skipped imports."""
+    # Global adapter registry (older path)
     names = list_adapters()
     if not names:
-        _info("No adapters registered.")
+        _info("No global adapters registered.")
     else:
-        _info("Registered adapters:")
+        _info("Registered global adapters:")
         for n in names:
             print(f"  - {n}")
 
+    # Model adapter registry (family/variant) — this is what we use now
+    try:
+        from gencysynth.adapters.models.registry import list_model_adapters, register_builtin_adapters
+
+        register_builtin_adapters()
+        m = list_model_adapters()
+        if not m:
+            _info("No model adapters registered.")
+        else:
+            _info("Registered model adapters (family/variant):")
+            for x in m:
+                print(f"  - {x}")
+    except Exception as e:
+        _warn(f"Could not list model adapters: {type(e).__name__}: {e}")
+
     if SKIPPED_IMPORTS:
         _warn("Adapters skipped during import (non-fatal):")
-        for note in SKIPPED_IMPORTS:
-            print(f"  * {note}")
+        for k, v in SKIPPED_IMPORTS.items():
+            print(f"  * {k}: {v}")
 
     return 0
 
@@ -734,6 +751,8 @@ def main(argv: Optional[list[str]] = None) -> int:
       1 = general failure
       2 = bad config / missing resource / adapter not found
     """
+    # Ensure model registry is populated, but do it at runtime (not import-time).
+    register_builtin_models()
     parser = build_parser()
     args = parser.parse_args(argv)
     return args.func(args)  # type: ignore[attr-defined]

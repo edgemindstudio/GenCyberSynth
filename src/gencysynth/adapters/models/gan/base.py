@@ -6,7 +6,7 @@ Rule A responsibilities
 -----------------------
 A GAN adapter is responsible for:
 1) Training:
-   - consume DatasetSplits (train/val/test)
+   - consume DatasetSplits
    - write checkpoints and summaries under the run's artifact root (RunIO)
 2) Synthesis:
    - write evaluator contract files under run synthetic dir:
@@ -14,22 +14,80 @@ A GAN adapter is responsible for:
    - optionally write PNG galleries (run-scoped) if enabled
 
 This base class does NOT implement training/sampling itself.
-It only provides *consistent* paths, logging, and small helpers shared by GAN variants.
+It only provides consistent paths, logging, and small helpers shared by GAN variants.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Tuple
 
 import numpy as np
 
-from gencysynth.adapters.models.base import BaseModelAdapter, ModelAdapterSpec, TrainResult, SynthesizeResult
-from gencysynth.adapters.normalize import ensure_float32, ensure_nhwc, ensure_onehot, to_minus1_1, from_minus1_1
+from gencysynth.adapters.models.base import (
+    BaseModelAdapter,
+    ModelAdapterSpec,
+    TrainResult,
+    SynthesizeResult,
+)
+from gencysynth.adapters.normalize import (
+    ensure_float32,
+    ensure_onehot,
+    to_minus1_1,
+    to_01,
+)
 from gencysynth.adapters.run_io import RunIO
 from gencysynth.adapters.errors import AdapterContractError
 from gencysynth.adapters.datasets.splits import DatasetSplits
+
+
+def _ensure_nhwc_best_effort(x: np.ndarray, *, cfg: Dict[str, Any]) -> np.ndarray:
+    """
+    Best-effort ensure NHWC.
+
+    Accepts:
+      - (N,H,W,C) -> returned as-is
+      - (N, H*W*C) -> reshapes using cfg['dataset']['image_hw'] + channels=1 by default
+
+    Recommended config:
+      cfg['dataset']['image_hw'] = [H,W]
+      cfg['dataset']['channels'] = C
+    """
+    x = np.asarray(x)
+    if x.ndim == 4:
+        return x
+
+    if x.ndim == 2:
+        hw = cfg.get("dataset", {}).get("image_hw", [40, 40])
+        ch = cfg.get("dataset", {}).get("channels", 1)
+        try:
+            H, W = int(hw[0]), int(hw[1])
+            C = int(ch)
+        except Exception:
+            H, W, C = 40, 40, 1
+
+        D = H * W * C
+        if x.shape[1] != D:
+            raise AdapterContractError(
+                f"Flattened images have D={x.shape[1]} but expected H*W*C={D} "
+                f"from dataset.image_hw={hw}, channels={ch}."
+            )
+        return x.reshape((-1, H, W, C))
+
+    raise AdapterContractError(f"Expected images as (N,H,W,C) or (N,D). Got shape {x.shape}.")
+
+
+def _cfg_for_hw(x: np.ndarray) -> Dict[str, Any]:
+    """
+    Utility: derive dataset.image_hw + channels from an NHWC array (or fallback).
+    """
+    if x is None:
+        return {"dataset": {"image_hw": [40, 40], "channels": 1}}
+    arr = np.asarray(x)
+    if arr.ndim == 4:
+        H, W, C = int(arr.shape[1]), int(arr.shape[2]), int(arr.shape[3])
+        return {"dataset": {"image_hw": [H, W], "channels": C}}
+    return {"dataset": {"image_hw": [40, 40], "channels": 1}}
 
 
 class GANAdapterBase(BaseModelAdapter):
@@ -50,17 +108,23 @@ class GANAdapterBase(BaseModelAdapter):
     def _io(self, run_ctx: Any) -> RunIO:
         return self.run_io(run_ctx)
 
+    def _run_root(self, run_ctx: Any) -> Path:
+        return self._io(run_ctx).run_paths.root_dir
+
     def checkpoints_dir(self, run_ctx: Any) -> Path:
-        return self._io(run_ctx).checkpoints_dir(family="gan", variant=self.spec.variant)
+        return self._io(run_ctx).run_paths.checkpoints_dir
 
     def summaries_dir(self, run_ctx: Any) -> Path:
-        return self._io(run_ctx).summaries_dir(family="gan", variant=self.spec.variant)
+        # not in RunPaths by default; keep stable under run root
+        return self._run_root(run_ctx) / "summaries"
 
     def synthetic_dir(self, run_ctx: Any) -> Path:
-        return self._io(run_ctx).synthetic_dir(family="gan", variant=self.spec.variant)
+        # run-scoped synth contract dir
+        return self._run_root(run_ctx) / "synthetic"
 
     def plots_dir(self, run_ctx: Any) -> Path:
-        return self._io(run_ctx).plots_dir(family="gan", variant=self.spec.variant)
+        # optional plots/galleries
+        return self._run_root(run_ctx) / "plots"
 
     # -----------------------------
     # Input standardization
@@ -68,12 +132,23 @@ class GANAdapterBase(BaseModelAdapter):
     def standardize_train_inputs(self, cfg: Dict[str, Any], data: DatasetSplits) -> Tuple[np.ndarray, np.ndarray]:
         """
         Returns x_m11, y_onehot for GAN training.
-        GANs typically use tanh output, so we standardize to x in [-1,1].
+
+        GANs typically use tanh output, so we standardize images to [-1,1].
         """
-        x01, y1h = self._standardize_train_inputs(cfg, data)  # from BaseModelAdapter
-        y1h = ensure_onehot(y1h, num_classes=int(y1h.shape[1]))
-        x_m11 = to_minus1_1(x01)
-        return ensure_float32(ensure_nhwc(x_m11)), ensure_float32(y1h)
+        self._assert_basic(cfg, data)
+
+        x01 = ensure_float32(_ensure_nhwc_best_effort(data.train.x01, cfg=cfg))
+        y1h = ensure_float32(data.train.y_onehot)
+
+        if y1h.ndim != 2:
+            raise AdapterContractError(f"Expected train.y_onehot as (N,K); got {y1h.shape}")
+
+        K = int(y1h.shape[1])
+        y1h = ensure_onehot(y1h, num_classes=K)
+
+        x01 = to_01(x01)          # ensure in [0,1]
+        x_m11 = to_minus1_1(x01)  # map to [-1,1] for GAN training
+        return x_m11, y1h
 
     # -----------------------------
     # Contract writing helper
@@ -81,21 +156,30 @@ class GANAdapterBase(BaseModelAdapter):
     def write_synth_contract(self, out_dir: Path, x01: np.ndarray, y_onehot: np.ndarray) -> SynthesizeResult:
         """
         Write evaluator-friendly synthetic outputs to out_dir.
+        Enforces:
+          x01 in [0,1] NHWC
+          y_onehot in (N,K)
         """
         out_dir.mkdir(parents=True, exist_ok=True)
-        x01 = ensure_float32(ensure_nhwc(x01))
+
+        x01 = ensure_float32(_ensure_nhwc_best_effort(x01, cfg=_cfg_for_hw(x01)))
+        x01 = to_01(x01)
+
         y1h = ensure_float32(y_onehot)
         if y1h.ndim != 2:
             raise AdapterContractError(f"Expected y_onehot (N,K), got {y1h.shape}")
+
+        K = int(y1h.shape[1])
+        y1h = ensure_onehot(y1h, num_classes=K)
         y_int = np.argmax(y1h, axis=1).astype(np.int32)
 
         # Per-class dumps
-        K = int(y1h.shape[1])
         for k in range(K):
             idx = (y_int == k)
             np.save(out_dir / f"gen_class_{k}.npy", x01[idx])
             np.save(out_dir / f"labels_class_{k}.npy", np.full((int(idx.sum()),), k, dtype=np.int32))
 
+        # Global dumps
         x_path = out_dir / "x_synth.npy"
         y_path = out_dir / "y_synth.npy"
         np.save(x_path, x01)
@@ -107,6 +191,9 @@ class GANAdapterBase(BaseModelAdapter):
     # Public adapter API
     # -----------------------------
     def train(self, run_ctx: Any, cfg: Dict[str, Any], data: DatasetSplits) -> TrainResult:
+        io = self._io(run_ctx)
+        io.ensure_dirs(include_eval=False)
+
         ckpt_dir = self.checkpoints_dir(run_ctx)
         sum_dir = self.summaries_dir(run_ctx)
         ckpt_dir.mkdir(parents=True, exist_ok=True)
@@ -115,9 +202,20 @@ class GANAdapterBase(BaseModelAdapter):
         x_m11, y1h = self.standardize_train_inputs(cfg, data)
         self.log(run_ctx, "train", f"{self.spec.family}/{self.spec.variant}: x {x_m11.shape} in [-1,1], y {y1h.shape}")
 
-        return self._train_impl(run_ctx, cfg, data, x_m11=x_m11, y_onehot=y1h, ckpt_dir=ckpt_dir, summaries_dir=sum_dir)
+        return self._train_impl(
+            run_ctx,
+            cfg,
+            data,
+            x_m11=x_m11,
+            y_onehot=y1h,
+            ckpt_dir=ckpt_dir,
+            summaries_dir=sum_dir,
+        )
 
     def synthesize(self, run_ctx: Any, cfg: Dict[str, Any], data: DatasetSplits) -> SynthesizeResult:
+        io = self._io(run_ctx)
+        io.ensure_dirs(include_eval=False)
+
         out_dir = self.synthetic_dir(run_ctx)
         out_dir.mkdir(parents=True, exist_ok=True)
         self.log(run_ctx, "synth", f"{self.spec.family}/{self.spec.variant}: writing synth to {out_dir}")
