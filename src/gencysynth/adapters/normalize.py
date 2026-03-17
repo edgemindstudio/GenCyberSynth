@@ -73,6 +73,22 @@ def ensure_int_labels(y: np.ndarray, *, num_classes: int) -> np.ndarray:
     return labels_to_int(y, num_classes=num_classes)
 
 
+def ensure_onehot(y: np.ndarray, *, num_classes: int, dtype=np.float32) -> np.ndarray:
+    """
+    Ensure labels are one-hot (N,K). Accepts (N,) ints or (N,K) one-hot.
+    Thin wrapper for adapter code readability.
+    """
+    return labels_to_onehot(y, num_classes=num_classes, dtype=dtype)
+
+
+def ensure_int_labels(y: np.ndarray, *, num_classes: int) -> np.ndarray:
+    """
+    Ensure labels are integer ids (N,). Accepts (N,) ints or (N,K) one-hot.
+    Thin wrapper for adapter code readability.
+    """
+    return labels_to_int(y, num_classes=num_classes)
+
+
 # =============================================================================
 # Shapes
 # =============================================================================
@@ -146,6 +162,11 @@ def to_01(x: np.ndarray) -> np.ndarray:
     return np.clip(x, 0.0, 1.0)
     
     
+def from_minus1_1(x: np.ndarray) -> np.ndarray:
+    """Alias: map [-1,1] (or [0,255]) to [0,1]."""
+    return to_01(x)
+
+
 def from_minus1_1(x: np.ndarray) -> np.ndarray:
     """Alias: map [-1,1] (or [0,255]) to [0,1]."""
     return to_01(x)

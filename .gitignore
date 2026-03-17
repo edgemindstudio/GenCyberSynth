@@ -117,3 +117,6 @@ slurm-*.err
 USTC-TFC2016_malware/
 data/raw/
 data/processed/
+
+uv.lock
+

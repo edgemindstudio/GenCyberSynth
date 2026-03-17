@@ -69,6 +69,13 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
+from gencysynth.adapters.models.registry import register_builtin_adapters, resolve_model_adapter
+from gencysynth.data.datasets.registry import make_dataset_from_config
+from gencysynth.adapters.datasets.splits import DatasetSplits  # used below
+from gencysynth.utils.paths import resolve_run_paths, ensure_dir
+
+from gencysynth.adapters.models.registry import register_builtin_adapters
+register_builtin_adapters()
 
 from gencysynth.adapters.models.registry import register_builtin_adapters
 register_builtin_adapters()
@@ -550,14 +557,98 @@ def cmd_synth(args: argparse.Namespace) -> int:
     _info(f"Config         : {args.config or '<defaults>'}")
     _info(f"Artifacts      : {artifacts_root(cfg, args.artifacts)}")
 
-    try:
-        adapter = make_adapter(akey)
-    except KeyError as e:
-        _err(str(e))
-        _info(f"Registered adapters: {', '.join(list_adapters()) or '<none>'}")
-        if SKIPPED_IMPORTS:
-            _warn("Some adapters failed to import (non-fatal for others):\n  - " + "\n  - ".join(SKIPPED_IMPORTS))
+    # try:
+    #     adapter = make_adapter(akey)
+    # except KeyError as e:
+    #     _err(str(e))
+    #     _info(f"Registered adapters: {', '.join(list_adapters()) or '<none>'}")
+    #     if SKIPPED_IMPORTS:
+    #         _warn("Some adapters failed to import (non-fatal for others):\n  - " + "\n  - ".join(SKIPPED_IMPORTS))
+    #     return 2
+
+    # --- NEW: use model adapter registry ---
+    register_builtin_adapters()
+
+    if not variant:
+        _err("cmd_synth requires --variant for now (family-only synth not supported yet).")
         return 2
+
+    # Resolve a model adapter (family/variant)
+    try:
+        m_adapter = resolve_model_adapter(family=family, variant=variant)
+    except Exception as e:
+        _err(f"Could not resolve model adapter {family}/{variant}: {type(e).__name__}: {e}")
+        return 2
+
+    # Load dataset arrays
+    ds = make_dataset_from_config(cfg)
+    arrays = ds.load_arrays(cfg)
+
+    # Convert DatasetArrays -> DatasetSplits (you likely already have this helper)
+    # If you don't, we’ll add it next.
+    data = DatasetSplits.from_dataset_arrays(arrays)  # << we will implement if missing
+
+    # Build run identity + paths
+    dataset_id = cfg["dataset"]["id"]
+    seed = int(cfg.get("SEED", 42))
+    model_tag = f"{family}/{variant}"
+
+    rm = cfg.get("run_meta", {}) if isinstance(cfg.get("run_meta"), dict) else {}
+    cfg_variant = rm.get("config_variant") or rm.get("config_id") or "smoke"
+    run_id = rm.get("run_id") or f"{cfg_variant}_seed{seed}_pc{cfg.get('synth', {}).get('n_per_class', 0)}"
+
+    run_paths = resolve_run_paths(
+        artifacts_root=artifacts_root(cfg, args.artifacts),
+        dataset_id=dataset_id,
+        model_tag=model_tag,
+        run_id=run_id,
+    )
+    ensure_dir(run_paths.root_dir)
+    ensure_dir(run_paths.samples_dir)
+    ensure_dir(run_paths.checkpoints_dir)
+
+    # Minimal run_ctx the adapters can log with
+    class _RunCtx:
+        def __init__(self):
+            self.seed = seed
+            self.run_id = run_id
+            self.dataset_id = dataset_id
+            self.model_tag = model_tag
+            self.paths = run_paths
+
+        def log(self, stage, msg):
+            print(f"[{stage}] {msg}")
+
+    run_ctx = _RunCtx()
+
+    # Run synthesis
+    res = m_adapter.synthesize(run_ctx, cfg, data)
+
+    # Write a simple manifest.json that eval can read (paths + labels)
+    # We will implement a helper to build this from x_synth/y_synth or per-class files.
+    manifest = {
+        "model_tag": model_tag,
+        "dataset_id": dataset_id,
+        "run_id": run_id,
+        "seed": seed,
+        "paths": [],
+    }
+
+    # If your synth contract writes gen_class_k.npy, we can point to those,
+    # but your eval runner currently expects file paths to images.
+    # For now, we’ll treat contract as arrays and just record their locations.
+    manifest["synthetic"] = {
+        "synth_dir": res.synth_dir,
+        "x_path": res.x_path,
+        "y_path": res.y_path,
+    }
+
+    import json
+    with open(run_paths.manifest_path, "w") as f:
+        json.dump(manifest, f, indent=2)
+
+    _info(f"Wrote run manifest: {run_paths.manifest_path}")
+    return 0
 
     manifest = adapter.synth(cfg)
 

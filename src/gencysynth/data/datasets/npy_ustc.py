@@ -70,7 +70,13 @@ class NpyUSTCDataset(BaseDataset):
             description="USTC-TFC2016 malware images stored as .npy splits.",
         )
 
-    def load_arrays(self, *, config: Dict[str, Any]) -> DatasetArrays:
+    def load_arrays(self, config: Dict[str, Any] | None = None, **kwargs) -> DatasetArrays:
+        if config is None:
+            # Support callers that pass cfg via keyword "cfg" or "config"
+            config = kwargs.get("cfg") or kwargs.get("config")
+        if not isinstance(config, dict):
+            raise TypeError("NpyUSTCDataset.load_arrays expected a config dict (positional or keyword).")
+
         dcfg = self._dataset_cfg(config)
 
         raw_root = dcfg.get("raw_root") or dcfg.get("root") or dcfg.get("data_dir")
