@@ -9,17 +9,17 @@ As the repo scales to:
 - multiple dataset loaders/formats
 - multiple papers/suites and HPC sweeps
 
-...you need a fast way to sanity-check dataset configs and data loading without
+...you need a fast way to sanity_check dataset configs and data loading without
 running a full model pipeline.
 
 Commands provided
 -----------------
-1) dataset-info
+1) dataset_info
    - loads dataset implementation from registry via config["dataset"]["type"]
    - prints dataset identity + resolved input locations
    - optionally loads arrays for basic shape / count sanity
 
-2) dataset-cache-warm
+2) dataset_cache_warm
    - loads arrays once to warm any caching layer you implement
    - optionally writes dataset fingerprint to artifacts/datasets/<dataset_id>/fingerprint.json
 
@@ -68,7 +68,7 @@ def _pretty_kv(title: str, kv: Dict[str, Any]) -> str:
 
 
 # -----------------------------------------------------------------------------
-# dataset-info
+# dataset_info
 # -----------------------------------------------------------------------------
 def _cmd_dataset_info(args: argparse.Namespace) -> int:
     cfg = _load_yaml(args.config)
@@ -80,7 +80,7 @@ def _cmd_dataset_info(args: argparse.Namespace) -> int:
     raw_root = _cfg_get(cfg, "dataset.raw_root", None)
     artifacts_root = _cfg_get(cfg, "paths.artifacts", "artifacts")
 
-    print(_pretty_kv("[dataset-info] identity", {
+    print(_pretty_kv("[dataset_info] identity", {
         "dataset_id": dataset_id,
         "dataset_type": dataset_type,
         "raw_root": raw_root,
@@ -93,13 +93,20 @@ def _cmd_dataset_info(args: argparse.Namespace) -> int:
         try:
             desc = ds.describe(cfg)  # type: ignore[misc]
             if isinstance(desc, dict):
-                print(_pretty_kv("[dataset-info] describe()", desc))
+                print(_pretty_kv("[dataset_info] describe()", desc))
         except Exception as e:
-            print(f"[dataset-info] describe() failed: {type(e).__name__}: {e}")
+            print(f"[dataset_info] describe() failed: {type(e).__name__}: {e}")
 
     if args.load:
-        print("[dataset-info] loading arrays (this may take time depending on dataset size)...")
-        splits = ds.load_arrays(cfg)  # expected to return something dict-like in your design
+        print("[dataset_info] loading arrays (this may take time depending on dataset size)...")
+
+        # Load arrays: support both signatures:
+        #   - load_arrays(self)
+        #   - load_arrays(self, cfg)
+        try:
+            splits = ds.load_arrays(cfg)  # newer style
+        except TypeError:
+            splits = ds.load_arrays()  # older style
 
         # Be flexible: support either dict {"train": (x,y), ...} or a typed object.
         try:
@@ -113,36 +120,42 @@ def _cmd_dataset_info(args: argparse.Namespace) -> int:
                     else:
                         print(f"  - {k}: {type(v).__name__}")
             else:
-                print(f"[dataset-info] splits type: {type(splits).__name__}")
+                print(f"[dataset_info] splits type: {type(splits).__name__}")
         except Exception as e:
-            print(f"[dataset-info] could not summarize splits: {type(e).__name__}: {e}")
+            print(f"[dataset_info] could not summarize splits: {type(e).__name__}: {e}")
 
     return 0
 
 
 # -----------------------------------------------------------------------------
-# dataset-cache-warm
+# dataset_cache_warm
 # -----------------------------------------------------------------------------
 def _cmd_dataset_cache_warm(args: argparse.Namespace) -> int:
     cfg = _load_yaml(args.config)
     ds = make_dataset_from_config(cfg)
 
-    print("[dataset-cache-warm] loading arrays once to warm cache...")
-    _ = ds.load_arrays(cfg)
-    print("[dataset-cache-warm] done loading.")
+    print("[dataset_cache_warm] loading arrays once to warm cache...")
+    # Load arrays: support both signatures:
+    #   - load_arrays(self)
+    #   - load_arrays(self, cfg)
+    try:
+        _ = ds.load_arrays(cfg)
+    except TypeError:
+        _ = ds.load_arrays()
+    print("[dataset_cache_warm] done loading.")
 
     if args.write_fingerprint:
-        # Fingerprint is optional — don’t hard-crash if not implemented yet.
+        # Fingerprint is optional — don’t hard_crash if not implemented yet.
         try:
             from gencysynth.data.fingerprint import compute_dataset_fingerprint
             from gencysynth.data.fingerprint_writer import write_dataset_fingerprint
         except Exception as e:
-            print(f"[dataset-cache-warm] fingerprint modules unavailable: {type(e).__name__}: {e}")
+            print(f"[dataset_cache_warm] fingerprint modules unavailable: {type(e).__name__}: {e}")
             return 0
 
-        fp = compute_dataset_fingerprint(cfg, ds)  # type: ignore[arg-type]
+        fp = compute_dataset_fingerprint(cfg, ds)  # type: ignore[arg_type]
         out_path = write_dataset_fingerprint(cfg, fp)
-        print(f"[dataset-cache-warm] wrote fingerprint -> {out_path}")
+        print(f"[dataset_cache_warm] wrote fingerprint -> {out_path}")
 
     return 0
 
@@ -152,14 +165,14 @@ def _cmd_dataset_cache_warm(args: argparse.Namespace) -> int:
 # -----------------------------------------------------------------------------
 def register_dataset_subcommands(subparsers: argparse._SubParsersAction) -> None:
     """
-    Hook these dataset commands into the top-level CLI.
+    Hook these dataset commands into the top_level CLI.
 
     Your main CLI should call:
         register_dataset_subcommands(subparsers)
     """
-    # dataset-info
+    # dataset_info
     p_info = subparsers.add_parser(
-        "dataset-info",
+        "dataset_info",
         help="Print dataset identity + resolved paths; optionally load arrays for sanity checks.",
     )
     p_info.add_argument("--config", required=True, help="Path to YAML config.")
@@ -170,14 +183,14 @@ def register_dataset_subcommands(subparsers: argparse._SubParsersAction) -> None
     )
     p_info.set_defaults(func=_cmd_dataset_info)
 
-    # dataset-cache-warm
+    # dataset_cache_warm
     p_warm = subparsers.add_parser(
-        "dataset-cache-warm",
+        "dataset_cache_warm",
         help="Load dataset once to warm cache; optionally write fingerprint.",
     )
     p_warm.add_argument("--config", required=True, help="Path to YAML config.")
     p_warm.add_argument(
-        "--write-fingerprint",
+        "--write_fingerprint",
         action="store_true",
         help="Write artifacts/datasets/<dataset_id>/fingerprint.json (requires fingerprint modules).",
     )
@@ -185,10 +198,10 @@ def register_dataset_subcommands(subparsers: argparse._SubParsersAction) -> None
 
     # Optional: list known dataset types
     p_list = subparsers.add_parser(
-        "dataset-types",
+        "dataset_types",
         help="List dataset.type tokens recognized by the registry.",
     )
-    p_list.set_defaults(func=lambda _args: (print(_pretty_kv("[dataset-types]", known_dataset_types())) or 0))
+    p_list.set_defaults(func=lambda _args: (print(_pretty_kv("[dataset_types]", known_dataset_types())) or 0))
 
 
 __all__ = ["register_dataset_subcommands"]

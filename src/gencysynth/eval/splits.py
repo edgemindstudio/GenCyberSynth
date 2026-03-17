@@ -1,16 +1,16 @@
 # src/gencysynth/eval/splits.py
 """
-GenCyberSynth — Real Dataset Splits (dataset-scalable)
+GenCyberSynth — Real Dataset Splits (dataset_scalable)
 =====================================================
 
 Purpose
 -------
 This module provides **one place** to resolve and load REAL dataset splits in a
-multi-dataset GenCyberSynth repo.
+multi_dataset GenCyberSynth repo.
 
 Why this exists
 ---------------
-In the legacy repo, many scripts assumed a single dataset folder and hard-coded
+In the legacy repo, many scripts assumed a single dataset folder and hard_coded
 filenames like `train_data.npy`. GenCyberSynth now supports **multiple datasets**,
 so we need a consistent, scalable way to:
 
@@ -19,13 +19,13 @@ so we need a consistent, scalable way to:
 3) Provide small helpers to:
    - convert labels to integer ids
    - create val/test splits if the dataset provides only train/test
-   - create *per-class capped* subsets (used by FID/cFID/KID protocols)
+   - create *per_class capped* subsets (used by FID/cFID/KID protocols)
 
 Design principles
 -----------------
 - This module **is allowed to read from disk** (unlike eval_common.py).
 - It should be robust: clear errors, helpful messages, safe defaults.
-- It is dataset-scalable: dataset_id + dataset.root drive everything.
+- It is dataset_scalable: dataset_id + dataset.root drive everything.
 - It does NOT assume a single data format; a simple "format" switch enables growth.
 
 Expected config contract (recommended)
@@ -35,7 +35,7 @@ paths:
   data_root: "data"              # optional global base directory for datasets
 
 dataset:
-  id: "USTC-TFC2016_40x40_gray"  # REQUIRED for scalable artifacts layout
+  id: "USTC_TFC2016_40x40_gray"  # REQUIRED for scalable artifacts layout
   root: "data/ustc"              # directory containing dataset files
   format: "npy_ustc"             # dataset loader type
   image_shape: [40, 40, 1]       # H,W,C
@@ -51,7 +51,7 @@ dataset:
 Notes on dataset formats
 ------------------------
 Currently implemented:
-- "npy_ustc": the classic USTC-TFC2016-style quartet of .npy files.
+- "npy_ustc": the classic USTC_TFC2016_style quartet of .npy files.
 
 You can add additional formats later (e.g., "image_folder", "parquet", "hf_dataset")
 without touching eval_common.py — only update this module and data/loaders.py.
@@ -82,8 +82,8 @@ class RealSplits:
     Container for REAL splits (train/val/test).
 
     All images are float32 in [0,1] and NHWC. Labels are:
-    - y_*_int: (N,) int class ids in [0..K-1]
-    - y_*_oh:  (N,K) float32 one-hot (optional; computed on demand)
+    - y_*_int: (N,) int class ids in [0..K_1]
+    - y_*_oh:  (N,K) float32 one_hot (optional; computed on demand)
     """
     dataset_id: str
     img_shape: Tuple[int, int, int]
@@ -105,7 +105,7 @@ class RealSplits:
 @dataclass(frozen=True)
 class FidCapSelection:
     """
-    Indices of per-class capped subsets used for FID/cFID/KID protocols.
+    Indices of per_class capped subsets used for FID/cFID/KID protocols.
     """
     cap_per_class: int
     seed: int
@@ -130,8 +130,8 @@ def _resolve_dataset_id(cfg: Dict[str, Any]) -> str:
     dsid = _cfg_get(cfg, "dataset.id", None)
     if isinstance(dsid, str) and dsid.strip():
         return dsid.strip()
-    # We avoid hard-crashing here because some legacy scripts may not supply it.
-    # But: multi-dataset scaling REALLY wants a stable dataset_id.
+    # We avoid hard_crashing here because some legacy scripts may not supply it.
+    # But: multi_dataset scaling REALLY wants a stable dataset_id.
     return "unknown_dataset"
 
 
@@ -173,7 +173,7 @@ def _resolve_img_shape(cfg: Dict[str, Any]) -> Tuple[int, int, int]:
 def _resolve_num_classes(cfg: Dict[str, Any]) -> int:
     k = _cfg_get(cfg, "dataset.num_classes", None)
     if k is None:
-        # default for USTC-TFC2016 malware classes in your project
+        # default for USTC_TFC2016 malware classes in your project
         return 9
     return int(k)
 
@@ -216,7 +216,7 @@ def _to_int_labels(y: np.ndarray) -> np.ndarray:
 
 
 # =============================================================================
-# Public API: load REAL splits (dataset-scalable)
+# Public API: load REAL splits (dataset_scalable)
 # =============================================================================
 def load_real_splits(cfg: Dict[str, Any]) -> RealSplits:
     """
@@ -272,7 +272,7 @@ def load_real_splits(cfg: Dict[str, Any]) -> RealSplits:
     xva = to_01_hwc(xva, img_shape)
     xte = to_01_hwc(xte, img_shape)
 
-    # Labels -> int ids (callers can one-hot inside eval_common if needed)
+    # Labels -> int ids (callers can one_hot inside eval_common if needed)
     ytr_int = _to_int_labels(ytr)
     yva_int = _to_int_labels(yva)
     yte_int = _to_int_labels(yte)
@@ -300,7 +300,7 @@ def load_real_splits(cfg: Dict[str, Any]) -> RealSplits:
 
 
 # =============================================================================
-# Public API: per-class capped selections (FID/cFID/KID protocol helper)
+# Public API: per_class capped selections (FID/cFID/KID protocol helper)
 # =============================================================================
 def select_per_class_cap(
     y_int: np.ndarray,
@@ -325,12 +325,12 @@ def select_per_class_cap(
     seed : int
         RNG seed for deterministic selection
     num_classes : Optional[int]
-        If provided, iterates classes 0..K-1 in stable order. Otherwise uses np.unique.
+        If provided, iterates classes 0..K_1 in stable order. Otherwise uses np.unique.
 
     Returns
     -------
     np.ndarray
-        1-D array of selected indices into the original arrays.
+        1_D array of selected indices into the original arrays.
     """
     y = _to_int_labels(y_int)
     cap = max(1, int(cap_per_class))
@@ -362,13 +362,13 @@ def make_fid_cap_selection(
     num_classes: Optional[int] = None,
 ) -> FidCapSelection:
     """
-    Build deterministic per-class capped index selections for:
+    Build deterministic per_class capped index selections for:
       - REAL validation subset
       - SYNTH subset
 
     This supports:
       - FID macro (pooled across selected indices)
-      - cFID per-class (computed class-by-class with same cap)
+      - cFID per_class (computed class_by_class with same cap)
       - KID (same pooled selection)
 
     Returns

@@ -1,6 +1,6 @@
 # src/gencysynth/adapters/models/autoregressive/__init__.py
 """
-Autoregressive family adapters (PixelCNN, PixelRNN, MADE-like, etc.).
+Autoregressive family adapters (PixelCNN, PixelRNN, MADE_like, etc.).
 
 
 from .base import AutoregressiveAdapterBase

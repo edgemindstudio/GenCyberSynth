@@ -4,8 +4,8 @@ Adapter registry.
 
 We resolve adapters by `model_tag` (Rule A key used everywhere):
   - "gan/dcgan"
-  - "vae/c-vae"
-  - "restrictedboltzmann/c-rbm-bernoulli"
+  - "vae/c_vae"
+  - "restrictedboltzmann/c_rbm_bernoulli"
 etc.
 
 This keeps orchestration totally generic: it doesn't need to import model code.
@@ -20,7 +20,7 @@ from .errors import AdapterNotFoundError
 
 # Public diagnostic: adapters skipped due to optional import failures.
 SKIPPED_IMPORTS: dict[str, str] = {}
-# A factory returns a new Adapter instance (avoid cross-run state leaks).
+# A factory returns a new Adapter instance (avoid cross_run state leaks).
 AdapterFactory = Callable[[], Adapter]
 
 _REGISTRY: Dict[str, AdapterFactory] = {}
@@ -57,5 +57,5 @@ def list_adapters() -> List[str]:
     return sorted(_REGISTRY.keys())
 
 def make_adapter(model_tag: str) -> Adapter:
-    """CLI-friendly alias for resolve_adapter()."""
+    """CLI_friendly alias for resolve_adapter()."""
     return resolve_adapter(model_tag)

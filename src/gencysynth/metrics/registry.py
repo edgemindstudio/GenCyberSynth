@@ -1,6 +1,6 @@
 # src/gencysynth/metrics/registry.py
 """
-Metric registry + default built-in metrics.
+Metric registry + default built_in metrics.
 
 Why a registry?
 ---------------
@@ -14,7 +14,7 @@ Default included metrics
 - sanity.basic_stats
 - distribution.pixel_hist_l1
 
-These are intentionally lightweight for smoke tests and quick end-to-end validation.
+These are intentionally lightweight for smoke tests and quick end_to_end validation.
 """
 
 from __future__ import annotations
@@ -34,7 +34,7 @@ class MetricRegistry:
 
     def register(self, name: str, metric: Metric) -> None:
         if not isinstance(name, str) or not name:
-            raise ValueError("Metric name must be a non-empty string.")
+            raise ValueError("Metric name must be a non_empty string.")
         if name in self._metrics:
             raise KeyError(f"Metric '{name}' is already registered.")
         self._metrics[name] = metric
@@ -52,7 +52,7 @@ class MetricRegistry:
 REGISTRY = MetricRegistry()
 
 # ---------------------------------------------------------------------
-# Default metrics (small, stable, smoke-test friendly)
+# Default metrics (small, stable, smoke_test friendly)
 # ---------------------------------------------------------------------
 class ShapeChecksMetric:
     """
@@ -92,7 +92,7 @@ class ShapeChecksMetric:
 
 class BasicStatsMetric:
     """
-    Basic pixel distribution statistics (mean/std/min/max) and optional per-class mean/std.
+    Basic pixel distribution statistics (mean/std/min/max) and optional per_class mean/std.
     """
     def __call__(
         self,
@@ -111,7 +111,7 @@ class BasicStatsMetric:
             "synth": global_stats(x_synth01),
         }
 
-        # If labels exist, include per-class mean/std summaries
+        # If labels exist, include per_class mean/std summaries
         if y_real is not None and y_synth is not None:
             details["real_per_class"] = per_class_mean(x_real01, y_real, num_classes=K)
             details["synth_per_class"] = per_class_mean(x_synth01, y_synth, num_classes=K)

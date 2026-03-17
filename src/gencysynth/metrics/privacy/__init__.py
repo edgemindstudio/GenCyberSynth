@@ -1,6 +1,6 @@
 # src/gencysynth/metrics/privacy/__init__.py
 """
-Privacy-oriented metrics for GenCyberSynth.
+Privacy_oriented metrics for GenCyberSynth.
 
 Rule A
 ------
@@ -12,7 +12,7 @@ Rule A
 
 Currently registered
 --------------------
-- privacy.nn_distance : nearest-neighbor distance from synthetic -> real in feature space.
+- privacy.nn_distance : nearest_neighbor distance from synthetic -> real in feature space.
 """
 
 from __future__ import annotations

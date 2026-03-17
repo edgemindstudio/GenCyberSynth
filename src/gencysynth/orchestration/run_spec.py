@@ -7,7 +7,7 @@ A RunSpec is a *portable, serializable* description of one execution unit:
   - which dataset to use (dataset_id + dataset config)
   - which model to run (model_tag + variant config)
   - what the run_id/seed is
-  - where outputs should be written (derived, not user-authored)
+  - where outputs should be written (derived, not user_authored)
   - optional sweep metadata (suite_id, grid_id, slurm task id, etc.)
 
 Why this exists
@@ -54,7 +54,7 @@ class RunSpec:
     cfg: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        """JSON-serializable dict (dataclass -> dict)."""
+        """JSON_serializable dict (dataclass -> dict)."""
         return asdict(self)
 
 

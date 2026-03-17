@@ -5,7 +5,7 @@ GenCyberSynth — Model Base Types (family/variant scalable)
 This module defines:
 - canonical model identity types (model_tag, run_id)
 - core interfaces for training and sampling
-- small, framework-agnostic records used across orchestration/eval
+- small, framework_agnostic records used across orchestration/eval
 
 Why this exists
 ---------------
@@ -22,7 +22,7 @@ Rule of the road
 Everything is keyed by:
     (dataset_id, model_tag, run_id)
 
-So all outputs are collision-free:
+So all outputs are collision_free:
     artifacts/runs/<dataset_id>/<model_tag>/<run_id>/...
     artifacts/eval/<dataset_id>/<model_tag>/<run_id>/...
     artifacts/logs/<dataset_id>/<model_tag>/<run_id>/...
@@ -31,7 +31,7 @@ Design goals
 ------------
 - Lightweight: no TensorFlow/PyTorch import required here.
 - Clear contracts: minimal methods so pipelines can treat models uniformly.
-- Flexible: supports both "train+sample" models and "sample-only" models.
+- Flexible: supports both "train+sample" models and "sample_only" models.
 """
 
 from __future__ import annotations
@@ -55,14 +55,14 @@ class RunContext:
     Canonical identity + output locations for a single run.
 
     This is the *single object* you can pass around to ensure every component
-    is writing under the correct dataset-scoped paths.
+    is writing under the correct dataset_scoped paths.
 
     Fields
     ------
     dataset_id:
-        Stable dataset identifier, e.g. "USTC-TFC2016_40x40_gray"
+        Stable dataset identifier, e.g. "USTC_TFC2016_40x40_gray"
     model_tag:
-        Variant-aware model tag, e.g. "gan/dcgan", "diffusion/ddpm"
+        Variant_aware model tag, e.g. "gan/dcgan", "diffusion/ddpm"
     run_id:
         Stable run identifier for this (dataset_id, model_tag) run, e.g. "A_seed42"
     seed:
@@ -91,7 +91,7 @@ class TrainResult:
     """
     Minimal training result record.
 
-    NOTE: We keep this general; framework-specific artifacts (ckpts, weights)
+    NOTE: We keep this general; framework_specific artifacts (ckpts, weights)
     should live under RunContext.run_dir and be referenced via relative paths.
     """
     ok: bool
@@ -108,7 +108,7 @@ class SampleResult:
     This is designed to map cleanly to a run manifest written by orchestration:
       - num_generated
       - manifest_path
-      - optional per-class counts
+      - optional per_class counts
     """
     ok: bool
     message: str = ""
@@ -127,7 +127,7 @@ class GenModel(Protocol):
 
     A model implementation is expected to be a small wrapper around a training
     and sampling pipeline (TF/PyTorch/NumPy/etc.), but this Protocol is kept
-    framework-agnostic.
+    framework_agnostic.
 
     Required properties
     -------------------
@@ -156,7 +156,7 @@ class GenModel(Protocol):
 class SampleOnlyModel(Protocol):
     """
     Interface for models that only support sampling (no training in this repo),
-    e.g., pre-trained external generators or baseline samplers.
+    e.g., pre_trained external generators or baseline samplers.
     """
     model_tag: str
 
@@ -183,7 +183,7 @@ class ModelSpec:
     model_tag:
         Unique key used in config and artifacts: "gan/dcgan"
     family:
-        High-level family name: "gan", "vae", "diffusion"
+        High_level family name: "gan", "vae", "diffusion"
     variant:
         Variant name: "dcgan", "wgangp", "ddpm"
     impl:

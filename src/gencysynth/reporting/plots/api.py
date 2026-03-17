@@ -1,11 +1,11 @@
 # src/gencysynth/reporting/plots/api.py
 """
-Run-level plotting API.
+Run_level plotting API.
 
 This is the orchestrator layer that:
-1) Resolves run_dir (artifact location) in a dataset-agnostic manner.
+1) Resolves run_dir (artifact location) in a dataset_agnostic manner.
 2) Loads plot configuration (defaults.yaml + overrides).
-3) Delegates per-group plotting to group modules (core/, imbalance/, etc.).
+3) Delegates per_group plotting to group modules (core/, imbalance/, etc.).
 4) Writes plots under run_dir/reporting/plots/<group>/...
 
 Rule A constraints
@@ -21,7 +21,7 @@ This file is designed to be called by your orchestrator / CLI, e.g.:
   from gencysynth.reporting.plots import plot_all
   plot_all(cfg, run_dir=".../artifacts/<dataset_id>/runs/<run_id>")
 
-If run_dir is omitted, it will attempt a best-effort resolution using cfg.
+If run_dir is omitted, it will attempt a best_effort resolution using cfg.
 """
 
 from __future__ import annotations
@@ -41,7 +41,7 @@ from .config import PlotConfig, load_plot_config
 def _read_json(path: Path) -> Dict[str, Any]:
     if not path.exists():
         return {}
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, "r", encoding="utf_8") as f:
         return json.load(f)
 
 
@@ -232,6 +232,6 @@ def write_plot_run_meta(
         "run_dir": str(run_dir_p),
         "plots_root": str(plots_root),
     }
-    with open(out, "w", encoding="utf-8") as f:
+    with open(out, "w", encoding="utf_8") as f:
         json.dump(payload, f, indent=2)
     return out

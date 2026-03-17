@@ -1,10 +1,10 @@
 # src/gencysynth/utility/metrics.py
 """
-Minimal, dependency-light classification metrics.
+Minimal, dependency_light classification metrics.
 
 Design goals
 ------------
-- NumPy-only (no sklearn dependency)
+- NumPy_only (no sklearn dependency)
 - Deterministic outputs suitable for writing into run summaries/manifests
 - Safe for small K (e.g., 9 malware classes) and smoke tests
 
@@ -68,7 +68,7 @@ def balanced_accuracy(y_true: np.ndarray, y_pred: np.ndarray, num_classes: int) 
 
 def f1_per_class(y_true: np.ndarray, y_pred: np.ndarray, num_classes: int) -> np.ndarray:
     """
-    Per-class F1 score. Returns float32 array of shape (K,) with NaN for undefined.
+    Per_class F1 score. Returns float32 array of shape (K,) with NaN for undefined.
     """
     cm = confusion_matrix(y_true, y_pred, num_classes=num_classes).astype(np.float64)
     tp = np.diag(cm)

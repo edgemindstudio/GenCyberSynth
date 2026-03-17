@@ -4,8 +4,8 @@ Fréchet Inception Distance (FID) metric plugin.
 
 Important note
 --------------
-Classic FID uses Inception activations. For your current repo goal (end-to-end
-sanity + scalable structure), this provides a *feature-agnostic FID*:
+Classic FID uses Inception activations. For your current repo goal (end_to_end
+sanity + scalable structure), this provides a *feature_agnostic FID*:
 
 - Default feature space is lightweight pixel features (see mmd._default_features)
 - Later you can replace the feature function with Inception features without
@@ -15,7 +15,7 @@ Math
 ----
 FID = ||mu_r - mu_s||^2 + Tr(Sigma_r + Sigma_s - 2 * sqrtm(Sigma_r * Sigma_s))
 
-We implement sqrtm using an eigen-based method with numerical safeguards.
+We implement sqrtm using an eigen_based method with numerical safeguards.
 """
 
 from __future__ import annotations
@@ -40,7 +40,7 @@ def _cov(x: np.ndarray) -> np.ndarray:
     return np.cov(x, rowvar=False)
 
 
-def _sqrtm_psd(A: np.ndarray, eps: float = 1e-10) -> np.ndarray:
+def _sqrtm_psd(A: np.ndarray, eps: float = 1e_10) -> np.ndarray:
     """
     Compute matrix square root for a PSD matrix using eigen decomposition.
     Adds small diagonal jitter for numerical stability.
@@ -129,7 +129,7 @@ class FIDMetric:
                 "max_samples": max_samples,
                 "n_real_used": int(fr.shape[0]),
                 "n_synth_used": int(fs.shape[0]),
-                "note": "FID computed on lightweight pixel features (smoke-test).",
+                "note": "FID computed on lightweight pixel features (smoke_test).",
             },
             status="ok",
         )

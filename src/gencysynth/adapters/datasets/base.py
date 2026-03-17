@@ -1,8 +1,8 @@
 # src/gencysynth/adapters/datasets/base.py
 """
-DatasetAdapter protocol (front-door for adapters).
+DatasetAdapter protocol (front_door for adapters).
 
-This module defines a stable, adapter-facing dataset interface.
+This module defines a stable, adapter_facing dataset interface.
 It is intentionally small so dataset formats can evolve behind it.
 
 Rule A
@@ -33,7 +33,7 @@ class DatasetSpec:
 @runtime_checkable
 class DatasetAdapter(Protocol):
     """
-    Adapter-facing dataset loader.
+    Adapter_facing dataset loader.
 
     Responsibilities
     ----------------
@@ -44,7 +44,7 @@ class DatasetAdapter(Protocol):
         * y_onehot float32
     - honor cfg (paths, split fractions, class mapping, etc.)
 
-    Non-responsibilities
+    Non_responsibilities
     --------------------
     - writing run artifacts (that belongs to orchestration / adapters)
     - computing dataset fingerprints (handled by gencysynth.data.fingerprint + schema writers)

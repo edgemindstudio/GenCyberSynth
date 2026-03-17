@@ -1,23 +1,23 @@
 # src/gencysynth/reporting/plots/imbalance/minority_focus.py
 """
-Minority-focus plots.
+Minority_focus plots.
 
 Goal
 ----
-When per-class metrics exist, focus on minority / hard classes:
-- show "worst-k" classes by F1 (or another chosen metric)
+When per_class metrics exist, focus on minority / hard classes:
+- show "worst_k" classes by F1 (or another chosen metric)
 - optionally compare real vs synthetic vs mixed if eval_summary includes multiple splits
 
 Data source
 -----------
-Best-effort extraction from eval_summary for a dict like:
+Best_effort extraction from eval_summary for a dict like:
   per_class:
     f1: {"0": 0.9, "1": 0.4, ...}
 or:
   per_class_metrics:
     {"0": {"f1": ...}, "1": {"f1": ...}}
 
-This module is intentionally tolerant because per-class layouts tend to evolve.
+This module is intentionally tolerant because per_class layouts tend to evolve.
 
 Rule A
 ------
@@ -50,7 +50,7 @@ def _cfg_get(d: Dict[str, Any], dotted: str, default=None):
 
 def _extract_per_class_metric(eval_summary: Dict[str, Any], metric_name: str) -> Optional[Dict[str, float]]:
     """
-    Best-effort extraction of per-class metric map: {class_id: value}.
+    Best_effort extraction of per_class metric map: {class_id: value}.
 
     Supported patterns:
     - eval_summary["per_class"][metric_name] = {"0": 0.1, ...}
@@ -92,9 +92,9 @@ def _extract_per_class_metric(eval_summary: Dict[str, Any], metric_name: str) ->
 
 def plot_minority_focus(ctx: PlotContext, out_dir: Path, cfg: PlotConfig, *, metric: str = "f1", worst_k: int = 5) -> List[Path]:
     """
-    Plot the worst-k classes by per-class metric (default: F1).
+    Plot the worst_k classes by per_class metric (default: F1).
 
-    If per-class metric data is absent, returns [].
+    If per_class metric data is absent, returns [].
     """
     out_dir.mkdir(parents=True, exist_ok=True)
 

@@ -9,7 +9,7 @@ Provide a small, predictable config layer used by all model variants so that:
 - defaults can be applied cleanly
 - dotted access works consistently
 - 'paths.*' normalization is standard
-- multi-dataset scaling is supported (data.root + optional data.dataset_id)
+- multi_dataset scaling is supported (data.root + optional data.dataset_id)
 
 This is intentionally lightweight: no Hydra/OmegaConf dependency.
 """
@@ -30,14 +30,14 @@ from gencysynth.utils.paths import find_repo_root, ensure_dir
 # -----------------------------
 def load_yaml(path: Path) -> Dict[str, Any]:
     path = Path(path)
-    with path.open("r", encoding="utf-8") as f:
+    with path.open("r", encoding="utf_8") as f:
         return yaml.safe_load(f) or {}
 
 
 def save_yaml(obj: Dict[str, Any], path: Path) -> None:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as f:
+    with path.open("w", encoding="utf_8") as f:
         yaml.safe_dump(obj, f, sort_keys=False)
 
 
@@ -69,14 +69,14 @@ def cfg_set(cfg: Dict[str, Any], dotted: str, value: Any) -> Dict[str, Any]:
 # -----------------------------
 def deep_merge(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Deep-merge dictionaries:
+    Deep_merge dictionaries:
     - dict values are merged recursively
-    - non-dict values are overridden
+    - non_dict values are overridden
     """
     out = deepcopy(base)
     for k, v in (override or {}).items():
         if isinstance(v, dict) and isinstance(out.get(k), dict):
-            out[k] = deep_merge(out[k], v)  # type: ignore[arg-type]
+            out[k] = deep_merge(out[k], v)  # type: ignore[arg_type]
         else:
             out[k] = v
     return out
@@ -111,12 +111,12 @@ def normalize_paths(cfg: Dict[str, Any]) -> Dict[str, Any]:
         artifacts: artifacts
         runs: artifacts/runs     (optional)
       data:
-        root: <dataset_root>     (e.g. USTC-TFC2016_malware)
-        dataset_id: <optional>   (stable slug/id for multi-dataset runs)
+        root: <dataset_root>     (e.g. USTC_TFC2016_malware)
+        dataset_id: <optional>   (stable slug/id for multi_dataset runs)
 
     Behavior:
     - ensure paths.artifacts exists (default: <repo_root>/artifacts)
-    - keep data.root as-is (relative roots are treated as repo-relative)
+    - keep data.root as_is (relative roots are treated as repo_relative)
     """
     repo = find_repo_root()
     cfg = dict(cfg)
@@ -137,7 +137,7 @@ def normalize_paths(cfg: Dict[str, Any]) -> Dict[str, Any]:
 
 def resolve_repo_relative_paths(cfg: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Convert known path-like fields into absolute paths for runtime reliability.
+    Convert known path_like fields into absolute paths for runtime reliability.
     (Still keeps original values in cfg; callers can choose what to write out.)
 
     Note: we intentionally only resolve a minimal set of fields.

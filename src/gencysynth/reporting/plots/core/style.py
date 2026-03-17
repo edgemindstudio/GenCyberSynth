@@ -21,7 +21,7 @@ import matplotlib as mpl
 
 def apply_plot_style(*, dpi: int = 200, fontsize: int = 10) -> None:
     """
-    Apply repo-wide plotting style.
+    Apply repo_wide plotting style.
 
     Notes
     -----

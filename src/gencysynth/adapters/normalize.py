@@ -6,7 +6,7 @@ Goal
 ----
 Adapters should standardize inputs/outputs at the boundary so model code can
 focus on modeling, not edge cases:
-- label formats (int vs one-hot)
+- label formats (int vs one_hot)
 - image shapes (flattened vs (H,W,C))
 - value ranges ([0,1] vs [-1,1])
 """
@@ -28,23 +28,23 @@ def labels_to_int(y: np.ndarray, *, num_classes: int) -> np.ndarray:
 
     Accepts:
       - (N,) integer labels
-      - (N,K) one-hot labels
+      - (N,K) one_hot labels
     """
     y = np.asarray(y)
     if y.ndim == 1:
         return y.astype(np.int64, copy=False)
     if y.ndim == 2 and y.shape[1] == int(num_classes):
         return np.argmax(y, axis=1).astype(np.int64)
-    raise ValueError(f"Expected labels (N,) ints or (N,{num_classes}) one-hot; got shape {y.shape}.")
+    raise ValueError(f"Expected labels (N,) ints or (N,{num_classes}) one_hot; got shape {y.shape}.")
 
 
 def labels_to_onehot(y: np.ndarray, *, num_classes: int, dtype=np.float32) -> np.ndarray:
     """
-    Convert labels to one-hot.
+    Convert labels to one_hot.
 
     Accepts:
       - (N,) integer labels
-      - (N,K) one-hot labels (returned as-is, dtype cast)
+      - (N,K) one_hot labels (returned as_is, dtype cast)
     """
     y = np.asarray(y)
     K = int(num_classes)
@@ -59,7 +59,7 @@ def labels_to_onehot(y: np.ndarray, *, num_classes: int, dtype=np.float32) -> np
 
 def ensure_onehot(y: np.ndarray, *, num_classes: int, dtype=np.float32) -> np.ndarray:
     """
-    Ensure labels are one-hot (N,K). Accepts (N,) ints or (N,K) one-hot.
+    Ensure labels are one_hot (N,K). Accepts (N,) ints or (N,K) one_hot.
     Thin wrapper for adapter code readability.
     """
     return labels_to_onehot(y, num_classes=num_classes, dtype=dtype)
@@ -67,7 +67,7 @@ def ensure_onehot(y: np.ndarray, *, num_classes: int, dtype=np.float32) -> np.nd
 
 def ensure_int_labels(y: np.ndarray, *, num_classes: int) -> np.ndarray:
     """
-    Ensure labels are integer ids (N,). Accepts (N,) ints or (N,K) one-hot.
+    Ensure labels are integer ids (N,). Accepts (N,) ints or (N,K) one_hot.
     Thin wrapper for adapter code readability.
     """
     return labels_to_int(y, num_classes=num_classes)
@@ -161,7 +161,7 @@ class NormalizedBatch:
 
     - x01: images in [0,1] shaped (N,H,W,C)
     - y_int: integer labels (N,)
-    - y_onehot: one-hot labels (N,K)
+    - y_onehot: one_hot labels (N,K)
     """
     x01: np.ndarray
     y_int: np.ndarray

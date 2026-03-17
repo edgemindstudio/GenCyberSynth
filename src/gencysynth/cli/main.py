@@ -3,7 +3,7 @@
 GenCyberSynth CLI (Unified Entry Point)
 ======================================
 
-This is the **single command-line entrypoint** for the GenCyberSynth dissertation repo.
+This is the **single command_line entrypoint** for the GenCyberSynth dissertation repo.
 It wires together three core layers:
 
 1) **Adapters** (src/gencysynth/adapters/)
@@ -28,9 +28,9 @@ This CLI exposes that identity explicitly via flags:
   --variant  (e.g., dcgan, wgan_gp)  [optional for families with only one implementation]
 
 The adapter registry should accept both patterns:
-  - make_adapter("gan")              (family-level adapter/router)
-  - make_adapter("gan:dcgan")        (variant-level adapter)
-  - make_adapter("gan/dcgan")        (variant-level adapter)
+  - make_adapter("gan")              (family_level adapter/router)
+  - make_adapter("gan:dcgan")        (variant_level adapter)
+  - make_adapter("gan/dcgan")        (variant_level adapter)
 Choose *one* canonical scheme and keep it consistent across the repo.
 
 I/O Conventions (Paths)
@@ -45,7 +45,7 @@ Synthesis outputs should be written to:
 
   <artifacts>/<family>/<variant>/synthetic/
       manifest.json                     (shared / latest)
-      <family>_<variant>_<CFG>_seed<SEED>/manifest.json    (per-run immutable copy)
+      <family>_<variant>_<CFG>_seed<SEED>/manifest.json    (per_run immutable copy)
 
 Evaluation outputs are written by the evaluator under:
 
@@ -55,7 +55,7 @@ Design Goals
 ------------
 - Lightweight imports: the CLI should start even if some model deps are missing.
 - Defensive behavior: missing configs or missing adapters => clear messages, no silent failure.
-- Audit-friendly: attach run_meta (config hash, git commit, caps, budgets).
+- Audit_friendly: attach run_meta (config hash, git commit, caps, budgets).
 
 """
 
@@ -76,7 +76,7 @@ register_builtin_adapters()
 # ----------------------------
 # Local imports (repo modules)
 # ----------------------------
-# Keep these imports "thin": the registry should lazy-import heavy model code.
+# Keep these imports "thin": the registry should lazy_import heavy model code.
 from gencysynth.adapters.registry import SKIPPED_IMPORTS, list_adapters, make_adapter
 from gencysynth.models.registry import register_builtin_models
 # somewhere during runtime init:
@@ -136,7 +136,7 @@ def load_config(path: Optional[str]) -> Dict[str, Any]:
         data = yaml.safe_load(f) or {}
 
     if not isinstance(data, dict):
-        _warn(f"Config loaded but top-level YAML is not a mapping/dict: {path}. Using defaults.")
+        _warn(f"Config loaded but top_level YAML is not a mapping/dict: {path}. Using defaults.")
         return {}
 
     return data
@@ -147,7 +147,7 @@ def deep_update(base: dict, upd: dict) -> dict:
     Recursively merge upd into base (dict->dict deep merge).
 
     - Dict values merge recursively.
-    - Non-dict values overwrite.
+    - Non_dict values overwrite.
     """
     for k, v in (upd or {}).items():
         if isinstance(v, dict) and isinstance(base.get(k), dict):
@@ -224,11 +224,11 @@ def _adapter_key(family: str, variant: Optional[str]) -> str:
 
 
 # =============================================================================
-# Manifest path helpers (shared + per-run)
+# Manifest path helpers (shared + per_run)
 # =============================================================================
 def _infer_config_variant(cfg: Dict[str, Any]) -> Optional[str]:
     """
-    Best-effort inference of config variant letter (A/B/...) from cfg["run_meta"].
+    Best_effort inference of config variant letter (A/B/...) from cfg["run_meta"].
 
     Priority:
       1) cfg["run_meta"]["config_variant"] (preferred)
@@ -266,14 +266,14 @@ def _shared_manifest_path(arts_root: str, family: str, variant: Optional[str]) -
 
 def _per_run_manifest_path(arts_root: str, family: str, variant: Optional[str], cfg: Dict[str, Any]) -> Optional[str]:
     """
-    Seed/config-specific immutable manifest copy:
+    Seed/config_specific immutable manifest copy:
 
       <artifacts>/<family>/<variant>/synthetic/<family>_<variant>_<CFG>_seed<SEED>/manifest.json
 
     Returns None if CFG/SEED cannot be determined.
 
     Notes:
-    - CFG is intended to separate "A/B" configs per family for tuning-lite.
+    - CFG is intended to separate "A/B" configs per family for tuning_lite.
     - SEED should be a single seed for this run (not the whole random_seeds list).
     """
     cfg_variant = _infer_config_variant(cfg)
@@ -349,7 +349,7 @@ def attach_run_meta(cfg: Dict[str, Any], args: argparse.Namespace) -> None:
     def _git_commit(repo_root: str) -> Optional[str]:
         try:
             return (
-                subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo_root)
+                subprocess.check_output(["git", "rev_parse", "HEAD"], cwd=repo_root)
                 .decode()
                 .strip()
             )
@@ -375,7 +375,7 @@ def attach_run_meta(cfg: Dict[str, Any], args: argparse.Namespace) -> None:
     except Exception:
         repo_root = os.getcwd()
 
-    # Pull commonly audited knobs (best-effort)
+    # Pull commonly audited knobs (best_effort)
     per_class_cap = None
     try:
         per_class_cap = cfg.get("evaluator", {}).get("per_class_cap", None)
@@ -414,7 +414,7 @@ def attach_run_meta(cfg: Dict[str, Any], args: argparse.Namespace) -> None:
 # =============================================================================
 def cmd_train(args: argparse.Namespace) -> int:
     """
-    Train a model (best-effort routing).
+    Train a model (best_effort routing).
 
     This CLI does not implement training. It imports the trainer module and calls:
       - main(argv)  OR
@@ -425,7 +425,7 @@ def cmd_train(args: argparse.Namespace) -> int:
           gencysynth.models.<family>.variants.<variant>.train
       - Else fallback:
           <family>.train   (legacy / external package style)
-          gencysynth.models.<family>.train  (if you later add family-level trainers)
+          gencysynth.models.<family>.train  (if you later add family_level trainers)
     """
     cfg = load_config(args.config)
 
@@ -483,13 +483,13 @@ def cmd_train(args: argparse.Namespace) -> int:
     if has_main:
         try:
             _info(f"Calling trainer.main(['--config', '{args.config}'])")
-            ret = mod.main(["--config", args.config])  # type: ignore[attr-defined]
+            ret = mod.main(["--config", args.config])  # type: ignore[attr_defined]
             return int(ret) if isinstance(ret, int) else 0
         except TypeError:
             # Some trainers accept dict config instead of argv
             try:
                 _info("Trainer main() signature mismatch. Falling back to main(config_dict).")
-                ret = mod.main(cfg)  # type: ignore[attr-defined]
+                ret = mod.main(cfg)  # type: ignore[attr_defined]
                 return int(ret) if isinstance(ret, int) else 0
             except Exception as e:
                 _err(f"Training failed: {type(e).__name__}: {e}")
@@ -501,13 +501,13 @@ def cmd_train(args: argparse.Namespace) -> int:
     # Else train(cfg)
     try:
         _info("Calling trainer.train(config_dict)")
-        ret = mod.train(cfg)  # type: ignore[attr-defined]
+        ret = mod.train(cfg)  # type: ignore[attr_defined]
         return int(ret) if isinstance(ret, int) else 0
     except TypeError:
-        # Some trainers accept argv-like input
+        # Some trainers accept argv_like input
         try:
             _info(f"Trainer train() signature mismatch. Falling back to train(['--config','{args.config}']).")
-            ret = mod.train(["--config", args.config])  # type: ignore[attr-defined]
+            ret = mod.train(["--config", args.config])  # type: ignore[attr_defined]
             return int(ret) if isinstance(ret, int) else 0
         except Exception as e:
             _err(f"Training failed: {type(e).__name__}: {e}")
@@ -524,10 +524,10 @@ def cmd_synth(args: argparse.Namespace) -> int:
     Flow:
       1) Load config (+ optional overrides)
       2) Resolve (family, variant) identity
-      3) Build adapter from registry (family-only or family+variant)
+      3) Build adapter from registry (family_only or family+variant)
       4) adapter.synth(cfg) -> returns manifest dict (adapter should also write manifest)
       5) Ensure shared manifest exists (copy if adapter didn't write it)
-      6) Write a per-run immutable manifest copy (CFG+SEED-specific)
+      6) Write a per_run immutable manifest copy (CFG+SEED_specific)
     """
     cfg = load_config(args.config)
 
@@ -556,17 +556,17 @@ def cmd_synth(args: argparse.Namespace) -> int:
         _err(str(e))
         _info(f"Registered adapters: {', '.join(list_adapters()) or '<none>'}")
         if SKIPPED_IMPORTS:
-            _warn("Some adapters failed to import (non-fatal for others):\n  - " + "\n  - ".join(SKIPPED_IMPORTS))
+            _warn("Some adapters failed to import (non_fatal for others):\n  - " + "\n  - ".join(SKIPPED_IMPORTS))
         return 2
 
     manifest = adapter.synth(cfg)
 
-    # ---- Manifest paths (shared + per-run) ----
+    # ---- Manifest paths (shared + per_run) ----
     arts = artifacts_root(cfg, args.artifacts)
     shared_path = _shared_manifest_path(arts, family, variant)
     per_run_path = _per_run_manifest_path(arts, family, variant, cfg)
 
-    # Expose these paths inside cfg for debugging / downstream tooling (non-breaking)
+    # Expose these paths inside cfg for debugging / downstream tooling (non_breaking)
     cfg.setdefault("paths", {})
     cfg["paths"]["shared_manifest_path"] = shared_path
     if per_run_path:
@@ -583,15 +583,15 @@ def cmd_synth(args: argparse.Namespace) -> int:
         except Exception as e:
             _warn(f"Could not save shared manifest copy to {shared_path}: {e}")
 
-    # ---- Also write per-run immutable manifest (CFG+SEED safety) ----
+    # ---- Also write per_run immutable manifest (CFG+SEED safety) ----
     if per_run_path and not os.path.exists(per_run_path):
         try:
             os.makedirs(os.path.dirname(per_run_path), exist_ok=True)
             with open(per_run_path, "w") as f:
                 json.dump(manifest, f, indent=2)
-            _info(f"Saved per-run manifest: {per_run_path}")
+            _info(f"Saved per_run manifest: {per_run_path}")
         except Exception as e:
-            _warn(f"Could not save per-run manifest copy to {per_run_path}: {e}")
+            _warn(f"Could not save per_run manifest copy to {per_run_path}: {e}")
 
     _info(f"Synthesis complete. Shared manifest: {shared_path}")
     return 0
@@ -602,7 +602,7 @@ def cmd_eval(args: argparse.Namespace) -> int:
     Evaluate a model using the evaluator runner.
 
     Assumptions:
-      - If --no-synth is NOT set, you should have already run `synth` so that:
+      - If --no_synth is NOT set, you should have already run `synth` so that:
           <artifacts>/<family>/<variant>/synthetic/manifest.json
         exists (or the adapter/evaluator handles missing manifests gracefully).
 
@@ -632,7 +632,7 @@ def cmd_eval(args: argparse.Namespace) -> int:
     _info(f"Adapter key     : {akey}")
     _info(f"Config          : {args.config or '<defaults>'}")
     _info(f"Artifacts       : {artifacts_root(cfg, args.artifacts)}")
-    _info(f"No-synth flag   : {args.no_synth}")
+    _info(f"No_synth flag   : {args.no_synth}")
 
     try:
         # NOTE: evaluate_model_suite currently takes a single "model_name".
@@ -649,7 +649,7 @@ def cmd_eval(args: argparse.Namespace) -> int:
 
 
 def cmd_list(_: argparse.Namespace) -> int:
-    """List registered adapters (global + model-adapters) and any skipped imports."""
+    """List registered adapters (global + model_adapters) and any skipped imports."""
     # Global adapter registry (older path)
     names = list_adapters()
     if not names:
@@ -675,7 +675,7 @@ def cmd_list(_: argparse.Namespace) -> int:
         _warn(f"Could not list model adapters: {type(e).__name__}: {e}")
 
     if SKIPPED_IMPORTS:
-        _warn("Adapters skipped during import (non-fatal):")
+        _warn("Adapters skipped during import (non_fatal):")
         for k, v in SKIPPED_IMPORTS.items():
             print(f"  * {k}: {v}")
 
@@ -732,7 +732,7 @@ def build_parser() -> argparse.ArgumentParser:
     add_identity_args(p_e)
     p_e.add_argument("--config", default="configs/config.yaml", help="Path to YAML config")
     p_e.add_argument("--artifacts", default=None, help="Override artifacts root directory")
-    p_e.add_argument("--no-synth", action="store_true", help="Skip metrics that require synthetic images")
+    p_e.add_argument("--no_synth", action="store_true", help="Skip metrics that require synthetic images")
     p_e.set_defaults(func=cmd_eval)
 
     # list
@@ -751,11 +751,11 @@ def main(argv: Optional[list[str]] = None) -> int:
       1 = general failure
       2 = bad config / missing resource / adapter not found
     """
-    # Ensure model registry is populated, but do it at runtime (not import-time).
+    # Ensure model registry is populated, but do it at runtime (not import_time).
     register_builtin_models()
     parser = build_parser()
     args = parser.parse_args(argv)
-    return args.func(args)  # type: ignore[attr-defined]
+    return args.func(args)  # type: ignore[attr_defined]
 
 
 if __name__ == "__main__":

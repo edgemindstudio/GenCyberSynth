@@ -1,10 +1,10 @@
 # src/gencysynth/adapters/models/__init__.py
 """
-Model adapters (front-door for orchestration).
+Model adapters (front_door for orchestration).
 
 Rule A intent
 -------------
-Orchestration should never import model-family internals directly.
+Orchestration should never import model_family internals directly.
 Instead it resolves a (family, variant) -> ModelAdapter and calls a stable API:
 
   adapter.train(run_ctx, cfg, dataset_splits) -> TrainResult

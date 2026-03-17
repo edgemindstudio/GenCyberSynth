@@ -54,7 +54,7 @@ def write_metric_result(paths: MetricsPaths, result: MetricResult) -> Path:
     """
     ensure_dir(paths.by_metric_dir)
     out = paths.by_metric_dir / f"{result.name}.json"
-    out.write_text(json.dumps(result.to_dict(), indent=2), encoding="utf-8")
+    out.write_text(json.dumps(result.to_dict(), indent=2), encoding="utf_8")
     return out
 
 
@@ -63,7 +63,7 @@ def write_summary(paths: MetricsPaths, payload: Dict[str, Any]) -> Path:
     Write summary.json.
     """
     ensure_dir(paths.root)
-    paths.summary_json.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    paths.summary_json.write_text(json.dumps(payload, indent=2), encoding="utf_8")
     return paths.summary_json
 
 
@@ -72,5 +72,5 @@ def append_event(paths: MetricsPaths, event: Dict[str, Any]) -> None:
     Append a single event to events.jsonl.
     """
     ensure_dir(paths.root)
-    with open(paths.events_jsonl, "a", encoding="utf-8") as f:
+    with open(paths.events_jsonl, "a", encoding="utf_8") as f:
         f.write(json.dumps(event) + "\n")

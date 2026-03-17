@@ -5,7 +5,7 @@ Imbalance plot group.
 This package contains plots that help diagnose class imbalance effects, such as:
 - class counts for REAL / SYNTH / MIXED
 - macro vs micro metric comparisons (e.g., F1, precision, recall)
-- minority-class focused views (e.g., worst-k classes)
+- minority_class focused views (e.g., worst_k classes)
 
 Rule A
 ------

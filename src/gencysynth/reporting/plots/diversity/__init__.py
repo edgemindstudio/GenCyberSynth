@@ -3,9 +3,9 @@
 Diversity plot group.
 
 This package contains plots that diagnose *diversity* of generated data, such as:
-- duplicates / near-duplicates rates
-- coverage-style summaries (how well synthetic spans real space)
-- nearest-neighbor distance summaries (useful for diversity + privacy diagnostics)
+- duplicates / near_duplicates rates
+- coverage_style summaries (how well synthetic spans real space)
+- nearest_neighbor distance summaries (useful for diversity + privacy diagnostics)
 
 Rule A
 ------
@@ -34,7 +34,7 @@ from .nn_distance import plot_nn_distance
 
 def make_plots(run_dir: Path, out_dir: Path, cfg: PlotConfig, raw_cfg: Dict[str, Any]) -> List[Path]:
     """
-    Diversity plot-group entrypoint used by reporting.plots.api.
+    Diversity plot_group entrypoint used by reporting.plots.api.
 
     Parameters
     ----------

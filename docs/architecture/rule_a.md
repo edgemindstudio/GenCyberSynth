@@ -14,32 +14,32 @@ A “run” is the atomic unit of reproducibility:
 This spec exists so we can:
 - add many datasets without changing code
 - add many model families/variants without changing evaluation/reporting
-- re-run a historical experiment and get the same structure
+- re_run a historical experiment and get the same structure
 - aggregate across runs reliably
 
 ---
 
 ## 1) Design Goals
 
-### G1 — Dataset-scalable
+### G1 — Dataset_scalable
 Artifacts MUST be namespaced by dataset identity (not just “data/” vs “USTC/”).
 Dataset identity must be stable across machines.
 
-### G2 — Run-scalable
+### G2 — Run_scalable
 Each run MUST have an isolated root folder keyed by a stable run id.
 Multiple runs must coexist without collisions.
 
-### G3 — Model-scalable
+### G3 — Model_scalable
 Model families/variants MUST be encoded in the artifact path so we can:
 - filter runs by family
 - group by variant
 - compare families across the same dataset
 
-### G4 — Orchestrator-first
+### G4 — Orchestrator_first
 The orchestrator owns the artifact root. Individual models never invent paths.
 Model code receives a `RunPaths`/`RunIO` object (or a resolved root path) and writes inside it.
 
-### G5 — Schema-backed
+### G5 — Schema_backed
 Canonical outputs are validated against JSON schemas:
 - run_manifest.schema.json
 - run_events.schema.jsonl
@@ -52,7 +52,7 @@ Canonical outputs are validated against JSON schemas:
 ## 2) Key Concepts
 
 ### 2.1 Dataset ID
-A short stable string (example: `ustc-tfc2016-npy`, `mnist`, `custom-folder-v1`).
+A short stable string (example: `ustc_tfc2016_npy`, `mnist`, `custom_folder_v1`).
 
 Dataset ID must map to:
 - dataset spec (shape, num_classes, splits)
@@ -71,8 +71,8 @@ A stable identifier derived from (at minimum):
 The run id must be deterministic when inputs are identical.
 
 ### 2.3 Family + Variant
-- family: high-level model family (gan, vae, diffusion, autoregressive, ...)
-- variant: the sub-implementation (dcgan, c-vae, c-ddpm, c-rbm-bernoulli, ...)
+- family: high_level model family (gan, vae, diffusion, autoregressive, ...)
+- variant: the sub_implementation (dcgan, c_vae, c_ddpm, c_rbm_bernoulli, ...)
 
 Adapters are responsible for mapping (family, variant) to the correct implementation.
 
@@ -182,7 +182,7 @@ Every successful run MUST produce:
   - file path
   - label
   - seed
-  - any per-item metadata
+  - any per_item metadata
 
 5) `eval/eval_summary.json`
 - canonical summary with:
@@ -195,7 +195,7 @@ Every successful run MUST produce:
 ### 4.2 Optional But Recommended
 - `code_hash.txt`
 - `environment.txt`
-- `metrics/features/*.npz` (for re-computing distribution metrics without re-encoding)
+- `metrics/features/*.npz` (for re_computing distribution metrics without re_encoding)
 - `reporting/plots/*`
 
 ---
@@ -234,7 +234,7 @@ Resolved config comes from ordered merges:
 2) `configs/datasets/<dataset>.yaml`
 3) `configs/families/<family>.yaml`
 4) `.../variants/<variant>/defaults.yaml`
-5) suite-level override (configs/suites/*.yaml)
+5) suite_level override (configs/suites/*.yaml)
 6) CLI overrides
 
 ### 6.2 Resolved config must be persisted
@@ -254,9 +254,9 @@ All synthetic outputs must be evaluatable uniformly:
 - `x_synth.npy`: float32, shape (N, H, W, C)
 - `y_synth.npy`: either
   - int labels shape (N,), or
-  - one-hot labels shape (N, K)
+  - one_hot labels shape (N, K)
 - values must be one of:
-  - [0, 1] for image-space metrics and saving PNGs
+  - [0, 1] for image_space metrics and saving PNGs
   - [-1, 1] is allowed internally but must be converted before writing
 
 ### 7.2 PNG contract (optional)
@@ -291,7 +291,7 @@ When adding a new model:
 
 ---
 
-## 10) Non-goals
+## 10) Non_goals
 
 Rule A does NOT require:
 - the same checkpoint format for every model

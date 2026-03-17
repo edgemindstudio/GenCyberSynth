@@ -1,6 +1,6 @@
 # src/gencysynth/utils/paths.py
 """
-GenCyberSynth — Path policy helpers (dataset-scalable)
+GenCyberSynth — Path policy helpers (dataset_scalable)
 ======================================================
 
 This module is the single source of truth for *where things live* on disk.
@@ -14,11 +14,11 @@ Everything is keyed by (dataset_id, model_tag, run_id) so artifacts never collid
     eval/<dataset_id>/<model_tag>/<run_id>/...
     logs/<dataset_id>/<model_tag>/<run_id>/...
     datasets/<dataset_id>/fingerprint.json      (dataset metadata)
-    reports/<dataset_id>/<suite_id>/...         (suite-level reports)
+    reports/<dataset_id>/<suite_id>/...         (suite_level reports)
 
 Key responsibility
 ------------------
-- Provide filesystem-safe slugging for keys used in paths.
+- Provide filesystem_safe slugging for keys used in paths.
 - Provide small dataclasses that describe standard output locations.
 - Make it easy to keep code consistent across models, orchestration, eval, and reporting.
 
@@ -48,7 +48,7 @@ def ensure_dir(path: Union[str, Path]) -> Path:
 
 def safe_slug(s: str, *, max_len: int = 120) -> str:
     """
-    Make a filesystem-friendly slug.
+    Make a filesystem_friendly slug.
 
     Keeps: alnum, '-', '_', '.', '/'
     Replaces everything else with '_'
@@ -81,8 +81,8 @@ class EvalPaths:
 
     Layout:
       artifacts/eval/<dataset_id>/<model_tag>/<run_id>/
-        - summary.jsonl   (append-only log, one record per evaluation call)
-        - summary.txt     (human-readable console block)
+        - summary.jsonl   (append_only log, one record per evaluation call)
+        - summary.txt     (human_readable console block)
         - latest.json     (optional; used by eval/runner.py)
     """
     root_dir: Path
@@ -98,7 +98,7 @@ def resolve_eval_paths(
     model_tag: str,
     run_id: str,
 ) -> EvalPaths:
-    """Resolve evaluation output paths under the dataset-scalable convention."""
+    """Resolve evaluation output paths under the dataset_scalable convention."""
     ar = Path(artifacts_root)
     ds = safe_slug(dataset_id)
     mt = safe_slug(model_tag)
@@ -121,7 +121,7 @@ def resolve_run_manifest_paths(
     run_id: str,
 ) -> RunPaths:
     """
-    Back-compat alias for code that only needs the per-run manifest path.
+    Back_compat alias for code that only needs the per_run manifest path.
 
     Returns a RunPaths object, which includes:
       - .manifest_path  (the manifest.json Path)
@@ -140,7 +140,7 @@ def resolve_run_manifest_paths(
 @dataclass(frozen=True)
 class RunPaths:
     """
-    Standard per-run output locations.
+    Standard per_run output locations.
 
     Layout:
       artifacts/runs/<dataset_id>/<model_tag>/<run_id>/
@@ -165,7 +165,7 @@ def resolve_run_paths(
     model_tag: str,
     run_id: str,
 ) -> RunPaths:
-    """Resolve run output paths under the dataset-scalable convention."""
+    """Resolve run output paths under the dataset_scalable convention."""
     ar = Path(artifacts_root)
     ds = safe_slug(dataset_id)
     mt = safe_slug(model_tag)
@@ -188,7 +188,7 @@ def resolve_run_paths(
 @dataclass(frozen=True)
 class LogsPaths:
     """
-    Standard run-scoped log locations.
+    Standard run_scoped log locations.
 
     Layout:
       artifacts/logs/<dataset_id>/<model_tag>/<run_id>/
@@ -207,7 +207,7 @@ def resolve_logs_paths(
     model_tag: str,
     run_id: str,
 ) -> LogsPaths:
-    """Resolve per-run log output paths under the dataset-scalable convention."""
+    """Resolve per_run log output paths under the dataset_scalable convention."""
     ar = Path(artifacts_root)
     ds = safe_slug(dataset_id)
     mt = safe_slug(model_tag)

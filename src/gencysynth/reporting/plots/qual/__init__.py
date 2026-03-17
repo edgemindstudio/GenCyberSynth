@@ -5,7 +5,7 @@ Qualitative plot group.
 This package produces *visual* artifacts to help humans quickly inspect:
 - sample quality
 - mode collapse / diversity issues
-- obvious leakage (near-copies) and artifacts
+- obvious leakage (near_copies) and artifacts
 
 Rule A
 ------
@@ -38,7 +38,7 @@ from .galleries import write_galleries
 
 def make_plots(run_dir: Path, out_dir: Path, cfg: PlotConfig, raw_cfg: Dict[str, Any]) -> List[Path]:
     """
-    Qual plot-group entrypoint used by reporting.plots.api.
+    Qual plot_group entrypoint used by reporting.plots.api.
 
     Parameters
     ----------

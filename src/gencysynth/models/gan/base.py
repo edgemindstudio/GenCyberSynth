@@ -1,9 +1,9 @@
 # src/gencysynth/models/gan/base.py
 """
-GenCyberSynth — GAN Family — Shared (non-variant) Helpers
+GenCyberSynth — GAN Family — Shared (non_variant) Helpers
 =======================================================
 
-This module is the *family-level* "glue" for GAN models.
+This module is the *family_level* "glue" for GAN models.
 
 Why this exists
 ---------------
@@ -133,12 +133,12 @@ def resolve_variant(cfg: Mapping[str, Any], *, default: str = "dcgan") -> str:
     Also supported:
       cfg["gan"]["variant"]
 
-    If missing, we default to `dcgan` so the family can run out-of-the-box.
+    If missing, we default to `dcgan` so the family can run out_of_the_box.
 
     IMPORTANT:
       - Orchestrator can also specify explicit adapter ids like "gan/dcgan"
         (that routing is handled at adapter registry level).
-      - This function is for *family-level* model routing when invoked as "gan".
+      - This function is for *family_level* model routing when invoked as "gan".
     """
     v = cfg_get(cfg, "model.variant", None)
     if isinstance(v, str) and v.strip():
@@ -196,11 +196,11 @@ def resolve_gan_family_root(cfg: Mapping[str, Any]) -> Path:
 
 def resolve_synth_root(cfg: Mapping[str, Any]) -> Path:
     """
-    Resolve the dataset-aware synthesis root directory:
+    Resolve the dataset_aware synthesis root directory:
 
       {artifacts}/synth/{dataset_id}
 
-    This is intentionally family-agnostic so all families share a consistent
+    This is intentionally family_agnostic so all families share a consistent
     "synth/<dataset_id>/" layout.
 
     Variants then write under:

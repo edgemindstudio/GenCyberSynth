@@ -6,10 +6,10 @@ Expected input
 --------------
 run_events.json is expected to contain a list of events OR a dict with an "events" list.
 Each event should have:
-  - "step" or "epoch" or "global_step" (x-axis)
+  - "step" or "epoch" or "global_step" (x_axis)
   - "scalars" dict or flat keys that include loss/metrics
 
-Because event formats vary across trainers, we implement best-effort parsing.
+Because event formats vary across trainers, we implement best_effort parsing.
 
 Rule A
 ------
@@ -125,7 +125,7 @@ def _collect_series(events: List[Dict[str, Any]]) -> Dict[str, Tuple[np.ndarray,
 
 def make_training_curves(ctx: PlotContext, out_dir: Path, cfg: PlotConfig) -> List[Path]:
     """
-    Write a small set of training-curve plots from run_events.
+    Write a small set of training_curve plots from run_events.
 
     Output files
     ------------
@@ -141,7 +141,7 @@ def make_training_curves(ctx: PlotContext, out_dir: Path, cfg: PlotConfig) -> Li
     if not series:
         return []
 
-    # Prefer "loss-like" keys first, then everything else.
+    # Prefer "loss_like" keys first, then everything else.
     preferred = []
     for k in series.keys():
         lk = k.lower()

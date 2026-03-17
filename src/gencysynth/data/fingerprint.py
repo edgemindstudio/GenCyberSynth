@@ -8,7 +8,7 @@ Dataset fingerprinting utilities for GenCyberSynth.
 Why fingerprint datasets?
 -------------------------
 When GenCyberSynth scales to multiple datasets (and multiple storage locations),
-we need an audit-proof way to say:
+we need an audit_proof way to say:
 
 - exactly which files were used
 - basic file metadata (size, modified time)
@@ -22,7 +22,7 @@ This supports:
 
 Output format
 -------------
-The functions here return a Python dict that can be JSON-serialized.
+The functions here return a Python dict that can be JSON_serialized.
 It is designed to align with your schema:
   gencysynth/schemas/dataset_fingerprint.schema.json
 
@@ -61,7 +61,7 @@ class FileFingerprint:
     Attributes
     ----------
     path:
-        Path as string (stored as provided; typically absolute or dataset-root-relative).
+        Path as string (stored as provided; typically absolute or dataset_root_relative).
     exists:
         Whether the file exists at time of fingerprinting.
     size_bytes:
@@ -69,7 +69,7 @@ class FileFingerprint:
     mtime_epoch:
         Modification time (epoch seconds), if exists.
     sha256:
-        Full-file sha256 (strong content ID), if exists.
+        Full_file sha256 (strong content ID), if exists.
     quick_sha256:
         Optional short hash based on first+last blocks (for very large files).
         This is NOT a replacement for sha256, but can be used as a quick check.
@@ -125,14 +125,14 @@ def _quick_sha256_file(path: Path, *, block_size: int = 1024 * 1024) -> str:
             tail = f.read(int(block_size))
             h.update(tail)
 
-    # Include size so different-length files don't collide as easily
-    h.update(str(size).encode("utf-8"))
+    # Include size so different_length files don't collide as easily
+    h.update(str(size).encode("utf_8"))
     return h.hexdigest()
 
 
 def _try_read_npy_header(path: Path) -> Optional[Dict[str, Any]]:
     """
-    Best-effort read of NumPy .npy header to capture dtype/shape without loading.
+    Best_effort read of NumPy .npy header to capture dtype/shape without loading.
 
     Returns None if:
       - numpy isn't available
@@ -155,7 +155,7 @@ def _try_read_npy_header(path: Path) -> Optional[Dict[str, Any]]:
 
 
 # -----------------------------------------------------------------------------
-# Single-file fingerprint
+# Single_file fingerprint
 # -----------------------------------------------------------------------------
 def fingerprint_file(
     file_path: Union[str, Path],
@@ -185,7 +185,7 @@ def fingerprint_file(
     Returns
     -------
     dict
-        JSON-serializable dict containing file fingerprint info.
+        JSON_serializable dict containing file fingerprint info.
     """
     p = Path(file_path)
     root_p = Path(root) if root is not None else None
@@ -239,7 +239,7 @@ def fingerprint_file(
 
 
 # -----------------------------------------------------------------------------
-# Dataset-level fingerprints
+# Dataset_level fingerprints
 # -----------------------------------------------------------------------------
 def fingerprint_dataset_files(
     *,
@@ -301,7 +301,7 @@ def fingerprint_npy_quartet(
     """
     Convenience helper for the standard GenCyberSynth classification dataset quartet.
 
-    This matches the most common format (USTC-TFC2016-style):
+    This matches the most common format (USTC_TFC2016_style):
       train_data.npy / train_labels.npy / test_data.npy / test_labels.npy
     """
     root = Path(dataset_root)
@@ -321,7 +321,7 @@ def fingerprint_npy_quartet(
 
 
 # -----------------------------------------------------------------------------
-# Artifacts path helper (dataset-scalable)
+# Artifacts path helper (dataset_scalable)
 # -----------------------------------------------------------------------------
 def default_fingerprint_output_path(
     *,
@@ -334,8 +334,8 @@ def default_fingerprint_output_path(
       {artifacts_root}/data/{dataset_id}/dataset_fingerprint.json
 
     Why:
-    - keeps dataset-wide artifacts together
-    - separates them cleanly from per-run eval outputs
+    - keeps dataset_wide artifacts together
+    - separates them cleanly from per_run eval outputs
     """
     ar = Path(artifacts_root)
     ds = str(dataset_id).strip() or "unknown_dataset"

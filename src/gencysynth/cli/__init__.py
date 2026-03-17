@@ -2,7 +2,7 @@
 """
 GenCyberSynth CLI package.
 
-This package contains the unified command-line entrypoints used to run
+This package contains the unified command_line entrypoints used to run
 training/synthesis/evaluation from a single interface (e.g., on HPC/Slurm).
 
 Primary entrypoint:

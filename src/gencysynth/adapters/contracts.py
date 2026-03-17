@@ -4,12 +4,12 @@ Stable adapter contracts (Rule A)
 ================================
 
 Adapters are the *only* layer that:
-- takes a RunContext-like request (dataset_id, model_tag, run_id, artifacts_root),
+- takes a RunContext_like request (dataset_id, model_tag, run_id, artifacts_root),
 - resolves canonical output paths via utils.paths,
 - calls model training/sampling/eval code,
 - returns structured results with stable meaning.
 
-This keeps model implementations flexible while ensuring end-to-end
+This keeps model implementations flexible while ensuring end_to_end
 orchestration + artifact structure stays consistent across families.
 """
 
@@ -27,9 +27,9 @@ from gencysynth.utils.paths import EvalPaths, LogsPaths, RunPaths
 @dataclass(frozen=True)
 class AdapterInfo:
     """Static identity for an adapter implementation."""
-    model_tag: str                       # e.g. "gan/dcgan" or "vae/c-vae"
+    model_tag: str                       # e.g. "gan/dcgan" or "vae/c_vae"
     family: str                          # e.g. "gan", "vae", "rbm"
-    variant: str                         # e.g. "dcgan", "c-vae", "c-rbm-bernoulli"
+    variant: str                         # e.g. "dcgan", "c_vae", "c_rbm_bernoulli"
     version: str = "0.1.0"               # adapter version (not model weights)
 
 
@@ -41,7 +41,7 @@ class TrainRequest:
     Notes
     -----
     - `cfg` is already the merged config (base + dataset + family + variant + overrides).
-    - adapters must not mutate `cfg` in-place (treat as read-only).
+    - adapters must not mutate `cfg` in_place (treat as read_only).
     """
     cfg: Dict[str, Any]
     dataset_id: str
@@ -55,7 +55,7 @@ class SynthRequest:
     """
     Synthesis request (generate samples).
 
-    output_root is the *run-scoped* samples directory from RunPaths by default.
+    output_root is the *run_scoped* samples directory from RunPaths by default.
     """
     cfg: Dict[str, Any]
     dataset_id: str

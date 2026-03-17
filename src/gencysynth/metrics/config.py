@@ -8,7 +8,7 @@ We keep the contract minimal:
 - Read dataset identity from cfg["data"]["id"] (fallback: cfg["data"]["root"] / cfg["DATA_DIR"])
 - Read artifacts root from cfg["paths"]["artifacts"] (fallback: "artifacts")
 - Decide which metrics to run from cfg["metrics"]["enabled"] (fallback to defaults.yaml list)
-- Provide per-metric options under cfg["metrics"]["options"][<metric_name>]
+- Provide per_metric options under cfg["metrics"]["options"][<metric_name>]
 """
 
 from __future__ import annotations
@@ -29,7 +29,7 @@ def _cfg_get(cfg: Dict, dotted: str, default=None):
 
 def normalize_dataset_id(cfg: Dict) -> str:
     """
-    Prefer stable cfg.data.id. Fallback to a filesystem-safe transform of cfg.data.root.
+    Prefer stable cfg.data.id. Fallback to a filesystem_safe transform of cfg.data.root.
     """
     dataset_id = _cfg_get(cfg, "data.id", None)
     if dataset_id:
@@ -73,7 +73,7 @@ def enabled_metrics(cfg: Dict, defaults: List[str]) -> List[str]:
 
 def metric_options(cfg: Dict, metric_name: str) -> Dict[str, Any]:
     """
-    Per-metric knobs under cfg.metrics.options.<metric_name>.
+    Per_metric knobs under cfg.metrics.options.<metric_name>.
     """
     opts = _cfg_get(cfg, f"metrics.options.{metric_name}", {}) or {}
     return dict(opts)

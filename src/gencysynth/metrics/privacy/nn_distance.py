@@ -1,6 +1,6 @@
 # src/gencysynth/metrics/privacy/nn_distance.py
 """
-Nearest-neighbor distance (privacy proxy) in feature space.
+Nearest_neighbor distance (privacy proxy) in feature space.
 
 Motivation
 ----------
@@ -52,9 +52,9 @@ def _as_2d_float(x: np.ndarray, name: str) -> np.ndarray:
     if x.ndim != 2:
         raise ValueError(f"{name} must be 2D (N,D); got shape {x.shape}")
     if x.shape[0] <= 0 or x.shape[1] <= 0:
-        raise ValueError(f"{name} must be non-empty; got shape {x.shape}")
+        raise ValueError(f"{name} must be non_empty; got shape {x.shape}")
     if not np.isfinite(x).all():
-        raise ValueError(f"{name} contains non-finite values (NaN/Inf).")
+        raise ValueError(f"{name} contains non_finite values (NaN/Inf).")
     return x
 
 
@@ -66,9 +66,9 @@ def _min_l2_distance_per_row(
     real_block: int = 8192,
 ) -> np.ndarray:
     """
-    Compute per-synth minimal L2 distance to any real vector.
+    Compute per_synth minimal L2 distance to any real vector.
 
-    Memory-safe implementation:
+    Memory_safe implementation:
       - iterate over synth in batches
       - iterate over real in blocks
       - keep the running min distance per synth row
@@ -87,7 +87,7 @@ def _min_l2_distance_per_row(
 
     dmin_all = np.empty((Ns,), dtype=np.float32)
 
-    # Precompute squared norms for real blocks if desired. Here we do block-wise.
+    # Precompute squared norms for real blocks if desired. Here we do block_wise.
     for i0 in range(0, Ns, synth_batch):
         i1 = min(Ns, i0 + synth_batch)
         S = synth[i0:i1]  # (B,D)
@@ -95,7 +95,7 @@ def _min_l2_distance_per_row(
         dmin = np.full((S.shape[0],), np.inf, dtype=np.float32)
 
         # For each real block, compute squared distances efficiently:
-        # ||a-b||^2 = ||a||^2 + ||b||^2 - 2 a·b
+        # ||a_b||^2 = ||a||^2 + ||b||^2 - 2 a·b
         S_norm = np.sum(S * S, axis=1, keepdims=True).astype(np.float32)  # (B,1)
 
         for j0 in range(0, Nr, real_block):
@@ -119,7 +119,7 @@ def _min_l2_distance_per_row(
 
 
 def _summarize_distances(d: np.ndarray, percentiles: Sequence[int]) -> Dict:
-    """Produce a stable summary dict for logging and schema-friendly results."""
+    """Produce a stable summary dict for logging and schema_friendly results."""
     d = np.asarray(d, dtype=np.float32)
     if d.size == 0:
         return {"n": 0}
@@ -220,7 +220,7 @@ class NNDistMetric:
                 details={"reason": f"Invalid feature arrays: {e}"},
             )
 
-        # ---- Compute nearest-neighbor distances: synth -> real ----
+        # ---- Compute nearest_neighbor distances: synth -> real ----
         dmin = _min_l2_distance_per_row(
             synth=synth_f,
             real=real_f,

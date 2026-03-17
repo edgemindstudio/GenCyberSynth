@@ -56,7 +56,7 @@ class ResolvedContext:
     """
     Container returned by resolve_run_context():
       - ctx: the canonical RunContext
-      - cfg: config with run_meta/path hints injected (non-destructive)
+      - cfg: config with run_meta/path hints injected (non_destructive)
     """
     ctx: RunContext
     cfg: Dict[str, Any]
@@ -108,7 +108,7 @@ def resolve_run_context(cfg: Dict[str, Any], *, create_dirs: bool = True) -> Res
         eval_dir=eval_paths.root_dir,
     )
 
-    # Inject run_meta back into cfg (non-destructive)
+    # Inject run_meta back into cfg (non_destructive)
     rm = cfg.get("run_meta") if isinstance(cfg.get("run_meta"), dict) else {}
     rm.setdefault("dataset_id", dataset_id)
     rm.setdefault("model_tag", model_tag)

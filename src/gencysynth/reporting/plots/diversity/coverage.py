@@ -10,7 +10,7 @@ the real data manifold / support.
 Typical examples (computed elsewhere):
 - coverage (overall)
 - coverage_per_class
-- precision/recall for coverage-style metrics (not classifier precision/recall)
+- precision/recall for coverage_style metrics (not classifier precision/recall)
 
 This module does NOT compute coverage. It only visualizes what exists in eval_summary.
 
@@ -57,7 +57,7 @@ def _to_float_map(x: Any) -> Optional[Dict[str, float]]:
 
 def _extract_coverage(es: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Extract a small set of coverage-related fields (best-effort).
+    Extract a small set of coverage_related fields (best_effort).
     Returns a dict with optional keys:
       - overall: float
       - per_class: {class: float}
@@ -83,7 +83,7 @@ def _extract_coverage(es: Dict[str, Any]) -> Dict[str, Any]:
     )
     per_class = _to_float_map(per_class)
 
-    # Optional coverage-style precision/recall
+    # Optional coverage_style precision/recall
     prec = (
         _cfg_get(es, "metrics.coverage.precision")
         or _cfg_get(es, "coverage.precision")
@@ -118,7 +118,7 @@ def plot_coverage(ctx: PlotContext, out_dir: Path, cfg: PlotConfig) -> List[Path
     fig = plt.figure(figsize=(10, 5.5))
     ax = fig.add_subplot(1, 1, 1)
 
-    # Priority: per-class if available; otherwise show overall and optional precision/recall as markers.
+    # Priority: per_class if available; otherwise show overall and optional precision/recall as markers.
     if per_class:
         classes = sorted(per_class.keys(), key=lambda s: int(s) if str(s).isdigit() else s)
         vals = np.asarray([per_class[c] for c in classes], dtype=np.float64)

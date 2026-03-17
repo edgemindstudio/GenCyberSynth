@@ -20,7 +20,7 @@ This file must live under:
 
 Key design rule (professional repo hygiene)
 -------------------------------------------
-This module should NOT hardcode ad-hoc artifact directories.
+This module should NOT hardcode ad_hoc artifact directories.
 Instead it resolves artifacts from cfg["paths"] with reasonable defaults.
 
 Recommended canonical paths
@@ -33,7 +33,7 @@ Then derive:
 - synthetic:
     artifacts/synth[/<run_id>]/<family>/<variant>/
 
-If your orchestration passes a run_id, all outputs become run-scoped and auditable.
+If your orchestration passes a run_id, all outputs become run_scoped and auditable.
 """
 
 from __future__ import annotations
@@ -54,7 +54,7 @@ from .model import build_models
 
 
 # ---------------------------------------------------------------------
-# Variant identity (makes logs + artifacts self-describing)
+# Variant identity (makes logs + artifacts self_describing)
 # ---------------------------------------------------------------------
 FAMILY: str = "gan"
 VARIANT: str = "dcgan"
@@ -161,7 +161,7 @@ class ConditionalDCGANPipeline:
     Inputs (expected by train)
     --------------------------
     x_train: float images in [-1, 1], shape (N,H,W,C)
-    y_train: one-hot labels, shape (N,num_classes)
+    y_train: one_hot labels, shape (N,num_classes)
 
     Outputs (artifacts)
     -------------------
@@ -179,7 +179,7 @@ class ConditionalDCGANPipeline:
         "LATENT_DIM": 100,
         "EPOCHS": 2000,
         "BATCH_SIZE": 256,
-        "LR": 2e-4,
+        "LR": 2e_4,
         "BETA_1": 0.5,
         "NOISE_AFTER": 200,
         "SAMPLES_PER_CLASS": 1000,
@@ -296,7 +296,7 @@ class ConditionalDCGANPipeline:
         x_train:
             Images normalized to [-1, 1], shape (N,H,W,C).
         y_train:
-            One-hot labels, shape (N,num_classes).
+            One_hot labels, shape (N,num_classes).
 
         Returns
         -------
@@ -308,7 +308,7 @@ class ConditionalDCGANPipeline:
             f"[{FAMILY}.{VARIANT}] Expected x_train shape (*,{H},{W},{C}), got {x_train.shape}"
         )
         assert y_train.shape[1] == self.num_classes, (
-            f"[{FAMILY}.{VARIANT}] y_train must be one-hot with {self.num_classes} columns"
+            f"[{FAMILY}.{VARIANT}] y_train must be one_hot with {self.num_classes} columns"
         )
 
         steps_per_epoch = max(1, math.ceil(len(x_train) / self.batch_size))
@@ -402,13 +402,13 @@ class ConditionalDCGANPipeline:
     # -----------------------------------------------------------------
     def synthesize(self, G: Optional[tf.keras.Model] = None) -> tuple[np.ndarray, np.ndarray]:
         """
-        Generate a balanced per-class synthetic dataset and save it under self.synth_dir.
+        Generate a balanced per_class synthetic dataset and save it under self.synth_dir.
 
         Returns
         -------
         (x_synth, y_synth):
           x_synth: float32 in [0,1], shape (K*per_class, H, W, C)
-          y_synth: one-hot, shape (K*per_class, K)
+          y_synth: one_hot, shape (K*per_class, K)
 
         Artifacts written (traceability)
         -------------------------------
@@ -445,11 +445,11 @@ class ConditionalDCGANPipeline:
             else:
                 self._log(f"[{FAMILY}.{VARIANT}][warn] No generator weights found; using untrained generator.")
 
-        # Ensure synth dir exists and is variant-scoped (already in __init__)
+        # Ensure synth dir exists and is variant_scoped (already in __init__)
         _ensure_dir(self.synth_dir)
 
         # -------------------------
-        # Generate per-class data
+        # Generate per_class data
         # -------------------------
         xs, ys = [], []
 
@@ -457,7 +457,7 @@ class ConditionalDCGANPipeline:
             # Latent noise
             z = np.random.normal(0, 1, (per_class, self.latent_dim)).astype(np.float32)
 
-            # One-hot labels
+            # One_hot labels
             y = tf.keras.utils.to_categorical(
                 np.full((per_class, 1), cls),
                 self.num_classes
@@ -470,7 +470,7 @@ class ConditionalDCGANPipeline:
             xs.append(g01.reshape(-1, H, W, C))
             ys.append(y)
 
-            # Per-class dumps (good for debugging imbalance and reproducibility)
+            # Per_class dumps (good for debugging imbalance and reproducibility)
             np.save(self.synth_dir / f"gen_class_{cls}.npy", g01)
             np.save(self.synth_dir / f"labels_class_{cls}.npy", np.full((per_class,), cls, dtype=np.int32))
 

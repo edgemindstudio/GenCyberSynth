@@ -3,11 +3,11 @@
 gencysynth.data.transforms
 =========================
 
-Pure, dependency-light transforms used by GenCyberSynth data loaders and evaluation.
+Pure, dependency_light transforms used by GenCyberSynth data loaders and evaluation.
 
 Why this module exists
 ----------------------
-We want a scalable, multi-dataset repo layout. That means:
+We want a scalable, multi_dataset repo layout. That means:
 - loaders should focus on "where to load from"
 - transforms should focus on "how to normalize / reshape / encode labels"
 
@@ -61,11 +61,11 @@ class TransformConfig:
 # -----------------------------------------------------------------------------
 def one_hot(labels: np.ndarray, num_classes: int) -> np.ndarray:
     """
-    Convert class labels to one-hot (float32) without framework dependencies.
+    Convert class labels to one_hot (float32) without framework dependencies.
 
     Accepts:
-      - shape (N,) integer class ids in [0, num_classes-1]
-      - shape (N, K) that already looks one-hot (K must equal num_classes)
+      - shape (N,) integer class ids in [0, num_classes_1]
+      - shape (N, K) that already looks one_hot (K must equal num_classes)
 
     Returns
     -------
@@ -74,14 +74,14 @@ def one_hot(labels: np.ndarray, num_classes: int) -> np.ndarray:
     """
     lab = np.asarray(labels)
 
-    # Already one-hot?
+    # Already one_hot?
     if lab.ndim == 2 and lab.shape[1] == int(num_classes):
         y = lab.astype(np.float32, copy=False)
         np.clip(y, 0.0, 1.0, out=y)
         return y
 
     if lab.ndim != 1:
-        raise ValueError(f"Labels must be 1-D ints or 2-D one-hot; got shape {lab.shape}.")
+        raise ValueError(f"Labels must be 1_D ints or 2_D one_hot; got shape {lab.shape}.")
 
     if lab.size == 0:
         return np.zeros((0, int(num_classes)), dtype=np.float32)
@@ -104,7 +104,7 @@ def onehot_to_int(y: np.ndarray) -> np.ndarray:
 
     Accepts:
       - (N,) ints
-      - (N,K) one-hot / probabilities -> argmax(axis=1)
+      - (N,K) one_hot / probabilities -> argmax(axis=1)
 
     Returns:
       (N,) int32
@@ -124,14 +124,14 @@ def to_01_hwc(x: np.ndarray, img_shape: Tuple[int, int, int]) -> np.ndarray:
 
     Accepted input formats:
       - (N, H, W)     -> expanded to (N, H, W, 1)
-      - (N, H, W, C)  -> used as-is
+      - (N, H, W, C)  -> used as_is
       - (H, W)        -> treated as single image -> (1, H, W, 1)
       - (H, W, C)     -> treated as single image -> (1, H, W, C)
 
     Accepted input ranges:
       - [0,255] -> divide by 255
       - [-1,1]  -> (x + 1)/2
-      - [0,1]   -> pass-through
+      - [0,1]   -> pass_through
 
     Parameters
     ----------
@@ -204,7 +204,7 @@ def split_val_from_test(
 
 
 # -----------------------------------------------------------------------------
-# Counts block (Phase-1/Phase-2 summaries)
+# Counts block (Phase_1/Phase_2 summaries)
 # -----------------------------------------------------------------------------
 def dataset_counts(
     x_train: np.ndarray,

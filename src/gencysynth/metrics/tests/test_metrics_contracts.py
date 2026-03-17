@@ -90,12 +90,12 @@ def test_all_registered_metrics_return_metricresult():
                                  "synth": np.random.rand(15, 16).astype(np.float32)}},
     }
 
-    # Registry iteration: support either dict-like or a .items() interface
+    # Registry iteration: support either dict_like or a .items() interface
     try:
-        items = list(REGISTRY.items())  # type: ignore[attr-defined]
+        items = list(REGISTRY.items())  # type: ignore[attr_defined]
     except Exception:
         try:
-            items = [(k, REGISTRY.get(k)) for k in REGISTRY.keys()]  # type: ignore[attr-defined]
+            items = [(k, REGISTRY.get(k)) for k in REGISTRY.keys()]  # type: ignore[attr_defined]
         except Exception:
             pytest.skip("REGISTRY iteration interface unknown.")
 

@@ -11,7 +11,7 @@ A GAN adapter is responsible for:
 2) Synthesis:
    - write evaluator contract files under run synthetic dir:
        gen_class_{k}.npy, labels_class_{k}.npy, x_synth.npy, y_synth.npy
-   - optionally write PNG galleries (run-scoped) if enabled
+   - optionally write PNG galleries (run_scoped) if enabled
 
 This base class does NOT implement training/sampling itself.
 It only provides consistent paths, logging, and small helpers shared by GAN variants.
@@ -43,10 +43,10 @@ from gencysynth.adapters.datasets.splits import DatasetSplits
 
 def _ensure_nhwc_best_effort(x: np.ndarray, *, cfg: Dict[str, Any]) -> np.ndarray:
     """
-    Best-effort ensure NHWC.
+    Best_effort ensure NHWC.
 
     Accepts:
-      - (N,H,W,C) -> returned as-is
+      - (N,H,W,C) -> returned as_is
       - (N, H*W*C) -> reshapes using cfg['dataset']['image_hw'] + channels=1 by default
 
     Recommended config:
@@ -119,7 +119,7 @@ class GANAdapterBase(BaseModelAdapter):
         return self._run_root(run_ctx) / "summaries"
 
     def synthetic_dir(self, run_ctx: Any) -> Path:
-        # run-scoped synth contract dir
+        # run_scoped synth contract dir
         return self._run_root(run_ctx) / "synthetic"
 
     def plots_dir(self, run_ctx: Any) -> Path:
@@ -155,7 +155,7 @@ class GANAdapterBase(BaseModelAdapter):
     # -----------------------------
     def write_synth_contract(self, out_dir: Path, x01: np.ndarray, y_onehot: np.ndarray) -> SynthesizeResult:
         """
-        Write evaluator-friendly synthetic outputs to out_dir.
+        Write evaluator_friendly synthetic outputs to out_dir.
         Enforces:
           x01 in [0,1] NHWC
           y_onehot in (N,K)
@@ -173,7 +173,7 @@ class GANAdapterBase(BaseModelAdapter):
         y1h = ensure_onehot(y1h, num_classes=K)
         y_int = np.argmax(y1h, axis=1).astype(np.int32)
 
-        # Per-class dumps
+        # Per_class dumps
         for k in range(K):
             idx = (y_int == k)
             np.save(out_dir / f"gen_class_{k}.npy", x01[idx])
@@ -255,6 +255,6 @@ class GANAdapterBase(BaseModelAdapter):
         """
         Must return:
           x01: (N,H,W,C) float32 in [0,1]
-          y1h: (N,K) float32 one-hot
+          y1h: (N,K) float32 one_hot
         """
         raise NotImplementedError

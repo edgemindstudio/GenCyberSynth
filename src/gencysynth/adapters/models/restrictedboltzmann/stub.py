@@ -14,7 +14,7 @@ from gencysynth.adapters.datasets.splits import DatasetSplits
 class RBMStubAdapter(BaseModelAdapter):
     """
     Placeholder adapter for RBM family.
-    NOTE: RBM base not provided above; keep this stub minimal but registry-visible.
+    NOTE: RBM base not provided above; keep this stub minimal but registry_visible.
     """
 
     def __init__(self, variant: str):

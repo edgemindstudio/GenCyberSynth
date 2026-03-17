@@ -12,7 +12,7 @@ This module centralizes hashing primitives used across the repository for:
 
 Design constraints
 ------------------
-- Deterministic across machines: avoid non-deterministic ordering.
+- Deterministic across machines: avoid non_deterministic ordering.
 - Stable serialization: use canonical JSON for dicts/lists.
 - Friendly to large directories: allow excludes and file extensions filters.
 
@@ -42,7 +42,7 @@ def sha256_bytes(data: bytes) -> str:
     return h.hexdigest()
 
 
-def sha256_text(text: str, *, encoding: str = "utf-8") -> str:
+def sha256_text(text: str, *, encoding: str = "utf_8") -> str:
     """SHA256 hex digest of a text string."""
     return sha256_bytes(text.encode(encoding))
 
@@ -68,7 +68,7 @@ def canonical_json_dumps(obj: Any) -> str:
     Canonical JSON serialization (stable):
     - sorted keys
     - no extra whitespace
-    - UTF-8 safe
+    - UTF_8 safe
     """
     return json.dumps(obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 

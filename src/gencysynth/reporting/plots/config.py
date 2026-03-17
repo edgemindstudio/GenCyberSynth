@@ -31,11 +31,11 @@ import yaml
 @dataclass
 class PlotConfig:
     """
-    Plot settings for run-level reporting.
+    Plot settings for run_level reporting.
 
     Keep this intentionally small:
     - plotting should be deterministic and driven by artifact content.
-    - avoid model-specific logic here.
+    - avoid model_specific logic here.
     """
 
     # Enabled plot groups (subfolders under reporting/plots/)
@@ -47,7 +47,7 @@ class PlotConfig:
     })
 
     # Output behavior
-    formats: Iterable[str] = ("png",)  # png is the default artifact-friendly format
+    formats: Iterable[str] = ("png",)  # png is the default artifact_friendly format
     dpi: int = 200
 
     # Qualitative plots often generate many images.
@@ -67,7 +67,7 @@ class PlotConfig:
 # -----------------------------
 def _deep_update(dst: Dict[str, Any], src: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Deep-merge src into dst (dicts only), returning dst.
+    Deep_merge src into dst (dicts only), returning dst.
 
     This is used to merge user config overrides into defaults.
     """
@@ -82,7 +82,7 @@ def _deep_update(dst: Dict[str, Any], src: Dict[str, Any]) -> Dict[str, Any]:
 def load_defaults_yaml(path: Path) -> Dict[str, Any]:
     if not path.exists():
         return {}
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, "r", encoding="utf_8") as f:
         return yaml.safe_load(f) or {}
 
 

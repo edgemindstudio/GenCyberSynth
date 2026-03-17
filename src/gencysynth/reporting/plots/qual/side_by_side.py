@@ -1,6 +1,6 @@
 # src/gencysynth/reporting/plots/qual/side_by_side.py
 """
-Side-by-side comparisons (REAL vs SYNTH).
+Side_by_side comparisons (REAL vs SYNTH).
 
 Goal
 ----
@@ -44,7 +44,7 @@ from ..core.context import PlotContext
 
 @dataclass(frozen=True)
 class SxSSpec:
-    """Side-by-side figure spec."""
+    """Side_by_side figure spec."""
     per_class: int = 8
     seed_limit: int = 1
     max_classes: int = 6  # limit for quick test runs
@@ -167,7 +167,7 @@ def plot_side_by_side(ctx: PlotContext, out_dir: Path, cfg: PlotConfig) -> List[
         axs_synth = [fig.add_subplot(gs[row_idx, j]) for j in range(ncols)]
         _plot_row(axs_synth, synth_imgs[:ncols], title=f"class {cid} — SYNTH")
 
-        fig.suptitle(f"Side-by-Side Qualitative Comparison (class {cid})", fontsize=12)
+        fig.suptitle(f"Side_by_Side Qualitative Comparison (class {cid})", fontsize=12)
 
         for ext in cfg.formats:
             p = out_dir / f"side_by_side_class_{cid}.{ext}"

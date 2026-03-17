@@ -5,7 +5,7 @@ GenCyberSynth — Safe file IO helpers
 Design
 ------
 - Atomic overwrite for text/JSON (write temp + fsync + replace).
-- Non-atomic append for JSONL (log behavior; supports multi-process appends).
+- Non_atomic append for JSONL (log behavior; supports multi_process appends).
 - JSON encoding supports Path and optional NumPy scalars/arrays without hard dependency.
 """
 
@@ -24,7 +24,7 @@ _JSON_COMPACT_SEPARATORS = (",", ":")
 
 def _json_default(obj: Any) -> Any:
     """
-    Default converter for json.dumps to handle common non-JSON types.
+    Default converter for json.dumps to handle common non_JSON types.
 
     - pathlib.Path → str
     - NumPy scalar → native Python scalar
@@ -62,7 +62,7 @@ def _atomic_write_bytes(dst: Path, data: bytes) -> None:
             os.fsync(tmp.fileno())
         except Exception:
             try:
-                tmp_path.unlink(missing_ok=True)  # type: ignore[arg-type]
+                tmp_path.unlink(missing_ok=True)  # type: ignore[arg_type]
             finally:
                 raise
 
@@ -76,12 +76,12 @@ def write_text(
     append: bool = False,
     ensure_trailing_newline: bool = False,
     atomic: bool = True,
-    encoding: str = "utf-8",
+    encoding: str = "utf_8",
 ) -> Path:
     """
-    Write or append UTF-8 text.
+    Write or append UTF_8 text.
 
-    - append=True is non-atomic by design (log behavior).
+    - append=True is non_atomic by design (log behavior).
     - atomic=True applies only to overwrite mode (append=False).
     """
     p = Path(path)
@@ -129,7 +129,7 @@ def write_json(
 
     p = Path(path)
     if atomic:
-        _atomic_write_bytes(p, data.encode("utf-8" if not ensure_ascii else "ascii"))
+        _atomic_write_bytes(p, data.encode("utf_8" if not ensure_ascii else "ascii"))
     else:
         write_text(p, data, append=False, atomic=False)
     return p
@@ -137,7 +137,7 @@ def write_json(
 
 def read_json(path: Union[str, Path]) -> Any:
     """Read JSON from path and return decoded object."""
-    with Path(path).open("r", encoding="utf-8") as f:
+    with Path(path).open("r", encoding="utf_8") as f:
         return json.load(f)
 
 
@@ -151,7 +151,7 @@ def append_jsonl(
     """
     Append one compact JSON object as a single line to a JSONL file.
 
-    Not atomic by design (supports multi-process logging).
+    Not atomic by design (supports multi_process logging).
     """
     line = json.dumps(
         obj,
@@ -168,7 +168,7 @@ def iter_jsonl(path: Union[str, Path]) -> Generator[Any, None, None]:
     p = Path(path)
     if not p.exists():
         return
-    with p.open("r", encoding="utf-8") as f:
+    with p.open("r", encoding="utf_8") as f:
         for line in f:
             s = line.strip()
             if not s:

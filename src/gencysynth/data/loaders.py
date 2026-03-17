@@ -3,11 +3,11 @@
 gencysynth.data.loaders
 ======================
 
-Dataset-aware data loading for GenCyberSynth.
+Dataset_aware data loading for GenCyberSynth.
 
-Key idea (multi-dataset scalability)
+Key idea (multi_dataset scalability)
 ------------------------------------
-Loaders must NOT assume a single dataset folder name (like USTC-TFC2016_malware).
+Loaders must NOT assume a single dataset folder name (like USTC_TFC2016_malware).
 Instead, we load from:
   - an explicit dataset root directory in config, OR
   - a structured data root convention, OR
@@ -22,7 +22,7 @@ and then splits the provided test set into (val, test) using val_fraction.
 Outputs
 -------
 - x_* are float32 in [0,1], NHWC (N,H,W,C)
-- y_* are float32 one-hot (N,K)
+- y_* are float32 one_hot (N,K)
 
 No TensorFlow dependency.
 """
@@ -51,7 +51,7 @@ __all__ = [
 
 
 # -----------------------------------------------------------------------------
-# Path policy: dataset root resolution (multi-dataset scalable)
+# Path policy: dataset root resolution (multi_dataset scalable)
 # -----------------------------------------------------------------------------
 def resolve_dataset_root(
     config: Dict[str, Any],
@@ -183,7 +183,7 @@ def load_npy_classification_splits(
     x_train01 = to_01_hwc(x_train_raw, img_shape)
     x_test01 = to_01_hwc(x_test_raw, img_shape)
 
-    # Labels -> one-hot float32
+    # Labels -> one_hot float32
     y_train1h = one_hot(y_train_raw, num_classes)
     y_test1h = one_hot(y_test_raw, num_classes)
 
@@ -210,7 +210,7 @@ def load_npy_classification_splits(
 
 
 # -----------------------------------------------------------------------------
-# High-level config-driven loader (recommended entrypoint)
+# High_level config_driven loader (recommended entrypoint)
 # -----------------------------------------------------------------------------
 def load_dataset_from_config(
     config: Dict[str, Any],
@@ -218,15 +218,15 @@ def load_dataset_from_config(
     """
     Recommended single entrypoint: load REAL splits based on config.
 
-    Expected config fields (flexible, multi-dataset scalable)
+    Expected config fields (flexible, multi_dataset scalable)
     --------------------------------------------------------
     dataset:
-      id: "USTC-TFC2016_40x40_gray"
+      id: "USTC_TFC2016_40x40_gray"
       root: "/path/to/dataset"              # optional, preferred
       img_shape: [40,40,1]
       num_classes: 9
       val_fraction: 0.5                     # optional
-      files:                                # optional file-name overrides
+      files:                                # optional file_name overrides
         train_data: "train_data.npy"
         train_labels: "train_labels.npy"
         test_data: "test_data.npy"

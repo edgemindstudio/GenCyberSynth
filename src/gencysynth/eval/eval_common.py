@@ -6,33 +6,33 @@ GenCyberSynth — Unified Evaluation Utilities
 This module provides the *core* evaluation logic used across GenCyberSynth runs:
 
 1) Generative distribution metrics
-   - FID (macro), cFID (per-class + macro), KID, JS/KL (pixel hist), Diversity
-   - Optional domain-FID (FID in a caller-provided embedding space)
+   - FID (macro), cFID (per_class + macro), KID, JS/KL (pixel hist), Diversity
+   - Optional domain_FID (FID in a caller_provided embedding space)
 
 2) Downstream utility metrics (EvalCNN probe)
    - Train a small CNN on:
-       (a) REAL-only
+       (a) REAL_only
        (b) REAL + SYNTH
      then evaluate both on the REAL test set.
 
 3) Summary shaping + optional writing
    - Map raw metrics into a stable summary schema
-   - Optionally write outputs into a dataset-scalable artifacts layout.
+   - Optionally write outputs into a dataset_scalable artifacts layout.
 
 Dataset scalability & path policy
 ---------------------------------
 This file intentionally does NOT load datasets from disk and does NOT assume any
 single dataset layout. It operates on arrays provided by the caller.
 
-When writing summary outputs, we support a dataset-aware convention:
+When writing summary outputs, we support a dataset_aware convention:
 
     {artifacts_root}/eval/{dataset_id}/{model_tag}/{run_id}/summary.jsonl
     {artifacts_root}/eval/{dataset_id}/{model_tag}/{run_id}/summary.txt
 
 Where:
 - artifacts_root: cfg["paths"]["artifacts"] or "artifacts"
-- dataset_id: a stable dataset identifier (e.g. "USTC-TFC2016_40x40_gray")
-- model_tag: variant-aware tag (e.g. "gan/dcgan", "diffusion/ddpm")
+- dataset_id: a stable dataset identifier (e.g. "USTC_TFC2016_40x40_gray")
+- model_tag: variant_aware tag (e.g. "gan/dcgan", "diffusion/ddpm")
 - run_id: identifies a run (e.g. "A_seed42" or "seed42")
 
 Design goals
@@ -72,7 +72,7 @@ from tensorflow.keras import layers, models, optimizers
 # -----------------------------------------------------------------------------
 # OPTIONAL dependency
 # -----------------------------------------------------------------------------
-# Keep this optional/non-fatal for HPC + library usage.
+# Keep this optional/non_fatal for HPC + library usage.
 try:
     from scripts.eval_write_summary import write_phase2_summary  # noqa: F401
 except Exception:  # pragma: no cover
@@ -106,7 +106,7 @@ def set_global_seed(seed: int = 42) -> None:
     Set RNG seeds for reproducibility across NumPy and TensorFlow.
 
     Notes:
-    - Reduces run-to-run variance.
+    - Reduces run_to_run variance.
     - Does not guarantee perfect determinism on all systems (TF kernels may vary).
     """
     if tf is None:
@@ -125,7 +125,7 @@ def onehot_to_int(y: np.ndarray) -> np.ndarray:
 
     Accepted formats:
     - (N,) int labels
-    - (N,K) one-hot or probabilities -> argmax(axis=1)
+    - (N,K) one_hot or probabilities -> argmax(axis=1)
     """
     y = np.asarray(y)
     if y.ndim == 2 and y.shape[1] > 1:
@@ -140,7 +140,7 @@ def onehot_to_int(y: np.ndarray) -> np.ndarray:
 # eval_common.py still works even before you finish centralizing path policy.
 
 def _safe_slug(s: str, *, max_len: int = 120) -> str:
-    """Filesystem-friendly token for dataset_id / model_tag / run_id."""
+    """Filesystem_friendly token for dataset_id / model_tag / run_id."""
     if not isinstance(s, str):
         return "unknown"
     s = s.strip().replace(" ", "_")
@@ -187,7 +187,7 @@ def resolve_eval_output_paths(
 
 
 # ======================================================================================
-# 1) Generative metrics: FID / cFID / JS / KL / Diversity / KID (+ optional domain-FID)
+# 1) Generative metrics: FID / cFID / JS / KL / Diversity / KID (+ optional domain_FID)
 # ======================================================================================
 
 _inception_model: Optional[tf.keras.Model] = None
@@ -196,7 +196,7 @@ _inception_ok = True
 
 def _get_inception() -> Optional[tf.keras.Model]:
     """
-    Lazy-load + cache InceptionV3 pooling backbone for FID/KID.
+    Lazy_load + cache InceptionV3 pooling backbone for FID/KID.
 
     Failure behavior:
     - If creation fails once, mark as unavailable to avoid repeated slow failures in logs.
@@ -264,7 +264,7 @@ def fid_in_domain_embedding(
     fake_01: np.ndarray,
     embed_fn: Callable[[np.ndarray], np.ndarray],
 ) -> Optional[float]:
-    """Optional FID in a caller-provided embedding space."""
+    """Optional FID in a caller_provided embedding space."""
     try:
         return _fid_from_activations(embed_fn(real_01), embed_fn(fake_01))
     except Exception:
@@ -275,9 +275,9 @@ def js_kl_on_pixels(
     real01: np.ndarray,
     fake01: np.ndarray,
     bins: int = 256,
-    eps: float = 1e-8,
+    eps: float = 1e_8,
 ) -> Tuple[Optional[float], Optional[float]]:
-    """Histogram-based JS + KL on flattened pixel intensities."""
+    """Histogram_based JS + KL on flattened pixel intensities."""
     try:
         pr, _ = np.histogram(real01.ravel(), bins=bins, range=(0, 1), density=True)
         pf, _ = np.histogram(fake01.ravel(), bins=bins, range=(0, 1), density=True)
@@ -295,7 +295,7 @@ def js_kl_on_pixels(
 
 
 def diversity_score(x01: np.ndarray) -> Optional[float]:
-    """Pixel-variance diversity proxy (quick signal; not semantic diversity)."""
+    """Pixel_variance diversity proxy (quick signal; not semantic diversity)."""
     try:
         flat = x01.reshape((x01.shape[0], -1))
         return float(np.mean(np.var(flat, axis=0)))
@@ -310,7 +310,7 @@ def _poly_mmd2_unbiased(
     gamma: Optional[float] = None,
     coef0: float = 1.0
 ) -> float:
-    """Unbiased polynomial-kernel MMD^2 estimator (KID core)."""
+    """Unbiased polynomial_kernel MMD^2 estimator (KID core)."""
     A = np.asarray(A, dtype=np.float64)
     B = np.asarray(B, dtype=np.float64)
     m, d = A.shape
@@ -401,21 +401,21 @@ def _build_eval_cnn(img_shape: tuple[int, int, int], num_classes: int) -> tf.ker
     out = layers.Dense(num_classes, activation="softmax")(x)
 
     m = models.Model(inp, out, name="EvalCNN")
-    m.compile(optimizer=optimizers.Adam(learning_rate=1e-3),
+    m.compile(optimizer=optimizers.Adam(learning_rate=1e_3),
               loss="categorical_crossentropy",
               metrics=["accuracy"])
     return m
 
 
 def _macro_auprc(y_true_int: np.ndarray, proba: np.ndarray, K: int) -> float:
-    """Macro-AUPRC (one-vs-rest)."""
+    """Macro_AUPRC (one_vs_rest)."""
     y_oh = np.eye(K)[y_true_int]
     aps = [average_precision_score(y_oh[:, k], proba[:, k]) for k in range(K)]
     return float(np.mean(aps))
 
 
 def _recall_at_fpr(y_true_int: np.ndarray, proba: np.ndarray, K: int, target_fpr: float = 0.01) -> float:
-    """Macro-average Recall@FPR<=target across classes."""
+    """Macro_average Recall@FPR<=target across classes."""
     y_oh = np.eye(K)[y_true_int]
     recalls: List[float] = []
     for k in range(K):
@@ -515,7 +515,7 @@ def _eval_on_test(model: tf.keras.Model, x_test: np.ndarray, y_test_oh: np.ndarr
 
 
 # ======================================================================================
-# 3) High-level evaluator: compute ALL metrics (core)
+# 3) High_level evaluator: compute ALL metrics (core)
 # ======================================================================================
 
 def compute_all_metrics(
@@ -532,11 +532,11 @@ def compute_all_metrics(
     epochs: int = 20,
 ) -> Dict[str, Any]:
     """
-    Compute full Phase-1 metric suite.
+    Compute full Phase_1 metric suite.
 
     Contract:
     - Images may be in [0,255], [-1,1], or [0,1]; normalized via to_01_hwc().
-    - Labels may be int (N,) or one-hot (N,K).
+    - Labels may be int (N,) or one_hot (N,K).
     """
     set_global_seed(seed)
     H, W, C = img_shape
@@ -545,7 +545,7 @@ def compute_all_metrics(
     xv = to_01_hwc(x_val_real,   img_shape)
     xt = to_01_hwc(x_test_real,  img_shape)
 
-    # Labels -> one-hot
+    # Labels -> one_hot
     if np.asarray(y_train_real).ndim == 1:
         K = int(np.max(y_train_real) + 1)
         yr = np.eye(K)[np.asarray(y_train_real).astype(int)]
@@ -630,7 +630,7 @@ def compute_all_metrics(
     cls_w_arr = compute_class_weight(class_weight="balanced", classes=np.arange(K), y=ytr_int)
     class_weight = {i: float(w) for i, w in enumerate(cls_w_arr)}
 
-    # ---- Utility: real-only
+    # ---- Utility: real_only
     clf_R = _fit_eval_cnn(
         xr, yr, xv, yv,
         input_shape=(H, W, C),
@@ -809,7 +809,7 @@ def evaluate_model_suite(
 
 
 # ======================================================================================
-# 5) Writer: dataset-aware outputs + JSONL append
+# 5) Writer: dataset_aware outputs + JSONL append
 # ======================================================================================
 
 def write_summary(
@@ -871,10 +871,10 @@ def write_summary(
     if gen.get("js") is not None or gen.get("kl") is not None:
         lines.append(f"  JS: {gen.get('js')} | KL: {gen.get('kl')}")
     if util_rs.get("macro_f1") is not None:
-        lines.append(f"  Macro-F1 (R+S): {util_rs['macro_f1']:.4f}")
+        lines.append(f"  Macro_F1 (R+S): {util_rs['macro_f1']:.4f}")
     if util_rs.get("macro_precision") is not None and util_rs.get("macro_recall") is not None:
         lines.append(
-            f"  Macro-P/R (R+S): {util_rs['macro_precision']:.4f} / {util_rs['macro_recall']:.4f}"
+            f"  Macro_P/R (R+S): {util_rs['macro_precision']:.4f} / {util_rs['macro_recall']:.4f}"
         )
     lines.append("")
 

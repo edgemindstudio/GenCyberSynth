@@ -10,7 +10,7 @@ Manifest location (Rule A)
 --------------------------
   artifacts/runs/<dataset_id>/<model_tag>/<run_id>/manifest.json
 
-Manifest format (high-level)
+Manifest format (high_level)
 ----------------------------
 {
   "schema_version": "run_manifest_v2",
@@ -53,7 +53,7 @@ class ManifestSample:
 @dataclass
 class RunManifest:
     """
-    In-memory manifest object.
+    In_memory manifest object.
 
     Notes:
     - per_class_counts should be strings for JSON friendliness (keys are class ids).
@@ -71,7 +71,7 @@ class RunManifest:
     notes: Dict[str, Any] = field(default_factory=dict)
 
     def add(self, path: str, label: int, *, split: str = "synth", meta: Optional[Dict[str, Any]] = None) -> None:
-        """Append one sample and update per-class counts."""
+        """Append one sample and update per_class counts."""
         self.paths.append(ManifestSample(path=str(path), label=int(label), split=str(split), meta=meta or {}))
         k = str(int(label))
         self.per_class_counts[k] = int(self.per_class_counts.get(k, 0)) + 1

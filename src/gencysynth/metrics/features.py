@@ -4,7 +4,7 @@ Feature extraction used by some metrics.
 
 These are *not* deep learned features (no Inception here). We keep it light:
 - global pixel mean/var
-- per-class pixel mean (when labels exist)
+- per_class pixel mean (when labels exist)
 - histogram summaries
 
 This helps establish:
@@ -61,7 +61,7 @@ def pixel_histogram(
 ) -> Dict[str, object]:
     """
     Histogram over pixel intensities (flattened).
-    Returns JSON-friendly {bins, edges, counts}.
+    Returns JSON_friendly {bins, edges, counts}.
     """
     x = np.asarray(x01, dtype=np.float32).reshape(-1)
     if x.size == 0:

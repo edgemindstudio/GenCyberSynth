@@ -1,13 +1,13 @@
 # src/gencysynth/orchestration/harvester.py
 """
-GenCyberSynth — Harvester (one-run coordinator)
+GenCyberSynth — Harvester (one_run coordinator)
 ==============================================
 
 Coordinates *one* run keyed by the scalability identity:
 
     (dataset_id, model_tag, run_id)
 
-So all outputs are collision-free:
+So all outputs are collision_free:
     artifacts/runs/<dataset_id>/<model_tag>/<run_id>/...
     artifacts/logs/<dataset_id>/<model_tag>/<run_id>/...
     artifacts/eval/<dataset_id>/<model_tag>/<run_id>/...
@@ -17,7 +17,7 @@ This module:
   2) Builds a model from the registry
   3) Runs train (optional) + sample (required)
   4) Captures provenance + run_meta snapshot
-  5) Optionally triggers evaluation (best-effort)
+  5) Optionally triggers evaluation (best_effort)
 
 Model contract (from gencysynth.models.base_types)
 -------------------------------------------------
@@ -108,7 +108,7 @@ def _resolve_manifest_path_from_sample(
 # -----------------------------------------------------------------------------
 def run_one(cfg: Dict[str, Any], *, do_eval: bool = True) -> HarvestResult:
     """
-    Execute one run end-to-end.
+    Execute one run end_to_end.
 
     Expected cfg fields (recommended)
     --------------------------------
@@ -135,7 +135,7 @@ def run_one(cfg: Dict[str, Any], *, do_eval: bool = True) -> HarvestResult:
         run_id=ctx.run_id,
     )
 
-    # 2) Configure per-run logger
+    # 2) Configure per_run logger
     logger = get_run_logger(name="gencysynth.run", log_dir=Path(ctx.logs_dir))
     logger.info(
         "Run start: dataset_id=%s model_tag=%s run_id=%s seed=%s",
@@ -209,7 +209,7 @@ def run_one(cfg: Dict[str, Any], *, do_eval: bool = True) -> HarvestResult:
     sr: SampleResult = model.sample(cfg2, ctx)
     sample_ok = bool(sr.ok)
 
-    # Prefer model-returned manifest path; else canonical
+    # Prefer model_returned manifest path; else canonical
     manifest_path = _resolve_manifest_path_from_sample(
         sr,
         default_manifest_path=run_paths.manifest_path,
@@ -261,7 +261,7 @@ def run_one(cfg: Dict[str, Any], *, do_eval: bool = True) -> HarvestResult:
     rm.setdefault("seed", ctx.seed)
     cfg2["run_meta"] = rm
 
-    # 8) Optional evaluation (best-effort)
+    # 8) Optional evaluation (best_effort)
     eval_latest: Optional[Path] = None
     if do_eval:
         try:
@@ -269,7 +269,7 @@ def run_one(cfg: Dict[str, Any], *, do_eval: bool = True) -> HarvestResult:
 
             evaluate_model_suite(cfg2, model_name=ctx.model_tag, no_synth=False)
 
-            # The runner writes latest.json under the dataset-scalable eval dir.
+            # The runner writes latest.json under the dataset_scalable eval dir.
             eval_latest = Path(ctx.eval_dir) / "latest.json"
 
             log_event_jsonl(

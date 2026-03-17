@@ -1,6 +1,6 @@
 # src/gencysynth/adapters/datasets/__init__.py
 """
-Dataset adapters (front-door for model adapters).
+Dataset adapters (front_door for model adapters).
 
 Why this exists
 ---------------
@@ -12,16 +12,16 @@ We support multiple datasets (Rule A), and each dataset may have different:
 Model adapters should NOT care about that. They should receive:
   - standardized splits (train/val/test)
   - standardized image shape
-  - standardized label encodings (int + one-hot)
+  - standardized label encodings (int + one_hot)
   - standardized ranges ([0,1] for eval/metrics; optionally [-1,1] for tanh models)
 
 Public API
 ----------
 - DatasetAdapter protocol + DatasetSplits dataclasses
 - register_dataset_adapter / resolve_dataset_adapter
-- built-in examples:
-    - npy_ustc (USTC-TFC2016 npy format)
-    - image_folder (generic class-folder dataset)
+- built_in examples:
+    - npy_ustc (USTC_TFC2016 npy format)
+    - image_folder (generic class_folder dataset)
 """
 
 from .splits import DatasetSplits, Split, SplitArrays

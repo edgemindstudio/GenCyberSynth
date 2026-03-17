@@ -1,6 +1,6 @@
 # src/gencysynth/data/datasets/base.py
 """
-GenCyberSynth — Dataset Abstractions (Scalable, Multi-Dataset)
+GenCyberSynth — Dataset Abstractions (Scalable, Multi_Dataset)
 
 Why this exists
 ---------------
@@ -9,10 +9,10 @@ This module defines a small, stable interface for dataset implementations.
 
 Key ideas
 ---------
-1) Every dataset must have a stable dataset_id (e.g. "USTC-TFC2016_40x40_gray")
+1) Every dataset must have a stable dataset_id (e.g. "USTC_TFC2016_40x40_gray")
 2) Every dataset implementation must be able to:
    - Describe itself (id, image shape, num classes, class names if known)
-   - Resolve where its raw data lives (config-based)
+   - Resolve where its raw data lives (config_based)
    - Load splits into arrays (train/val/test), optionally cached
 
 This file does NOT assume any particular dataset layout.
@@ -42,10 +42,10 @@ class DatasetArrays:
     x_*: np.ndarray, float32, in [0,1], NHWC -> (N,H,W,C)
     y_*: np.ndarray, either:
          - int labels (N,) OR
-         - one-hot float32 (N,K)
+         - one_hot float32 (N,K)
 
     NOTE:
-    - We do not force one-hot here because some pipelines prefer int labels.
+    - We do not force one_hot here because some pipelines prefer int labels.
     - Downstream evaluation utilities can convert as needed.
     """
     x_train: np.ndarray
@@ -106,7 +106,7 @@ class Dataset(Protocol):
         Load train/val/test arrays for this dataset.
 
         Rules:
-        - Must read from a dataset-specific raw location (defined by config).
+        - Must read from a dataset_specific raw location (defined by config).
         - Should normalize images to float32 in [0,1] NHWC.
         - Should support caching when config enables it (recommended).
         """
@@ -128,7 +128,7 @@ class BaseDataset:
 
     def __init__(self, dataset_id: str):
         if not isinstance(dataset_id, str) or not dataset_id.strip():
-            raise ValueError("dataset_id must be a non-empty string.")
+            raise ValueError("dataset_id must be a non_empty string.")
         self._dataset_id = dataset_id.strip()
 
     @property
@@ -153,7 +153,7 @@ class BaseDataset:
 
     def _dataset_root(self, config: Dict[str, Any]) -> Path:
         """
-        Dataset-scoped artifacts root (NOT the raw dataset location).
+        Dataset_scoped artifacts root (NOT the raw dataset location).
 
         This is where we store:
           - fingerprints

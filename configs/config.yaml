@@ -7,7 +7,7 @@
 #   - Global dataset + shape + scaling (shared across ALL families)
 #   - Artifact root configuration (portable across workstation/HPC)
 #   - Evaluation defaults (FID/cFID caps, feature extractor selection)
-#   - Family-level hyperparameters (diffusion/gan/vae/...)
+#   - Family_level hyperparameters (diffusion/gan/vae/...)
 #   - Optional "model selector" to pick a family+variant for a single run
 #
 # IMPORTANT:
@@ -20,7 +20,7 @@ SEED: 42
 random_seeds: [42, 43, 44]
 
 # Dataset root (NHWC .npy layout expected by your shared loader)
-DATA_DIR: "/home/bruno.fonkeng/gencys/data/USTC-TFC2016_malware_nhwc"
+DATA_DIR: "/home/bruno.fonkeng/gencys/data/USTC_TFC2016_malware_nhwc"
 
 # -----------------------------------------------------------------------------
 # Paths
@@ -44,15 +44,15 @@ NUM_CLASSES: 9
 scale: [-1, 1]
 
 # -----------------------------------------------------------------------------
-# Optional: which module to run (useful for single-run CLI orchestration)
-# If not present, your runner can default to the command-line selection.
+# Optional: which module to run (useful for single_run CLI orchestration)
+# If not present, your runner can default to the command_line selection.
 # -----------------------------------------------------------------------------
 model:
   family: "gan"
   variant: "dcgan"
 
 # -----------------------------------------------------------------------------
-# Synthesis (smoke-test defaults; override for real runs)
+# Synthesis (smoke_test defaults; override for real runs)
 # -----------------------------------------------------------------------------
 synth:
   # number of synthetic samples per class
@@ -94,11 +94,11 @@ early_stop:
   eval_every_steps: 2000
 
 # =============================================================================
-# Model-family blocks
+# Model_family blocks
 # =============================================================================
 
 diffusion:
-  LR: 2.0e-4
+  LR: 2.0e_4
   BATCH: 256
   EMA: 0.9999
   SCHEDULE: cosine
@@ -111,12 +111,12 @@ diffusion:
   GUIDANCE_WEIGHT: 1.5
 
 gan:
-  # DCGAN/conditional-GAN variants frequently need a latent dim:
+  # DCGAN/conditional_GAN variants frequently need a latent dim:
   LATENT_DIM: 100
 
   # Generic GAN family defaults (variants can override these in their defaults.yaml)
-  LR_G: 1.0e-4
-  LR_D: 2.0e-4
+  LR_G: 1.0e_4
+  LR_D: 2.0e_4
   BETAS: [0.5, 0.999]
   D_UPDATES_PER_G: 2
   BATCH: 128
@@ -128,14 +128,14 @@ gan:
     DECAY: 0.999
 
 vae:
-  LR: 1.0e-3
+  LR: 1.0e_3
   BATCH: 256
   BETA: 1.0
   KL_WARMUP_STEPS: 2000
   TOTAL_STEPS: 80000
 
 autoregressive:
-  LR: 1.0e-3
+  LR: 1.0e_3
   BATCH: 256
   TOTAL_STEPS: 100000
   SAMPLING:
@@ -144,7 +144,7 @@ autoregressive:
     TOP_P: 0.95
 
 restrictedboltzmann:
-  LR: 5.0e-4
+  LR: 5.0e_4
   CD_K: 5
   HIDDEN: 512
   BATCH: 256
@@ -154,12 +154,12 @@ restrictedboltzmann:
 gaussianmixture:
   GMM_COMPONENTS: 5
   GMM_COVARIANCE: diag
-  GMM_REG_COVAR: 1e-3
+  GMM_REG_COVAR: 1e_3
   GMM_MAX_ITER: 300
   GMM_TRAIN_GLOBAL: true
 
 maskedautoflow:
-  LR: 1.0e-3
+  LR: 1.0e_3
   BATCH: 256
   DEPTH: 8
   WIDTH: 256

@@ -4,7 +4,7 @@
 """
 tools/smoke/smoke_onepass.py
 
-Smoke test runner: run a tiny end-to-end suite across multiple model families
+Smoke test runner: run a tiny end_to_end suite across multiple model families
 (<5 epochs) and validate Rule A artifact layout.
 
 What this script does
@@ -25,20 +25,20 @@ This is meant to catch:
 - path regressions / hardcoded artifacts paths
 - missing required outputs
 - adapter registry resolution issues
-- broken end-to-end wiring
+- broken end_to_end wiring
 
 Usage examples
 --------------
 # simplest (uses configs/smoke.yaml or your smoke suite config)
 python tools/smoke/smoke_onepass.py \
-  --dataset-id ustc-tfc2016-npy \
-  --artifacts-root artifacts \
+  --dataset_id ustc_tfc2016_npy \
+  --artifacts_root artifacts \
   --suite configs/smoke/smoke.yaml \
-  --max-epochs 3
+  --max_epochs 3
 
 # customize the CLI invocation template if your command differs:
 python tools/smoke/smoke_onepass.py \
-  --cmd-template "python -m gencysynth.cli.main run --config {suite} --dataset {dataset_id} --family {family} --variant {variant} --override {override_yaml}"
+  --cmd_template "python -m gencysynth.cli.main run --config {suite} --dataset {dataset_id} --family {family} --variant {variant} --override {override_yaml}"
 """
 
 from __future__ import annotations
@@ -61,12 +61,12 @@ import yaml
 # -----------------------------
 DEFAULT_MODELS: List[Tuple[str, str]] = [
     ("gan", "dcgan"),
-    ("vae", "c-vae"),
-    ("diffusion", "c-ddpm"),
+    ("vae", "c_vae"),
+    ("diffusion", "c_ddpm"),
     ("autoregressive", "pixelcnnpp"),
-    ("gaussianmixture", "c-gmm-diag"),
-    ("maskedautoflow", "c-maf-affine"),
-    ("restrictedboltzmann", "c-rbm-bernoulli"),
+    ("gaussianmixture", "c_gmm_diag"),
+    ("maskedautoflow", "c_maf_affine"),
+    ("restrictedboltzmann", "c_rbm_bernoulli"),
 ]
 
 
@@ -90,18 +90,18 @@ def _print(msg: str) -> None:
 
 
 def read_json(path: Path) -> Dict:
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, "r", encoding="utf_8") as f:
         return json.load(f)
 
 
 def write_text(path: Path, txt: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(txt, encoding="utf-8")
+    path.write_text(txt, encoding="utf_8")
 
 
 def write_yaml(path: Path, data: Dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
+    with open(path, "w", encoding="utf_8") as f:
         yaml.safe_dump(data, f, sort_keys=False)
 
 
@@ -172,11 +172,11 @@ def try_validate_schemas(run_root: Path, schemas_dir: Path) -> List[str]:
     except Exception as e:
         errors.append(f"eval_summary.json schema validation failed: {e}")
 
-    # Validate run_events.jsonl line-by-line
+    # Validate run_events.jsonl line_by_line
     try:
         schema = _load_schema("run_events.schema.json")
         events_path = run_root / "run_events.jsonl"
-        with open(events_path, "r", encoding="utf-8") as f:
+        with open(events_path, "r", encoding="utf_8") as f:
             for i, line in enumerate(f, start=1):
                 line = line.strip()
                 if not line:
@@ -277,26 +277,26 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(
         description="GenCyberSynth smoke suite runner (<5 epochs) + Rule A layout validation."
     )
-    p.add_argument("--dataset-id", required=True, help="dataset_id from dataset registry (Rule A namespace)")
+    p.add_argument("--dataset_id", required=True, help="dataset_id from dataset registry (Rule A namespace)")
     p.add_argument("--suite", required=True, help="suite YAML config (smoke suite)")
 
-    p.add_argument("--artifacts-root", default="artifacts", help="Rule A artifacts root")
-    p.add_argument("--schemas-dir", default="src/gencysynth/schemas", help="schemas dir for optional validation")
+    p.add_argument("--artifacts_root", default="artifacts", help="Rule A artifacts root")
+    p.add_argument("--schemas_dir", default="src/gencysynth/schemas", help="schemas dir for optional validation")
 
-    p.add_argument("--max-epochs", type=int, default=3, help="max epochs for quick training (<5 recommended)")
-    p.add_argument("--samples-per-class", type=int, default=16, help="synthetic budget per class for smoke")
+    p.add_argument("--max_epochs", type=int, default=3, help="max epochs for quick training (<5 recommended)")
+    p.add_argument("--samples_per_class", type=int, default=16, help="synthetic budget per class for smoke")
     p.add_argument("--seed", type=int, default=42, help="seed for determinism")
 
     p.add_argument(
         "--models",
         nargs="*",
         default=None,
-        help="optional list of family:variant entries; defaults to 7-family list",
+        help="optional list of family:variant entries; defaults to 7_family list",
     )
 
-    # This is the only repo-specific part you may need to tweak once.
+    # This is the only repo_specific part you may need to tweak once.
     p.add_argument(
-        "--cmd-template",
+        "--cmd_template",
         default="python -m gencysynth.cli.main onepass --suite {suite} --dataset {dataset_id} "
                 "--family {family} --variant {variant} --override {override_yaml}",
         help=textwrap.dedent(
@@ -335,7 +335,7 @@ def main() -> int:
     else:
         models = list(DEFAULT_MODELS)
 
-    # Prepare override yaml in a temp-ish location under artifacts_root/_smoke
+    # Prepare override yaml in a temp_ish location under artifacts_root/_smoke
     smoke_dir = artifacts_root / "_smoke"
     ensure_dir(smoke_dir)
     override = make_smoke_override_yaml(

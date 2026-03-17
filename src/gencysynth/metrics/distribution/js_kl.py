@@ -1,12 +1,12 @@
 # src/gencysynth/metrics/distribution/js_kl.py
 """
-JS / KL divergence metrics over pixel-intensity distributions.
+JS / KL divergence metrics over pixel_intensity distributions.
 
 What this is for
 ----------------
-These histogram-based divergences are:
+These histogram_based divergences are:
 - very fast
-- dependency-minimal
+- dependency_minimal
 - great for smoke tests and regression checks
 
 We compute:
@@ -18,8 +18,8 @@ Config
 ------
 cfg.metrics.options.distribution.js_kl_hist:
   bins: 32
-  eps: 1e-8
-  per_class: false   # if true and labels exist, compute per-class divergences too
+  eps: 1e_8
+  per_class: false   # if true and labels exist, compute per_class divergences too
 """
 
 from __future__ import annotations
@@ -78,7 +78,7 @@ class JSKLMetrics:
         opts = (((cfg.get("metrics") or {}).get("options") or {}).get(name) or {})
 
         bins = int(opts.get("bins", 32))
-        eps = float(opts.get("eps", 1e-8))
+        eps = float(opts.get("eps", 1e_8))
         per_class = bool(opts.get("per_class", False))
 
         hR = pixel_histogram(x_real01, bins=bins)
@@ -97,7 +97,7 @@ class JSKLMetrics:
             "hist_synth": hS,
         }
 
-        # Optional per-class histogram divergences if labels exist
+        # Optional per_class histogram divergences if labels exist
         if per_class and (y_real is not None) and (y_synth is not None):
             K = int(dataset.num_classes)
             per = {}

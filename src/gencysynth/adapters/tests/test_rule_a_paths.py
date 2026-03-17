@@ -1,6 +1,6 @@
 # src/gencysynth/adapters/tests/test_rule_a_paths.py
 """
-Rule A path tests (adapter-level).
+Rule A path tests (adapter_level).
 
 These tests enforce ONE thing:
     If orchestration asks an adapter for "where do I read/write artifacts for this run?",
@@ -17,7 +17,7 @@ We are scaling to:
   - many datasets (USTC now, more later),
   - many model families + variants,
   - many runs (smoke, sweeps, paper modules),
-so "paths must never be ad-hoc".
+so "paths must never be ad_hoc".
 
 This test intentionally does NOT enforce exact folder names (you may evolve them),
 but it DOES enforce invariants that must always be true under Rule A.
@@ -64,14 +64,14 @@ def _assert_contains_segment(p: Path, seg: str) -> None:
 @pytest.mark.parametrize(
     "dataset_id,family,variant,run_id",
     [
-        ("ustc-tfc2016", "gan", "dcgan", "RUN_0001"),
-        ("ustc-tfc2016", "vae", "c-vae", "RUN_0002"),
-        ("toy-dataset", "restrictedboltzmann", "c-rbm-bernoulli", "RUN_smoke"),
+        ("ustc_tfc2016", "gan", "dcgan", "RUN_0001"),
+        ("ustc_tfc2016", "vae", "c_vae", "RUN_0002"),
+        ("toy_dataset", "restrictedboltzmann", "c_rbm_bernoulli", "RUN_smoke"),
     ],
 )
 def test_rule_a_run_root_and_subpaths(tmp_path: Path, dataset_id: str, family: str, variant: str, run_id: str):
     """
-    End-to-end invariants for Rule A run paths.
+    End_to_end invariants for Rule A run paths.
 
     We do not hardcode the exact naming convention (you may choose):
       artifacts/<dataset>/runs/<run_id>/<family>/<variant>/...
@@ -169,7 +169,7 @@ def test_rule_a_paths_do_not_depend_on_cwd(tmp_path: Path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     rr1 = Path(run_root_fn(
         artifacts_root=artifacts_root,
-        dataset_id="ustc-tfc2016",
+        dataset_id="ustc_tfc2016",
         family="gan",
         variant="dcgan",
         run_id="RUN_CWD_1",
@@ -181,7 +181,7 @@ def test_rule_a_paths_do_not_depend_on_cwd(tmp_path: Path, monkeypatch):
     monkeypatch.chdir(other)
     rr2 = Path(run_root_fn(
         artifacts_root=artifacts_root,
-        dataset_id="ustc-tfc2016",
+        dataset_id="ustc_tfc2016",
         family="gan",
         variant="dcgan",
         run_id="RUN_CWD_1",

@@ -4,7 +4,7 @@ Adapter: GAN / DCGAN (Conditional DCGAN)
 =======================================
 
 This adapter is the *bridge* between:
-  (A) the repository-wide orchestration (CLI / evaluator runner)
+  (A) the repository_wide orchestration (CLI / evaluator runner)
 and
   (B) the DCGAN implementation + sampler entrypoint.
 
@@ -14,24 +14,24 @@ Variant identity (must be explicit everywhere)
 - variant : dcgan
 - sampler : gan.sample.synth(cfg, output_root, seed) -> manifest dict
 
-Scalable output layout (dataset-aware)
+Scalable output layout (dataset_aware)
 --------------------------------------
 To support *multiple datasets* and *multiple variants* safely, this adapter writes
-to a canonical, collision-proof directory:
+to a canonical, collision_proof directory:
 
   <ARTIFACTS_ROOT>/synth/<FAMILY>/<VARIANT>/<DATASET_ID>/seed_<SEED>/
 
 Example:
-  artifacts/synth/gan/dcgan/ustc-tfc2016_nhwc/seed_42/class_0/gan_00001.png
-  artifacts/synth/gan/dcgan/ustc-tfc2016_nhwc/seed_42/manifest.json
+  artifacts/synth/gan/dcgan/ustc_tfc2016_nhwc/seed_42/class_0/gan_00001.png
+  artifacts/synth/gan/dcgan/ustc_tfc2016_nhwc/seed_42/manifest.json
 
 Why this matters
 ----------------
 - You can run multiple datasets without overwriting outputs.
-- You can run multiple GAN variants (dcgan, wgan-gp, ...) side-by-side.
+- You can run multiple GAN variants (dcgan, wgan_gp, ...) side_by_side.
 - The evaluator can always find the manifest in a consistent place.
 
-Manifest contract (evaluator-facing)
+Manifest contract (evaluator_facing)
 ------------------------------------
 The evaluator expects a stable schema:
 
@@ -44,7 +44,7 @@ The evaluator expects a stable schema:
   "created_at": str,
   "run_dir": str,                # directory containing outputs
   "paths": [{"path": str, "label": int}, ...],
-  "per_class_counts": {"0": int, ..., "K-1": int},
+  "per_class_counts": {"0": int, ..., "K_1": int},
   "num_fake": int,
   "budget_per_class": int | None
 }
@@ -66,7 +66,7 @@ Strategy A (preferred): pass `run_dir` to the sampler and then NORMALIZE
   - If the sampler writes `run_dir/<k>/<seed>/...`, we rewrite/relocate paths
     into `run_dir/class_<k>/...` and ensure manifest paths reflect that.
 
-Strategy B (minimal-change): accept sampler layout, but still isolate runs
+Strategy B (minimal_change): accept sampler layout, but still isolate runs
   - We pass `run_dir` as output_root.
   - We allow files to live under `run_dir/<k>/<seed>/...`
   - We still write the manifest to `run_dir/manifest.json`
@@ -116,8 +116,8 @@ def _ensure_dir(p: Path) -> Path:
 def _resolve_seed(cfg: Dict[str, Any]) -> int:
     """
     Resolve seed deterministically (project convention):
-      1) cfg["SEED"] (preferred single-run seed)
-      2) cfg["random_seeds"][0] (legacy multi-seed fallback)
+      1) cfg["SEED"] (preferred single_run seed)
+      2) cfg["random_seeds"][0] (legacy multi_seed fallback)
       3) 42
     """
     if "SEED" in cfg:
@@ -140,7 +140,7 @@ def _resolve_dataset_id(cfg: Dict[str, Any]) -> str:
 
     Keep this:
       - stable across runs
-      - filesystem-safe
+      - filesystem_safe
       - short but descriptive
     """
     did = (
@@ -167,7 +167,7 @@ def _resolve_dataset_provenance(cfg: Dict[str, Any]) -> str:
 
 
 # ---------------------------------------------------------------------
-# Manifest normalization (evaluator-facing contract)
+# Manifest normalization (evaluator_facing contract)
 # ---------------------------------------------------------------------
 def _normalize_manifest(manifest: Dict[str, Any], *, num_classes: int) -> Dict[str, Any]:
     """
@@ -181,7 +181,7 @@ def _normalize_manifest(manifest: Dict[str, Any], *, num_classes: int) -> Dict[s
 
     Guarantees:
       - paths: list[{"path": str, "label": int}]
-      - per_class_counts: {"0":..., "K-1":...}
+      - per_class_counts: {"0":..., "K_1":...}
       - num_fake
       - budget_per_class
     """
@@ -258,8 +258,8 @@ class DCGANAdapter(Adapter):
     Adapter for GAN family, DCGAN variant.
 
     IMPORTANT:
-    - Do NOT name this "GANAdapter" here, because this file is variant-specific.
-      Keeping the class name variant-specific prevents confusion once you add WGAN-GP.
+    - Do NOT name this "GANAdapter" here, because this file is variant_specific.
+      Keeping the class name variant_specific prevents confusion once you add WGAN_GP.
     """
 
     # If your registry routes adapters by class attribute, keep these explicit.
@@ -270,7 +270,7 @@ class DCGANAdapter(Adapter):
 
     def synth(self, config: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Run DCGAN synthesis and write a dataset+variant-scoped manifest.
+        Run DCGAN synthesis and write a dataset+variant_scoped manifest.
 
         Output directory (canonical):
           <artifacts>/synth/gan/dcgan/<dataset_id>/seed_<seed>/
@@ -300,7 +300,7 @@ class DCGANAdapter(Adapter):
         K = int(_cfg_get(config, "NUM_CLASSES", 9))
 
         # ----------------------------
-        # Stub manifest (fallback-safe)
+        # Stub manifest (fallback_safe)
         # ----------------------------
         manifest: Dict[str, Any] = {
             "dataset": dataset,

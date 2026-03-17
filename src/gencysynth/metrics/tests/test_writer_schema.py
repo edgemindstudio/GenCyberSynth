@@ -13,7 +13,7 @@ These tests do not require model training or large datasets.
 
 This suite is intentionally tolerant to evolving writer interfaces:
 - If writer validation helpers aren't available yet, it falls back to checking
-  that the schema files are loadable JSON and contain expected top-level keys.
+  that the schema files are loadable JSON and contain expected top_level keys.
 """
 
 from __future__ import annotations
@@ -33,7 +33,7 @@ def _load_schema(rel: str) -> dict:
     p = _repo_root() / rel
     if not p.exists():
         pytest.skip(f"Schema file missing: {p}")
-    return json.loads(p.read_text(encoding="utf-8"))
+    return json.loads(p.read_text(encoding="utf_8"))
 
 
 def test_run_manifest_schema_loads():

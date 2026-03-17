@@ -91,7 +91,7 @@ def _make_montage(images: Sequence[Image.Image], rows: int, cols: int, pad: int 
 
 def _default_grid_spec() -> GridSpec:
     """
-    Defaults tuned for quick-run inspection.
+    Defaults tuned for quick_run inspection.
     - For each class, we take up to max_per_class images.
     - We assemble across classes into a single montage.
     """

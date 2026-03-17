@@ -3,7 +3,7 @@
 Contracts and validation utilities for metrics inputs/outputs.
 
 This module is intentionally strict about:
-- channels-last image layout (N,H,W,C)
+- channels_last image layout (N,H,W,C)
 - dtype normalization expectations
 - label shape and class bounds when labels are provided
 
@@ -38,7 +38,7 @@ def validate_images(x: np.ndarray, spec: ShapeSpec, name: str) -> np.ndarray:
     """
     x = np.asarray(x)
     if x.ndim != 4:
-        _fail(f"{name} must be rank-4 (N,H,W,C); got shape={x.shape}")
+        _fail(f"{name} must be rank_4 (N,H,W,C); got shape={x.shape}")
     H, W, C = spec.img_shape
     if tuple(x.shape[1:]) != (H, W, C):
         _fail(f"{name} expected shape (_, {H},{W},{C}); got {x.shape}")
@@ -50,7 +50,7 @@ def validate_labels(y: Optional[np.ndarray], spec: ShapeSpec, name: str, n: int)
     Validate labels are either:
       - None
       - (N,) integer labels
-      - (N,K) one-hot labels
+      - (N,K) one_hot labels
     And that N matches x.shape[0].
     """
     if y is None:
@@ -68,7 +68,7 @@ def validate_labels(y: Optional[np.ndarray], spec: ShapeSpec, name: str, n: int)
         if y.shape[0] != n:
             _fail(f"{name} length mismatch: expected N={n}, got {y.shape[0]}")
         if y.shape[1] != K:
-            _fail(f"{name} one-hot width mismatch: expected K={K}, got {y.shape[1]}")
+            _fail(f"{name} one_hot width mismatch: expected K={K}, got {y.shape[1]}")
         return y
 
     _fail(f"{name} must be None, (N,), or (N,K); got shape={y.shape}")

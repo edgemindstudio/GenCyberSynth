@@ -1,6 +1,6 @@
 # src/gencysynth/utils/schema.py
 """
-GenCyberSynth — Schema utilities (Rule A / manifest-driven)
+GenCyberSynth — Schema utilities (Rule A / manifest_driven)
 
 Purpose
 -------
@@ -115,5 +115,5 @@ def save_validated_json(
     sch = schema if schema is not None else load_schema(schema_name or "")
     validate(instance, sch)
 
-    # Use existing io.save_json to keep formatting consistent repo-wide.
+    # Use existing io.save_json to keep formatting consistent repo_wide.
     save_json(instance, out_path, indent=indent)

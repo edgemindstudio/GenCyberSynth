@@ -1,6 +1,6 @@
 # src/gencysynth/models/gan/train.py
 """
-GenCyberSynth — GAN Family — Training Router (non-variant)
+GenCyberSynth — GAN Family — Training Router (non_variant)
 =========================================================
 
 This module provides a stable training entrypoint for the GAN family and routes
@@ -13,9 +13,9 @@ Supported variant trainer contracts
 We support either of these in the variant module:
   - main(argv: list[str] | None) -> int
   - run_from_file(cfg_path: Path, ...) -> int
-  - train(cfg_or_argv) -> int   (adapter-style, optional)
+  - train(cfg_or_argv) -> int   (adapter_style, optional)
 
-We intentionally keep this router lightweight and variant-agnostic.
+We intentionally keep this router lightweight and variant_agnostic.
 """
 
 from __future__ import annotations
@@ -29,12 +29,12 @@ from .base import build_identity
 
 def train(cfg_or_argv: Mapping[str, Any] | Sequence[str]) -> int:
     """
-    Adapter-friendly entrypoint:
+    Adapter_friendly entrypoint:
       - if list/tuple argv -> calls main(argv)
       - if dict cfg -> expects cfg has "config_path" or a caller uses variant main another way
 
     In practice, your CLI may call variant train main() directly. This function is here
-    so family-level routing is available when you say "--model gan" and configure variant.
+    so family_level routing is available when you say "--model gan" and configure variant.
     """
     if isinstance(cfg_or_argv, (list, tuple)):
         return main(list(cfg_or_argv))
@@ -49,7 +49,7 @@ def train(cfg_or_argv: Mapping[str, Any] | Sequence[str]) -> int:
 
         if hasattr(mod, "train") and callable(getattr(mod, "train")):
             print(f"[{ident.tag}] calling variant train(config_dict)")
-            ret = mod.train(cfg)  # type: ignore[attr-defined]
+            ret = mod.train(cfg)  # type: ignore[attr_defined]
             return int(ret) if isinstance(ret, int) else 0
 
         raise TypeError(
@@ -61,7 +61,7 @@ def train(cfg_or_argv: Mapping[str, Any] | Sequence[str]) -> int:
 
 def main(argv: Optional[list[str]] = None) -> int:
     """
-    CLI-style router for training.
+    CLI_style router for training.
 
     If you call this module directly, you should pass through the variant trainer's
     CLI, e.g.:
@@ -77,7 +77,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     p.add_argument("--config", type=str, default="configs/config.yaml", help="Path to YAML config")
     args, rest = p.parse_known_args(argv)
 
-    # Load config (keep dependency optional at top-level)
+    # Load config (keep dependency optional at top_level)
     try:
         import yaml  # type: ignore
     except Exception:
@@ -89,7 +89,7 @@ def main(argv: Optional[list[str]] = None) -> int:
 
     cfg: Dict[str, Any] = yaml.safe_load(cfg_path.read_text()) or {}
     if not isinstance(cfg, dict):
-        raise SystemExit(f"Config file must contain a top-level mapping/dict: {cfg_path}")
+        raise SystemExit(f"Config file must contain a top_level mapping/dict: {cfg_path}")
 
     # Variant override by flag (highest priority)
     if args.variant:
@@ -111,13 +111,13 @@ def main(argv: Optional[list[str]] = None) -> int:
         # Forward config path + remaining args to the variant trainer
         v_argv = ["--config", str(cfg_path)] + list(rest)
         print(f"[{ident.tag}] dispatch → {mod_path}.main({v_argv})")
-        ret = mod.main(v_argv)  # type: ignore[attr-defined]
+        ret = mod.main(v_argv)  # type: ignore[attr_defined]
         return int(ret) if isinstance(ret, int) else 0
 
     # Fallback: variant exposes run_from_file(cfg_path, ...)
     if hasattr(mod, "run_from_file") and callable(getattr(mod, "run_from_file")):
         print(f"[{ident.tag}] dispatch → {mod_path}.run_from_file({cfg_path})")
-        ret = mod.run_from_file(cfg_path)  # type: ignore[attr-defined]
+        ret = mod.run_from_file(cfg_path)  # type: ignore[attr_defined]
         return int(ret) if isinstance(ret, int) else 0
 
     raise SystemExit(

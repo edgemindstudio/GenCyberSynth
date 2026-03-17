@@ -8,7 +8,7 @@ Rule A
 ------
 - Orchestration is the only consumer.
 - Model implementations register themselves, so orchestration never imports
-  model-family code directly.
+  model_family code directly.
 
 Example registration (inside a variant package)
 ----------------------------------------------
@@ -16,7 +16,7 @@ from gencysynth.adapters.models.registry import register_model_adapter
 
 register_model_adapter(
     family="vae",
-    variant="c-vae",
+    variant="c_vae",
     factory=lambda: CVAEAdapter(),   # implements ModelAdapter
 )
 """
@@ -65,9 +65,9 @@ def list_model_adapters() -> List[str]:
 
 def register_builtin_adapters() -> None:
     """
-    Import all built-in adapter family registries so they register variants.
+    Import all built_in adapter family registries so they register variants.
 
-    This is deliberately best-effort: missing optional deps should not crash the CLI.
+    This is deliberately best_effort: missing optional deps should not crash the CLI.
     """
     from gencysynth.adapters.registry import SKIPPED_IMPORTS
 
@@ -90,7 +90,7 @@ def register_builtin_adapters() -> None:
             
 def register_builtin_adapters() -> None:
     """
-    Import all adapter-family registry modules so they can register variants.
+    Import all adapter_family registry modules so they can register variants.
 
     This is the single bootstrap entrypoint the CLI (or tests) should call.
     """
