@@ -7,8 +7,8 @@ Rule A goal
 Downstream code should always see the same structure:
   - train / val / test splits
   - x in NHWC
-  - y as both int labels and one_hot labels
-  - x in [0,1] by default (eval_friendly)
+  - y as both int labels and one-hot labels
+  - x in [0,1] by default (eval-friendly)
 
 If a model needs [-1,1] (tanh decoder), adapters can convert at the boundary.
 """
@@ -37,7 +37,7 @@ class SplitArrays:
     -----------
     - x01: float32 images in [0,1], shape (N,H,W,C)
     - y_int: int64 labels, shape (N,)
-    - y_onehot: float32 one_hot labels, shape (N,K)
+    - y_onehot: float32 one-hot labels, shape (N,K)
     """
     x01: np.ndarray
     y_int: np.ndarray
@@ -66,7 +66,6 @@ class DatasetSplits:
         if self.test is not None:
             out["test"] = self.test
         return out
-        
 
 from dataclasses import dataclass
 import numpy as np

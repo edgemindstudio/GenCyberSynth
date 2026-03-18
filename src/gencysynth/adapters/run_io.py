@@ -81,7 +81,7 @@ def ensure_run_dirs(run_paths: RunPaths, logs_paths: LogsPaths, eval_paths: Eval
 @dataclass(frozen=True)
 class RunIO:
     """
-    Convenience wrapper holding canonical Rule_A paths for a single run.
+    Convenience wrapper holding canonical Rule-A paths for a single run.
 
     This keeps adapter code clean:
       io = RunIO(artifacts_root, dataset_id, model_tag, run_id)
@@ -131,7 +131,7 @@ class RunIO:
     @classmethod
     def from_run_ctx(cls, run_ctx) -> "RunIO":
         """
-        Best_effort construction from a run_ctx object.
+        Best-effort construction from a run_ctx object.
 
         Expected attributes on run_ctx (common patterns):
           - artifacts_root OR artifacts
