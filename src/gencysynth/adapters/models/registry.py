@@ -87,7 +87,6 @@ def register_builtin_adapters() -> None:
             __import__(mod, fromlist=["*"])
         except Exception as e:
             SKIPPED_IMPORTS[mod] = f"{type(e).__name__}: {e}"
-<<<<<<< HEAD
             
 def register_builtin_adapters() -> None:
     """
@@ -108,5 +107,3 @@ def register_builtin_adapters() -> None:
         "gencysynth.adapters.models.restrictedboltzmann.registry",
     ]:
         importlib.import_module(mod)
-=======
->>>>>>> bd867bd (WIP: local fixes (dataset CLI + adapters); ignore uv.lock)
