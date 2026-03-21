@@ -76,12 +76,10 @@ register_builtin_adapters()
 # ----------------------------
 # Local imports (repo modules)
 # ----------------------------
-# Keep these imports "thin": the registry should lazy-import heavy model code.
-from gencysynth.adapters.registry import SKIPPED_IMPORTS, list_adapters, make_adapter
+from gencysynth.adapters.registry import SKIPPED_IMPORTS, list_adapters  # legacy "global" registry diagnostics only
+from gencysynth.adapters.models.registry import register_builtin_adapters, resolve_model_adapter, list_model_adapters
 from gencysynth.models.registry import register_builtin_models
-# somewhere during runtime init:
-from gencysynth.adapters.models.registry import register_builtin_adapters
-register_builtin_adapters()
+
 # Optional dependency: only required when a config path is provided.
 try:
     import yaml  # type: ignore
@@ -213,14 +211,13 @@ def _normalize_family_variant(args: argparse.Namespace, cfg: Dict[str, Any]) -> 
 
 def _adapter_key(family: str, variant: Optional[str]) -> str:
     """
-    Convert identity into a registry key.
+    Canonical model_tag used across artifacts + registries.
 
-    Pick ONE canonical scheme across your repo. Recommended:
-      family:variant  (e.g., "gan:dcgan")
-
-    If variant is None, return family only (e.g., "gan").
+    We use slash form:
+      gan/dcgan
+      gaussianmixture/gmm_diag
     """
-    return f"{family}:{variant}" if variant else family
+    return f"{family}/{variant}" if variant else family
 
 
 # =============================================================================
@@ -519,15 +516,14 @@ def cmd_train(args: argparse.Namespace) -> int:
 
 def cmd_synth(args: argparse.Namespace) -> int:
     """
-    Synthesize (generate) synthetic samples.
+    Synthesize (generate) synthetic samples using the *model adapter registry*.
 
     Flow:
       1) Load config (+ optional overrides)
-      2) Resolve (family, variant) identity
-      3) Build adapter from registry (family-only or family+variant)
-      4) adapter.synth(cfg) -> returns manifest dict (adapter should also write manifest)
-      5) Ensure shared manifest exists (copy if adapter didn't write it)
-      6) Write a per-run immutable manifest copy (CFG+SEED-specific)
+      2) Resolve (family, variant) identity -> model_tag "family/variant"
+      3) Load dataset arrays via dataset registry
+      4) Convert arrays -> DatasetSplits (Rule A contract)
+      5) Resolve model adapter and run adapter.synthesize(...)
     """
     cfg = load_config(args.config)
 
@@ -541,59 +537,111 @@ def cmd_synth(args: argparse.Namespace) -> int:
 
     attach_run_meta(cfg, args)
 
+    # ---- identity ----
     family, variant = _normalize_family_variant(args, cfg)
-    akey = _adapter_key(family, variant)
+    if not variant:
+        _err("cmd_synth requires --variant (family-only adapters are not supported in the model-adapter path).")
+        return 2
+
+    model_tag = _adapter_key(family, variant)  # "family/variant"
 
     _info(f"Adapter family : {family}")
-    _info(f"Adapter variant: {variant or '<none>'}")
-    _info(f"Adapter key    : {akey}")
+    _info(f"Adapter variant: {variant}")
+    _info(f"Model tag      : {model_tag}")
     _info(f"Config         : {args.config or '<defaults>'}")
     _info(f"Artifacts      : {artifacts_root(cfg, args.artifacts)}")
 
+    # ---- dataset load ----
+    from gencysynth.data.datasets.registry import make_dataset_from_config
+    from gencysynth.adapters.datasets.splits import DatasetSplits, SplitArrays
+
+    ds = make_dataset_from_config(cfg)
+    arrays = ds.load_arrays(cfg)  # DatasetArrays
+
+    # ---- build DatasetSplits ----
+    # Your DatasetArrays uses x_train/y_train/x_val/y_val/x_test/y_test.
+    # y may be ints (N,) or one-hot (N,K). We normalize to BOTH.
+    def _to_int_and_onehot(y, K: int):
+        import numpy as np
+        y = np.asarray(y)
+        if y.ndim == 2 and y.shape[1] == K:
+            y_onehot = y.astype("float32", copy=False)
+            y_int = y_onehot.argmax(axis=1).astype("int64", copy=False)
+            return y_int, y_onehot
+        # assume integer labels
+        y_int = y.astype("int64", copy=False)
+        y_onehot = np.zeros((len(y_int), K), dtype="float32")
+        y_onehot[np.arange(len(y_int)), y_int.astype("int64")] = 1.0
+        return y_int, y_onehot
+
+    dataset_id = cfg.get("dataset", {}).get("id", "unknown_dataset")
+    K = int(cfg.get("dataset", {}).get("num_classes", 9))
+    seed = int(cfg.get("SEED", 42))
+    bpc = int(cfg.get("synth", {}).get("n_per_class", 10))
+    run_id = f"smoke_seed{seed}_pc{bpc}"
+
+    import numpy as np
+    x_train = np.asarray(arrays.x_train).astype("float32", copy=False)
+    y_train_int, y_train_1h = _to_int_and_onehot(arrays.y_train, K)
+
+    train = SplitArrays(x01=x_train, y_int=y_train_int, y_onehot=y_train_1h)
+
+    val = None
+    if getattr(arrays, "x_val", None) is not None and getattr(arrays, "y_val", None) is not None:
+        x_val = np.asarray(arrays.x_val).astype("float32", copy=False)
+        y_val_int, y_val_1h = _to_int_and_onehot(arrays.y_val, K)
+        val = SplitArrays(x01=x_val, y_int=y_val_int, y_onehot=y_val_1h)
+
+    test = None
+    if getattr(arrays, "x_test", None) is not None and getattr(arrays, "y_test", None) is not None:
+        x_test = np.asarray(arrays.x_test).astype("float32", copy=False)
+        y_test_int, y_test_1h = _to_int_and_onehot(arrays.y_test, K)
+        test = SplitArrays(x01=x_test, y_int=y_test_int, y_onehot=y_test_1h)
+
+    splits = DatasetSplits(train=train, val=val, test=test)
+
+    # ---- resolve model adapter ----
     try:
-        adapter = make_adapter(akey)
-    except KeyError as e:
-        _err(str(e))
-        _info(f"Registered adapters: {', '.join(list_adapters()) or '<none>'}")
-        if SKIPPED_IMPORTS:
-            _warn("Some adapters failed to import (non-fatal for others):\n  - " + "\n  - ".join(SKIPPED_IMPORTS))
+        adapter = resolve_model_adapter(family=family, variant=variant)
+    except Exception as e:
+        _err(f"Model adapter not found for {family}/{variant}: {type(e).__name__}: {e}")
+        _info(f"Known model adapters: {', '.join(list_model_adapters())}")
         return 2
 
-    manifest = adapter.synth(cfg)
+    # ---- run_ctx (minimal) ----
+    # Adapters expect run_ctx to exist; we provide the fields commonly used.
+    from types import SimpleNamespace
+    try:
+        from gencysynth.adapters.run_io import RunIO
+        io = RunIO(artifacts_root=artifacts_root(cfg, args.artifacts), dataset_id=dataset_id, model_tag=model_tag, run_id=run_id)
+    except Exception:
+        io = None  # adapters that don't require io will still work
 
-    # ---- Manifest paths (shared + per-run) ----
-    arts = artifacts_root(cfg, args.artifacts)
-    shared_path = _shared_manifest_path(arts, family, variant)
-    per_run_path = _per_run_manifest_path(arts, family, variant, cfg)
+    run_ctx = SimpleNamespace(
+        artifacts_root=artifacts_root(cfg, args.artifacts),
+        dataset_id=dataset_id,
+        model_tag=model_tag,
+        run_id=run_id,
+        seed=seed,
+        io=io,
+        log=lambda stage, msg: print(f"[{stage}] {msg}"),
+    )
 
-    # Expose these paths inside cfg for debugging / downstream tooling (non-breaking)
-    cfg.setdefault("paths", {})
-    cfg["paths"]["shared_manifest_path"] = shared_path
-    if per_run_path:
-        cfg["paths"]["per_run_manifest_path"] = per_run_path
-        cfg["paths"]["per_run_synth_dir"] = os.path.dirname(per_run_path)
+    # Record key provenance
+    cfg.setdefault("run_meta", {})
+    cfg["run_meta"].update({
+        "dataset_id": dataset_id,
+        "model_tag": model_tag,
+        "run_id": run_id,
+        "seed": seed,
+        "budget_per_class": bpc,
+    })
 
-    # ---- Ensure shared manifest exists (many tools expect this canonical location) ----
-    if not os.path.exists(shared_path):
-        try:
-            os.makedirs(os.path.dirname(shared_path), exist_ok=True)
-            with open(shared_path, "w") as f:
-                json.dump(manifest, f, indent=2)
-            _warn(f"Adapter did not write shared manifest; saved a copy to: {shared_path}")
-        except Exception as e:
-            _warn(f"Could not save shared manifest copy to {shared_path}: {e}")
+    # ---- synthesize ----
+    _info(f"Running synth via model adapter: {family}/{variant}")
+    _ = adapter.synthesize(run_ctx, cfg, splits)
 
-    # ---- Also write per-run immutable manifest (CFG+SEED safety) ----
-    if per_run_path and not os.path.exists(per_run_path):
-        try:
-            os.makedirs(os.path.dirname(per_run_path), exist_ok=True)
-            with open(per_run_path, "w") as f:
-                json.dump(manifest, f, indent=2)
-            _info(f"Saved per-run manifest: {per_run_path}")
-        except Exception as e:
-            _warn(f"Could not save per-run manifest copy to {per_run_path}: {e}")
-
-    _info(f"Synthesis complete. Shared manifest: {shared_path}")
+    _info("Synthesis complete.")
     return 0
 
 
