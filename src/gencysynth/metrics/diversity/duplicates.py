@@ -1,17 +1,17 @@
 # src/gencysynth/metrics/diversity/duplicates.py
 """
-Duplicate / near-duplicate detection for synthetic samples.
+Duplicate / near_duplicate detection for synthetic samples.
 
 Why this metric exists
 ----------------------
 A common failure mode in generative models is memorization or mode collapse:
 - exact duplicates: identical images repeated
-- near-duplicates: visually almost identical (tiny noise differences)
+- near_duplicates: visually almost identical (tiny noise differences)
 
-This file implements a *fast, deterministic, dependency-minimal* approach:
+This file implements a *fast, deterministic, dependency_minimal* approach:
 - Convert each image to a compact hash (8x8 average hash by default)
-- Count duplicates by hash equality (exact in hash-space)
-- Optionally estimate near-duplicates by Hamming distance threshold
+- Count duplicates by hash equality (exact in hash_space)
+- Optionally estimate near_duplicates by Hamming distance threshold
 
 Rule A
 ------
@@ -53,7 +53,7 @@ def _to_grayscale01(x01: np.ndarray) -> np.ndarray:
 
 def _resize_nn(img: np.ndarray, out_hw: Tuple[int, int]) -> np.ndarray:
     """
-    Nearest-neighbor resize for a single grayscale image using NumPy only.
+    Nearest_neighbor resize for a single grayscale image using NumPy only.
     img: (H,W) -> (oh,ow)
     """
     H, W = img.shape
@@ -66,7 +66,7 @@ def _resize_nn(img: np.ndarray, out_hw: Tuple[int, int]) -> np.ndarray:
 
 def _ahash_bits(img_gray01: np.ndarray, hash_hw: Tuple[int, int] = (8, 8)) -> np.ndarray:
     """
-    Average hash (aHash) bit-vector for one grayscale image.
+    Average hash (aHash) bit_vector for one grayscale image.
     - Resize to hash_hw
     - Threshold by mean
 
@@ -104,8 +104,8 @@ class DuplicatesMetric:
     Options (cfg.metrics.options.diversity.duplicates):
       max_samples: 20000         # cap for speed
       hash_size: 8               # aHash size => hash_size x hash_size bits
-      near_hamming: 0            # 0 => exact hash duplicates only; >0 => near-duplicates threshold
-      per_class: false           # compute per-class duplicate rates if labels provided
+      near_hamming: 0            # 0 => exact hash duplicates only; >0 => near_duplicates threshold
+      per_class: false           # compute per_class duplicate rates if labels provided
     """
 
     def __call__(
@@ -164,7 +164,7 @@ class DuplicatesMetric:
             "duplicate_rate": float(dup_rate),
         }
 
-        # Optional near-duplicate estimate:
+        # Optional near_duplicate estimate:
         # We do a lightweight pass over only the hash *unique* set.
         # Complexity O(U^2) can be big, so we cap U for this mode.
         if near_hamming > 0:
@@ -183,10 +183,10 @@ class DuplicatesMetric:
                 "max_unique_for_near": max_unique_for_near,
                 "unique_checked": int(len(uniq)),
                 "near_pairs": int(near_pairs),
-                "note": "near_pairs counts unique-hash pairs within threshold (not weighted by frequency).",
+                "note": "near_pairs counts unique_hash pairs within threshold (not weighted by frequency).",
             }
 
-        # Optional per-class duplicate rate (exact only; near-dup optional but expensive)
+        # Optional per_class duplicate rate (exact only; near_dup optional but expensive)
         if per_class and ys is not None:
             K = int(dataset.num_classes)
             per = {}

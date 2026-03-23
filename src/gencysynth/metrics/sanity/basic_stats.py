@@ -1,6 +1,6 @@
 # src/gencysynth/metrics/sanity/basic_stats.py
 """
-Sanity metric: basic image statistics (global + optional per-class).
+Sanity metric: basic image statistics (global + optional per_class).
 
 Why this exists
 ---------------
@@ -9,10 +9,10 @@ Before expensive metrics (FID/KID/utility), you want a quick health report:
 - value range (min/max)
 - mean/std
 - percentiles (helps detect saturation)
-- per-class sample counts (helps detect imbalance)
+- per_class sample counts (helps detect imbalance)
 - NaN/Inf counts (fast failure signal)
 
-This is intentionally lightweight and NumPy-only so it runs everywhere (HPC login,
+This is intentionally lightweight and NumPy_only so it runs everywhere (HPC login,
 CPU node, GPU node) and is stable across model families and datasets.
 
 Rule A alignment
@@ -72,8 +72,8 @@ def _maybe_subsample_rows(x: np.ndarray, max_rows: Optional[int], seed: int = 0)
 def _labels_to_int(y: np.ndarray, num_classes: int) -> np.ndarray:
     """
     Normalize labels into integer ids:
-      - one-hot (N,K) -> argmax
-      - int (N,) -> as-is
+      - one_hot (N,K) -> argmax
+      - int (N,) -> as_is
     """
     y = _as_np(y)
     if y.ndim == 2 and y.shape[1] == int(num_classes):
@@ -104,7 +104,7 @@ def _describe_array(
     fc = _finite_counts(xf)
     out.update(fc)
 
-    # If there are non-finites, compute stats on finite subset
+    # If there are non_finites, compute stats on finite subset
     if fc["n_finite"] == 0:
         out.update({"min": None, "max": None, "mean": None, "std": None, "percentiles": None})
         return out
@@ -141,22 +141,22 @@ def basic_stats(
     seed: int = 0,
 ) -> Dict[str, Any]:
     """
-    Compute basic global stats for an image tensor and (optionally) per-class stats.
+    Compute basic global stats for an image tensor and (optionally) per_class stats.
 
     Parameters
     ----------
     x : np.ndarray
         Images. Expected (N,H,W,C) or (N,D). We do not reshape; only report.
     y : Optional[np.ndarray]
-        Labels (int or one-hot). Required if per_class=True.
+        Labels (int or one_hot). Required if per_class=True.
     num_classes : Optional[int]
-        Needed to interpret one-hot labels and to produce stable per-class keys.
+        Needed to interpret one_hot labels and to produce stable per_class keys.
     expected_shape : Optional[(H,W,C)]
         If provided, included for reporting (not strict validation in this module).
     percentiles : sequence
         Percentiles to report.
     per_class : bool
-        If True, compute per-class stats when y and num_classes are provided.
+        If True, compute per_class stats when y and num_classes are provided.
     max_rows : Optional[int]
         Subsample N to keep speed stable.
     seed : int
@@ -183,7 +183,7 @@ def basic_stats(
         "per_class": None,
     }
 
-    # Per-class block
+    # Per_class block
     if per_class:
         if y is None or num_classes is None:
             report["per_class"] = {"skipped": True, "reason": "y or num_classes not provided"}

@@ -14,24 +14,24 @@ Validate Rule A artifacts:
   - x_synth.npy / y_synth.npy shapes (light sanity)
 
 This tool is intentionally "thin": it does not assume how runs are created.
-It only verifies the *canonical outputs* and keeps errors human-actionable.
+It only verifies the *canonical outputs* and keeps errors human_actionable.
 
 Usage
 -----
 # Validate all runs under artifacts root:
-python tools/validate/validate_artifacts.py --artifacts-root artifacts
+python tools/validate/validate_artifacts.py --artifacts_root artifacts
 
 # Validate one dataset:
-python tools/validate/validate_artifacts.py --artifacts-root artifacts --dataset-id ustc-tfc2016-npy
+python tools/validate/validate_artifacts.py --artifacts_root artifacts --dataset_id ustc_tfc2016_npy
 
 # Validate one run id:
-python tools/validate/validate_artifacts.py --artifacts-root artifacts --dataset-id ustc-tfc2016-npy --run-id <run_id>
+python tools/validate/validate_artifacts.py --artifacts_root artifacts --dataset_id ustc_tfc2016_npy --run_id <run_id>
 
 # Validate a run_root directly:
-python tools/validate/validate_artifacts.py --run-root artifacts/datasets/<dataset_id>/runs/<run_id>
+python tools/validate/validate_artifacts.py --run_root artifacts/datasets/<dataset_id>/runs/<run_id>
 
 # Enable deep synthetic checks:
-python tools/validate/validate_artifacts.py --artifacts-root artifacts --check-synth-index --check-npy
+python tools/validate/validate_artifacts.py --artifacts_root artifacts --check_synth_index --check_npy
 """
 
 from __future__ import annotations
@@ -66,7 +66,7 @@ SCHEMA_FILES = {
     "run_manifest": "run_manifest.schema.json",
     "run_events": "run_events.schema.json",
     "eval_summary": "eval_summary.schema.json",
-    # present in repo; not always emitted as per-run artifacts
+    # present in repo; not always emitted as per_run artifacts
     "dataset_fingerprint": "dataset_fingerprint.schema.json",
     "dataset_registry": "dataset_registry.schema.json",
 }
@@ -80,12 +80,12 @@ def _print(msg: str) -> None:
 
 
 def read_json(path: Path) -> Dict[str, Any]:
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, "r", encoding="utf_8") as f:
         return json.load(f)
 
 
 def iter_jsonl(path: Path) -> Iterable[Dict[str, Any]]:
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, "r", encoding="utf_8") as f:
         for i, line in enumerate(f, start=1):
             line = line.strip()
             if not line:
@@ -106,7 +106,7 @@ def exists_all(run_root: Path, relpaths: Iterable[str]) -> List[str]:
 
 def default_schemas_dir() -> Path:
     """
-    Resolve schemas dir in a repo-friendly way:
+    Resolve schemas dir in a repo_friendly way:
       - prefer src/gencysynth/schemas (repo tree)
       - allow override via env SCHEMAS_DIR
     """
@@ -353,7 +353,7 @@ def validate_run(
         if events_path.exists():
             schema = load_schema(SCHEMA_FILES["run_events"])
             if schema is not None:
-                # validate each event line-by-line
+                # validate each event line_by_line
                 if jsonschema is None:
                     warnings.append("[skip] jsonschema not installed (cannot validate run_events.jsonl).")
                 else:
@@ -383,16 +383,16 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Validate Rule A artifacts (tree + schema validation).")
 
     g = p.add_mutually_exclusive_group(required=True)
-    g.add_argument("--artifacts-root", type=str, help="Root artifacts directory (Rule A): artifacts/")
-    g.add_argument("--run-root", type=str, help="Direct run root: artifacts/datasets/<dataset_id>/runs/<run_id>/")
+    g.add_argument("--artifacts_root", type=str, help="Root artifacts directory (Rule A): artifacts/")
+    g.add_argument("--run_root", type=str, help="Direct run root: artifacts/datasets/<dataset_id>/runs/<run_id>/")
 
-    p.add_argument("--dataset-id", type=str, default=None, help="Filter by dataset_id (when using --artifacts-root)")
-    p.add_argument("--run-id", type=str, default=None, help="Filter by run_id (when using --artifacts-root)")
+    p.add_argument("--dataset_id", type=str, default=None, help="Filter by dataset_id (when using --artifacts_root)")
+    p.add_argument("--run_id", type=str, default=None, help="Filter by run_id (when using --artifacts_root)")
 
-    p.add_argument("--schemas-dir", type=str, default=None, help="Schemas dir (default: src/gencysynth/schemas)")
+    p.add_argument("--schemas_dir", type=str, default=None, help="Schemas dir (default: src/gencysynth/schemas)")
 
-    p.add_argument("--check-synth-index", action="store_true", help="Verify synthetic/index.json referenced files exist")
-    p.add_argument("--check-npy", action="store_true", help="Check synthetic/npy x_synth/y_synth shapes")
+    p.add_argument("--check_synth_index", action="store_true", help="Verify synthetic/index.json referenced files exist")
+    p.add_argument("--check_npy", action="store_true", help="Check synthetic/npy x_synth/y_synth shapes")
 
     return p.parse_args()
 

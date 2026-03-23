@@ -99,7 +99,14 @@ def _cmd_dataset_info(args: argparse.Namespace) -> int:
 
     if args.load:
         print("[dataset-info] loading arrays (this may take time depending on dataset size)...")
-        splits = ds.load_arrays(cfg)  # expected to return something dict-like in your design
+
+        # Load arrays: support both signatures:
+        #   - load_arrays(self)
+        #   - load_arrays(self, cfg)
+        try:
+            splits = ds.load_arrays(cfg)  # newer style
+        except TypeError:
+            splits = ds.load_arrays()  # older style
 
         # Be flexible: support either dict {"train": (x,y), ...} or a typed object.
         try:
@@ -128,7 +135,13 @@ def _cmd_dataset_cache_warm(args: argparse.Namespace) -> int:
     ds = make_dataset_from_config(cfg)
 
     print("[dataset-cache-warm] loading arrays once to warm cache...")
-    _ = ds.load_arrays(cfg)
+    # Load arrays: support both signatures:
+    #   - load_arrays(self)
+    #   - load_arrays(self, cfg)
+    try:
+        _ = ds.load_arrays(cfg)
+    except TypeError:
+        _ = ds.load_arrays()
     print("[dataset-cache-warm] done loading.")
 
     if args.write_fingerprint:

@@ -5,7 +5,7 @@ GenCyberSynth — Provenance capture (audit trail)
 
 This module records the "who/what/when/where" of a run:
   - config paths and/or config content hash
-  - git commit (best-effort)
+  - git commit (best_effort)
   - host/user/pid
   - timestamps
   - environment hints (python version)
@@ -34,11 +34,11 @@ from gencysynth.utils.reproducibility import now_iso
 
 
 def _git_head_commit(repo_root: Optional[Path] = None) -> Optional[str]:
-    """Best-effort git commit hash (returns None if unavailable)."""
+    """Best_effort git commit hash (returns None if unavailable)."""
     try:
-        cmd = ["git", "rev-parse", "HEAD"]
+        cmd = ["git", "rev_parse", "HEAD"]
         out = subprocess.check_output(cmd, cwd=str(repo_root) if repo_root else None, stderr=subprocess.DEVNULL)
-        s = out.decode("utf-8").strip()
+        s = out.decode("utf_8").strip()
         return s or None
     except Exception:
         return None

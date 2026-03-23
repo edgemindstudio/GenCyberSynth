@@ -4,9 +4,9 @@ Utility tools used across GenCyberSynth pipelines.
 
 Intent
 ------
-This package contains small, reusable helpers that are not model-family specific.
+This package contains small, reusable helpers that are not model_family specific.
 They are designed to support:
-- smoke tests (fast end-to-end runs)
+- smoke tests (fast end_to_end runs)
 - utility/quality checks (e.g., train a small classifier to measure usefulness)
 - Rule A artifacts behavior (predictable, scalable paths, structured outputs)
 

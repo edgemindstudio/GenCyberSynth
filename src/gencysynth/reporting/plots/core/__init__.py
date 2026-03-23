@@ -2,8 +2,8 @@
 """
 Core plot group.
 
-This package produces "run-level" plots that are generally useful for any model:
-- High-level metric summary dashboards (from eval_summary)
+This package produces "run_level" plots that are generally useful for any model:
+- High_level metric summary dashboards (from eval_summary)
 - Training curves (from run_events)
 - Optional tables rendered to PNG (from eval_summary)
 
@@ -59,7 +59,7 @@ def make_plots(run_dir: Path, out_dir: Path, cfg: PlotConfig, raw_cfg: Dict[str,
 
     written: List[Path] = []
 
-    # 1) Run-level summary dashboard (eval_summary -> visual summary)
+    # 1) Run_level summary dashboard (eval_summary -> visual summary)
     written.extend(make_summary_dashboard(ctx, out_dir, cfg))
 
     # 2) Training curves (run_events -> curves)

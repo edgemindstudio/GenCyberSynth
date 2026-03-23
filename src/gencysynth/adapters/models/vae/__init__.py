@@ -3,7 +3,7 @@
 VAE family adapters.
 
 Contains:
-- VAEAdapterBase: common conventions for VAE-like models
+- VAEAdapterBase: common conventions for VAE_like models
 - registry helpers to register VAE variants
 
 from .base import VAEAdapterBase

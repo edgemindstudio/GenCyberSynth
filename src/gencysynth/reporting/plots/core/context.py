@@ -1,6 +1,6 @@
 # src/gencysynth/reporting/plots/core/context.py
 """
-PlotContext: a lightweight read-only view of run artifacts.
+PlotContext: a lightweight read_only view of run artifacts.
 
 Why this exists
 ---------------
@@ -12,7 +12,7 @@ Plotting should be stable even when:
 So PlotContext:
 - Resolves common artifact file paths under run_dir
 - Loads JSON/YAML into dicts
-- Provides small helpers for "best-effort" extraction
+- Provides small helpers for "best_effort" extraction
 
 Rule A
 ------
@@ -37,14 +37,14 @@ except Exception:  # pragma: no cover
 def _read_json(path: Path) -> Dict[str, Any]:
     if not path.exists():
         return {}
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, "r", encoding="utf_8") as f:
         return json.load(f)
 
 
 def _read_yaml(path: Path) -> Dict[str, Any]:
     if not path.exists() or yaml is None:
         return {}
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, "r", encoding="utf_8") as f:
         return yaml.safe_load(f) or {}
 
 
@@ -58,7 +58,7 @@ def _first_existing(paths: List[Path]) -> Optional[Path]:
 @dataclass(frozen=True)
 class PlotContext:
     """
-    Read-only view of a run.
+    Read_only view of a run.
 
     Attributes
     ----------
@@ -89,7 +89,7 @@ class PlotContext:
 
     def dataset_id(self) -> Optional[str]:
         """
-        Best-effort dataset_id extraction (depends on your run_manifest contract).
+        Best_effort dataset_id extraction (depends on your run_manifest contract).
         """
         # Common patterns
         for key in ("dataset_id", "data.dataset_id", "dataset.id"):
@@ -100,7 +100,7 @@ class PlotContext:
 
     def run_id(self) -> Optional[str]:
         """
-        Best-effort run_id extraction (depends on your run_manifest contract).
+        Best_effort run_id extraction (depends on your run_manifest contract).
         """
         for key in ("run_id", "run.run_id", "id"):
             v = _cfg_get(self.run_manifest, key, None)
@@ -111,7 +111,7 @@ class PlotContext:
 
 def _cfg_get(cfg: Dict[str, Any], dotted: str, default=None):
     """
-    Dot-path getter for nested dicts (plot code uses this frequently).
+    Dot_path getter for nested dicts (plot code uses this frequently).
     """
     cur: Any = cfg
     for k in dotted.split("."):

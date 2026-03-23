@@ -3,7 +3,7 @@
 gencysynth.data.specs
 ====================
 
-A small dataset contract for scalable, multi-dataset loading.
+A small dataset contract for scalable, multi_dataset loading.
 
 Why this file exists
 --------------------
@@ -31,7 +31,7 @@ class DatasetSpec:
     Attributes
     ----------
     dataset_id:
-        Stable identifier used across artifacts paths (e.g. "USTC-TFC2016_40x40_gray").
+        Stable identifier used across artifacts paths (e.g. "USTC_TFC2016_40x40_gray").
     root_dir:
         Where the dataset files live on disk (can be absolute or relative).
     img_shape:
@@ -59,8 +59,8 @@ class DatasetSpec:
     def __post_init__(self) -> None:
         # basic safety checks
         if not self.dataset_id:
-            raise ValueError("DatasetSpec.dataset_id must be a non-empty string.")
+            raise ValueError("DatasetSpec.dataset_id must be a non_empty string.")
         if not self.root_dir:
-            raise ValueError("DatasetSpec.root_dir must be a non-empty string.")
+            raise ValueError("DatasetSpec.root_dir must be a non_empty string.")
         if self.num_classes <= 0:
             raise ValueError("DatasetSpec.num_classes must be > 0.")

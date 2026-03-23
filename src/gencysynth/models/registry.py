@@ -15,7 +15,7 @@ Example model_tag
 Why the registry matters
 ------------------------
 - CLI/orchestration can select a model purely by model_tag (from config).
-- Adding new families/variants becomes a one-line registration.
+- Adding new families/variants becomes a one_line registration.
 - You avoid brittle if/else logic across training/sampling/eval.
 
 How it integrates with your scalability rule
@@ -25,7 +25,7 @@ Everything is keyed by (dataset_id, model_tag, run_id)
 The model_tag here is part of that key. This registry ensures model_tag is:
 - stable
 - unique
-- variant-aware
+- variant_aware
 
 Typical usage
 -------------
@@ -45,7 +45,7 @@ model:
 
 Design goals
 ------------
-- Dependency-light: only imports model code when needed (lazy import).
+- Dependency_light: only imports model code when needed (lazy import).
 - Clear errors: unknown tags show what is registered.
 """
 
@@ -101,7 +101,7 @@ def _load_builder(impl: str) -> Callable[[Mapping[str, Any]], GenModel]:
     fn = getattr(mod, attr, None)
     if fn is None or not callable(fn):
         raise ImportError(f"Builder '{attr}' not found or not callable in module '{mod_name}'.")
-    return fn  # type: ignore[return-value]
+    return fn  # type: ignore[return_value]
 
 
 def _safe_slug(s: str, *, max_len: int = 120) -> str:
@@ -237,7 +237,7 @@ def register_builtin_models() -> None:
     - Keep this list minimal and stable.
     - Each variant should provide a builder function with signature:
           build(cfg) -> GenModel
-    - If a variant is missing in the repo, leave it out (no import-time failure).
+    - If a variant is missing in the repo, leave it out (no import_time failure).
     """
     # GAN variants
     try:

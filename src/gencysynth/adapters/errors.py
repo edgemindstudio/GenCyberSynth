@@ -1,11 +1,11 @@
 # src/gencysynth/adapters/errors.py
 """
-Adapter-specific exceptions.
+Adapter_specific exceptions.
 
 These errors are meant to be:
 - actionable (tell the user what to fix),
-- contract-oriented (point to Rule A or missing required outputs),
-- non-mysterious (include model_tag, dataset_id, run_id when possible).
+- contract_oriented (point to Rule A or missing required outputs),
+- non_mysterious (include model_tag, dataset_id, run_id when possible).
 """
 
 from __future__ import annotations

@@ -32,10 +32,10 @@ from gencysynth.adapters.datasets.splits import DatasetSplits
 
 def _ensure_nhwc_best_effort(x: np.ndarray, *, cfg: Dict[str, Any]) -> np.ndarray:
     """
-    Best-effort ensure NHWC.
+    Best_effort ensure NHWC.
 
     Accepts:
-      - (N,H,W,C) -> returned as-is
+      - (N,H,W,C) -> returned as_is
       - (N, H*W*C) -> reshapes using cfg['dataset']['image_hw'] + channels=1 by default
 
     Recommended config:
@@ -90,7 +90,7 @@ class AutoregressiveAdapterBase(BaseModelAdapter):
         """
         Returns:
           x01: float32 NHWC in [0,1]
-          y1h: float32 (N,K) one-hot
+          y1h: float32 (N,K) one_hot
         """
         self._assert_basic(cfg, data)
 
@@ -111,7 +111,7 @@ class AutoregressiveAdapterBase(BaseModelAdapter):
           - gen_class_{k}.npy
           - labels_class_{k}.npy
           - x_synth.npy
-          - y_synth.npy (one-hot)
+          - y_synth.npy (one_hot)
         """
         out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -199,7 +199,7 @@ class AutoregressiveAdapterBase(BaseModelAdapter):
         """
         Must return:
           x01: float32 NHWC in [0,1]
-          y1h: float32 one-hot (N,K)
+          y1h: float32 one_hot (N,K)
         """
         raise NotImplementedError
 

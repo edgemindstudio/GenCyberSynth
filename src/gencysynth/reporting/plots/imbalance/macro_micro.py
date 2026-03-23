@@ -13,7 +13,7 @@ for example:
 
 Data source
 -----------
-We do best-effort extraction from eval_summary:
+We do best_effort extraction from eval_summary:
 - eval_summary.metrics.*
 - eval_summary.summary.*
 - eval_summary.results.*
@@ -51,7 +51,7 @@ def _find_metric(es: Dict[str, Any], names: List[str]) -> Optional[float]:
     Find a metric by trying multiple possible key paths.
     """
     for name in names:
-        # Try within common containers and top-level
+        # Try within common containers and top_level
         for prefix in ("metrics.", "summary.", "results.", ""):
             v = _cfg_get(es, prefix + name, None) if prefix else es.get(name, None)
             if isinstance(v, (int, float)):
@@ -73,7 +73,7 @@ def plot_macro_micro(ctx: PlotContext, out_dir: Path, cfg: PlotConfig) -> List[P
         ("Recall",  ["recall_macro", "macro_recall"],          ["recall_micro", "micro_recall"]),
     ]
 
-    # Additional singletons (macro-ish)
+    # Additional singletons (macro_ish)
     singles = [
         ("Balanced Acc", ["balanced_accuracy", "balanced_acc", "bal_acc"]),
         ("Accuracy",     ["accuracy", "acc"]),

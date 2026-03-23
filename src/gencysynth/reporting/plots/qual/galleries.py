@@ -4,7 +4,7 @@ Galleries: write "browseable" qualitative outputs.
 
 Goal
 ----
-Produce lightweight gallery-style outputs for manual browsing:
+Produce lightweight gallery_style outputs for manual browsing:
 - Copy (or symlink) a small subset of synthetic PNGs into a clean directory tree
 - Optionally create an index text file with counts and hints
 
@@ -37,7 +37,7 @@ class GallerySpec:
     Gallery policy:
     - copy at most max_per_seed images per seed folder
     - include at most seed_limit seeds per class (prefer most recent)
-    - include at most max_classes classes for quick-run sanity tests
+    - include at most max_classes classes for quick_run sanity tests
     """
     max_per_seed: int = 50
     seed_limit: int = 1
@@ -128,7 +128,7 @@ def write_galleries(ctx: PlotContext, out_dir: Path, cfg: PlotConfig) -> List[Pa
     # Write index
     index_path = gallery_root / "INDEX.txt"
     if (not index_path.exists()) or cfg.overwrite:
-        index_path.write_text("\n".join(index_lines) + "\n", encoding="utf-8")
+        index_path.write_text("\n".join(index_lines) + "\n", encoding="utf_8")
 
     written: List[Path] = []
     written.extend(copied)

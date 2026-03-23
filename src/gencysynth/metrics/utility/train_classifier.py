@@ -53,7 +53,7 @@ def _ensure_dir(p: Path) -> None:
 
 def _as_int_labels(y: np.ndarray, num_classes: int) -> np.ndarray:
     """
-    Accept (N,) int labels or (N,K) one-hot labels.
+    Accept (N,) int labels or (N,K) one_hot labels.
     """
     y = np.asarray(y)
     if y.ndim == 2 and y.shape[1] == int(num_classes):
@@ -84,7 +84,7 @@ def _normalize_artifacts(cfg: Dict) -> Dict:
 
     dataset_id = _cfg_get(cfg, "data.id", None)
     if dataset_id is None:
-        # fallback: use a filesystem-safe version of data.root
+        # fallback: use a filesystem_safe version of data.root
         root = str(_cfg_get(cfg, "data.root", _cfg_get(cfg, "DATA_DIR", "data")))
         dataset_id = root.replace("/", "_").replace("\\", "_").replace(" ", "_")
 
@@ -143,7 +143,7 @@ class TrainClassifierConfig:
 
     epochs: int = 5
     batch_size: int = 256
-    lr: float = 1e-3
+    lr: float = 1e_3
     weight_decay: float = 0.0
 
     width: int = 32
@@ -169,7 +169,7 @@ def train_classifier(
     Inputs
     ------
     x_*: (N,H,W,C) images in [0,1] or [0,255]
-    y_*: (N,) int labels or (N,K) one-hot labels
+    y_*: (N,) int labels or (N,K) one_hot labels
 
     Returns
     -------
@@ -182,10 +182,10 @@ def train_classifier(
     img_shape = tuple(_cfg_get(cfg, "IMG_SHAPE", _cfg_get(cfg, "img.shape", (40, 40, 1))))
     num_classes = int(_cfg_get(cfg, "NUM_CLASSES", _cfg_get(cfg, "num_classes", 9)))
 
-    # training knobs (smoke-test friendly defaults)
+    # training knobs (smoke_test friendly defaults)
     epochs = int(_cfg_get(cfg, "utility.classifier.epochs", _cfg_get(cfg, "UTILITY_EPOCHS", 5)))
     batch_size = int(_cfg_get(cfg, "utility.classifier.batch_size", _cfg_get(cfg, "BATCH_SIZE", 256)))
-    lr = float(_cfg_get(cfg, "utility.classifier.lr", _cfg_get(cfg, "LR", 1e-3)))
+    lr = float(_cfg_get(cfg, "utility.classifier.lr", _cfg_get(cfg, "LR", 1e_3)))
     wd = float(_cfg_get(cfg, "utility.classifier.weight_decay", 0.0))
     width = int(_cfg_get(cfg, "utility.classifier.width", 32))
     dropout = float(_cfg_get(cfg, "utility.classifier.dropout", 0.2))
@@ -196,7 +196,7 @@ def train_classifier(
     _ensure_dir(ckpt_dir)
     _ensure_dir(sums_dir)
 
-    # Seeds (best-effort reproducibility)
+    # Seeds (best_effort reproducibility)
     np.random.seed(seed)
     tf.random.set_seed(seed)
 
@@ -271,7 +271,7 @@ def train_classifier(
         "checkpoints": {"best": str(best_path), "last": str(last_path)},
         "metrics": report,
     }
-    summary_path.write_text(json.dumps(summary_payload, indent=2), encoding="utf-8")
+    summary_path.write_text(json.dumps(summary_payload, indent=2), encoding="utf_8")
 
     return {
         "paths": {
@@ -305,7 +305,7 @@ def main(argv=None) -> int:
     This CLI expects the caller's config points to dataset arrays or a loader in your repo.
     If you already have a shared loader, replace the stub in `_load_arrays_from_cfg`.
     """
-    ap = argparse.ArgumentParser(description="Train a small utility classifier (smoke-test friendly).")
+    ap = argparse.ArgumentParser(description="Train a small utility classifier (smoke_test friendly).")
     ap.add_argument("--config", default="configs/config.yaml", help="Path to YAML config")
     args = ap.parse_args(argv)
 

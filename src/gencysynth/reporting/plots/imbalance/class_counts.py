@@ -1,6 +1,6 @@
 # src/gencysynth/reporting/plots/imbalance/class_counts.py
 """
-Class-count plots.
+Class_count plots.
 
 Goal
 ----
@@ -11,7 +11,7 @@ Visualize class counts for:
 
 Where the counts come from
 --------------------------
-We do best-effort extraction from:
+We do best_effort extraction from:
 - run_manifest (preferred for dataset info / counts)
 - eval_summary  (often includes per_class_counts in evaluation output)
 - run_events    (sometimes logs counts or sample plans)

@@ -1,0 +1,55 @@
+# src/gencysynth/models/maskedautoflow/variants/maf_affine/defaults.yaml
+# Rule A defaults for MaskedAutoFlow / maf_affine
+#
+# This file is variant_local and intended to be merged with the unified
+# experiment config. Keep it small, explicit, and stable.
+
+variant:
+  family: maskedautoflow
+  name: maf_affine
+  kind: flow
+  conditional: false   # unconditional density model; labels are only for evaluator splitting
+
+# Image / dataset defaults (can be overridden by experiment config)
+img:
+  shape: [40, 40, 1]
+
+data:
+  # Optional stable identifier for dataset_scoped artifacts.
+  # If omitted, code will fall back to basename(data.root) or "default_dataset".
+  id: null
+
+train:
+  epochs: 50
+  batch_size: 256
+  lr: 0.0002
+  patience: 10
+  clip_grad: 1.0
+  seed: 42
+
+model:
+  num_flows: 5
+  hidden_dims: [128, 128]
+
+# Dequantization noise helps when inputs are near_binary but modeled continuously.
+dequant:
+  enabled: true
+  eps: 0.00390625   # 1/256
+
+synth:
+  samples_per_class: 25
+  sample_temperature: 1.0
+
+# Global root; dataset_scoped and variant_scoped subfolders are derived automatically:
+# artifacts/<dataset_id>/maskedautoflow/maf_affine/{checkpoints,summaries,synthetic}
+paths:
+  artifacts: artifacts
+
+# Optional explicit overrides for artifact directories.
+# Leave null to use Rule A layout.
+artifacts:
+  maskedautoflow:
+    maf_affine:
+      checkpoints: null
+      summaries: null
+      synthetic: null

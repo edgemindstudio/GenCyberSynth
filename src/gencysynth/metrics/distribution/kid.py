@@ -8,8 +8,8 @@ Classic KID uses Inception features + polynomial kernel MMD^2.
 In this repo's "smoke test / scalable structure" stage, we implement KID on a
 lightweight feature space (pixel features by default), which is:
 - deterministic
-- dependency-minimal
-- useful to validate end-to-end pipeline correctness
+- dependency_minimal
+- useful to validate end_to_end pipeline correctness
 
 When you add Inception features later, swap the feature function inside mmd.py
 or add a "feature extractor" module that feeds (N,D) features here.
@@ -88,7 +88,7 @@ class KIDMetric:
                 "feature_dim": feat_dim,
                 "n_real_used": int(fr.shape[0]),
                 "n_synth_used": int(fs.shape[0]),
-                "note": "KID computed on lightweight pixel features (smoke-test).",
+                "note": "KID computed on lightweight pixel features (smoke_test).",
             },
             status="ok",
         )

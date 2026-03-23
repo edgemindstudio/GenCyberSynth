@@ -1,6 +1,6 @@
 # src/gencysynth/data/datasets/npy_ustc.py
 """
-GenCyberSynth — NPY USTC-TFC2016 Dataset
+GenCyberSynth — NPY USTC_TFC2016 Dataset
 
 This dataset matches the classic GenCyberSynth format where splits are stored
 as numpy files:
@@ -12,13 +12,13 @@ We further split provided test into (val, test) using val_fraction.
 
 Dataset scalability
 -------------------
-- Raw dataset location is config-driven.
+- Raw dataset location is config_driven.
 - Cache + fingerprints live under artifacts/datasets/<dataset_id>/.
 
 Config contract
 ---------------
 dataset:
-  id: "USTC-TFC2016_40x40_gray"
+  id: "USTC_TFC2016_40x40_gray"
   type: "npy_ustc"
   raw_root: "data/ustc"          # directory containing the *.npy quartet
   image_shape: [40,40,1]
@@ -52,7 +52,7 @@ except Exception:  # pragma: no cover
 
 class NpyUSTCDataset(BaseDataset):
     """
-    Loader for USTC-style .npy quartets.
+    Loader for USTC_style .npy quartets.
 
     This is the direct scalable replacement for older gcs_core.data.load_npy_splits.
     """
@@ -61,16 +61,22 @@ class NpyUSTCDataset(BaseDataset):
         super().__init__(dataset_id)
 
     def info(self) -> DatasetInfo:
-        # Real values are config-driven; we provide placeholders here.
+        # Real values are config_driven; we provide placeholders here.
         return DatasetInfo(
             dataset_id=self.dataset_id,
             image_shape=(40, 40, 1),
             num_classes=9,
             class_names=tuple(str(i) for i in range(9)),
-            description="USTC-TFC2016 malware images stored as .npy splits.",
+            description="USTC_TFC2016 malware images stored as .npy splits.",
         )
 
-    def load_arrays(self, *, config: Dict[str, Any]) -> DatasetArrays:
+    def load_arrays(self, config: Dict[str, Any] | None = None, **kwargs) -> DatasetArrays:
+        if config is None:
+            # Support callers that pass cfg via keyword "cfg" or "config"
+            config = kwargs.get("cfg") or kwargs.get("config")
+        if not isinstance(config, dict):
+            raise TypeError("NpyUSTCDataset.load_arrays expected a config dict (positional or keyword).")
+
         dcfg = self._dataset_cfg(config)
 
         raw_root = dcfg.get("raw_root") or dcfg.get("root") or dcfg.get("data_dir")
@@ -81,7 +87,7 @@ class NpyUSTCDataset(BaseDataset):
         # Required dataset invariants
         img_shape = dcfg.get("image_shape") or dcfg.get("img_shape") or [40, 40, 1]
         if not (isinstance(img_shape, (list, tuple)) and len(img_shape) == 3):
-            raise ValueError("dataset.image_shape must be a 3-item list/tuple: [H,W,C].")
+            raise ValueError("dataset.image_shape must be a 3_item list/tuple: [H,W,C].")
         H, W, C = int(img_shape[0]), int(img_shape[1]), int(img_shape[2])
 
         num_classes = int(dcfg.get("num_classes", 9))
@@ -148,7 +154,7 @@ class NpyUSTCDataset(BaseDataset):
             x_train01 = to_01_hwc(x_train_raw, (H, W, C))
             x_test01  = to_01_hwc(x_test_raw,  (H, W, C))
 
-        # Labels -> int or one-hot
+        # Labels -> int or one_hot
         y_train = np.asarray(y_train_raw)
         y_test  = np.asarray(y_test_raw)
 

@@ -38,7 +38,7 @@ def _flatten_numeric_metrics(d: Dict[str, Any]) -> Dict[str, float]:
     Common patterns supported:
     - d["metrics"] = {"fid": 12.3, ...}
     - d["summary"] = {"kid": 0.01, ...}
-    - top-level numeric values
+    - top_level numeric values
     """
     out: Dict[str, float] = {}
 
@@ -50,7 +50,7 @@ def _flatten_numeric_metrics(d: Dict[str, Any]) -> Dict[str, float]:
                 if isinstance(val, (int, float)):
                     out[f"{container_key}.{k}"] = float(val)
 
-    # Top-level numeric values
+    # Top_level numeric values
     for k, val in d.items():
         if isinstance(val, (int, float)):
             out[str(k)] = float(val)
@@ -70,7 +70,7 @@ def make_summary_dashboard(ctx: PlotContext, out_dir: Path, cfg: PlotConfig) -> 
     if not metrics:
         return []
 
-    # Keep it compact: pick up to N metrics, prioritizing well-known ones
+    # Keep it compact: pick up to N metrics, prioritizing well_known ones
     priority = []
     for k in metrics.keys():
         lk = k.lower()

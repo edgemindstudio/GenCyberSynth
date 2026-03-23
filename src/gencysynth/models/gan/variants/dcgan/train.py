@@ -25,7 +25,7 @@ and logs MUST go to:
     run.log
     events.jsonl (optional)
 
-This file should NOT invent ad-hoc directories like:
+This file should NOT invent ad_hoc directories like:
   artifacts/models/... or artifacts/synth/... or artifacts/runs/<run_id>/...
 
 Those layouts do not scale once you add:
@@ -109,7 +109,7 @@ def _set_seeds(seed: int) -> None:
 
 
 def _enable_gpu_mem_growth() -> None:
-    """Avoid TF reserving all VRAM on multi-tenant GPUs."""
+    """Avoid TF reserving all VRAM on multi_tenant GPUs."""
     for g in tf.config.list_physical_devices("GPU"):
         try:
             tf.config.experimental.set_memory_growth(g, True)
@@ -145,7 +145,7 @@ def _save_grid(
     """
     Save a PNG preview grid from images in [0,1].
 
-    NOTE: This is a human-inspection artifact and therefore belongs under:
+    NOTE: This is a human_inspection artifact and therefore belongs under:
         ctx.run_dir/samples/
     """
     import matplotlib.pyplot as plt
@@ -229,7 +229,7 @@ def run_from_file(
     Returns
     -------
     int
-        0 on success (CLI-friendly).
+        0 on success (CLI_friendly).
     """
     import yaml
 
@@ -265,7 +265,7 @@ def run_from_file(
     run_dir = Path(ctx.run_dir)
     log_dir = Path(ctx.logs_dir)
 
-    # Run-local subfolders (canonical; do NOT create any other top-level layouts)
+    # Run_local subfolders (canonical; do NOT create any other top_level layouts)
     ckpt_dir = ensure_dir(run_dir / "checkpoints")
     samples_dir = ensure_dir(run_dir / "samples")
     tb_root = ensure_dir(run_dir / "tensorboard")
@@ -295,7 +295,7 @@ def run_from_file(
     LATENT_DIM = int(cfg.get("LATENT_DIM", 100))
     EPOCHS = int(epochs if epochs is not None else cfg.get("EPOCHS", 5000))
     BATCH_SIZE = int(batch_size if batch_size is not None else cfg.get("BATCH_SIZE", 256))
-    LR = float(cfg.get("LR", 2e-4))
+    LR = float(cfg.get("LR", 2e_4))
     BETA_1 = float(cfg.get("BETA_1", 0.5))
     VAL_FRACTION = float(cfg.get("VAL_FRACTION", 0.5))
 
@@ -306,7 +306,7 @@ def run_from_file(
 
     if data_root is None:
         # Conservative fallback: relative to config file
-        data_root = (cfg_path.resolve().parents[1] / "USTC-TFC2016_malware").resolve()
+        data_root = (cfg_path.resolve().parents[1] / "USTC_TFC2016_malware").resolve()
 
     DATA_DIR = Path(data_root)
 
@@ -317,7 +317,7 @@ def run_from_file(
     logger.info(f"DATA_DIR={DATA_DIR}")
 
     # -------------------------------------------------------------
-    # TensorBoard logs: run-local
+    # TensorBoard logs: run_local
     # -------------------------------------------------------------
     tb_run_dir = tb_root / datetime.now().strftime("%Y%m%d-%H%M%S")
     writer = tf.summary.create_file_writer(str(tb_run_dir))
@@ -463,7 +463,7 @@ def run_from_file(
             except Exception:
                 fid_val = None
 
-            # Save best-by-FID under run_dir/checkpoints/
+            # Save best_by_FID under run_dir/checkpoints/
             if fid_val is not None and fid_val < best_fid:
                 best_fid = fid_val
                 G.save_weights(str(ckpt_dir / "G_best.weights.h5"))
@@ -513,7 +513,7 @@ def run_from_file(
     logger.info("Training complete.")
 
     # -------------------------------------------------------------
-    # Optional post-training sampling (legacy feature)
+    # Optional post_training sampling (legacy feature)
     # -------------------------------------------------------------
     # In the new architecture, sampling should normally happen via model.sample()
     # so it can produce a manifest.json under the run directory.
@@ -533,7 +533,7 @@ def run_from_file(
             np.save(out_dir / f"gen_class_{k}.npy", g01)
             np.save(out_dir / f"labels_class_{k}.npy", np.full((samples_per_class,), k, dtype=np.int32))
 
-        logger.info("Post-train sampling done.")
+        logger.info("Post_train sampling done.")
 
     logger.info("=== DCGAN TRAIN END ===")
     return 0
@@ -547,7 +547,7 @@ def train(cfg_or_argv):
     Orchestrator entrypoint.
 
     Accepts:
-      - argv-like list/tuple  -> CLI args
+      - argv_like list/tuple  -> CLI args
       - dict config           -> written to a temp YAML then executed
 
     Returns 0 on success.
@@ -577,35 +577,35 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--config", type=Path, default=default_cfg, help="Path to YAML config")
 
     parser.add_argument("--epochs", type=int, default=None, help="Override epochs")
-    parser.add_argument("--batch-size", type=int, default=None, help="Override batch size")
-    parser.add_argument("--eval-every", type=int, default=25, help="Evaluate FID every N epochs")
-    parser.add_argument("--save-every", type=int, default=50, help="Save checkpoints every N epochs")
+    parser.add_argument("--batch_size", type=int, default=None, help="Override batch size")
+    parser.add_argument("--eval_every", type=int, default=25, help="Evaluate FID every N epochs")
+    parser.add_argument("--save_every", type=int, default=50, help="Save checkpoints every N epochs")
 
     parser.add_argument(
-        "--label-smooth",
+        "--label_smooth",
         type=float,
         nargs=2,
         default=(0.9, 1.0),
         help="Real label smoothing range [low high]",
     )
     parser.add_argument(
-        "--fake-label-range",
+        "--fake_label_range",
         type=float,
         nargs=2,
         default=(0.0, 0.1),
         help="Fake label range [low high]",
     )
 
-    parser.add_argument("--noise-after", type=int, default=200, help="Start noise injection after this epoch")
-    parser.add_argument("--noise-std", type=float, default=0.01, help="Gaussian noise std after warmup")
+    parser.add_argument("--noise_after", type=int, default=200, help="Start noise injection after this epoch")
+    parser.add_argument("--noise_std", type=float, default=0.01, help="Gaussian noise std after warmup")
 
     parser.add_argument("--grid", type=int, nargs=2, default=None, help="Save preview grid: ROWS COLS")
 
-    parser.add_argument("--g-weights", type=Path, default=None, help="Resume generator weights")
-    parser.add_argument("--d-weights", type=Path, default=None, help="Resume discriminator weights")
+    parser.add_argument("--g_weights", type=Path, default=None, help="Resume generator weights")
+    parser.add_argument("--d_weights", type=Path, default=None, help="Resume discriminator weights")
 
-    parser.add_argument("--sample-after", action="store_true", help="Generate per-class .npy samples after training")
-    parser.add_argument("--samples-per-class", type=int, default=0, help="Samples per class if --sample-after")
+    parser.add_argument("--sample_after", action="store_true", help="Generate per_class .npy samples after training")
+    parser.add_argument("--samples_per_class", type=int, default=0, help="Samples per class if --sample_after")
 
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
 

@@ -1,17 +1,17 @@
 # src/gencysynth/adapters/tests/test_registry_resolution.py
 """
-Registry resolution tests (adapter-level).
+Registry resolution tests (adapter_level).
 
 Purpose
 -------
-Adapters are our "front-door" for orchestration. Under Rule A:
+Adapters are our "front_door" for orchestration. Under Rule A:
   - datasets resolve by dataset_id
   - models resolve by (family, variant)
 and resolution must fail with helpful, typed errors when something is missing.
 
 These tests validate:
   1) Registration succeeds and resolution returns the exact registered adapter.
-  2) Missing keys raise adapter-specific exceptions (or at least clear errors).
+  2) Missing keys raise adapter_specific exceptions (or at least clear errors).
   3) Registry can list what is available (useful for CLI / debug).
 
 The tests are written defensively to tolerate minor API naming differences,
@@ -112,7 +112,7 @@ def test_model_registry_missing_key_raises_helpful_error():
     resolve_fn = _pick_callable(mreg, ["resolve", "resolve_model", "get", "get_model", "resolve_model_adapter"])
 
     with pytest.raises(Exception) as exc:
-        resolve_fn("gan", "definitely-not-a-real-variant")
+        resolve_fn("gan", "definitely_not_a_real_variant")
 
     # Prefer typed error if available
     not_found = getattr(aerr, "AdapterNotFoundError", None)
@@ -139,11 +139,11 @@ def test_dataset_registry_register_and_resolve_roundtrip():
     if clear_fn:
         clear_fn()
 
-    adapter = DummyDatasetAdapter(dataset_id="ustc-tfc2016")
+    adapter = DummyDatasetAdapter(dataset_id="ustc_tfc2016")
 
-    register_fn("ustc-tfc2016", adapter)
+    register_fn("ustc_tfc2016", adapter)
 
-    got = resolve_fn("ustc-tfc2016")
+    got = resolve_fn("ustc_tfc2016")
     assert got is adapter or got == adapter
 
     if list_fn:
@@ -161,7 +161,7 @@ def test_dataset_registry_missing_key_raises_helpful_error():
     resolve_fn = _pick_callable(dreg, ["resolve", "resolve_dataset", "get", "get_dataset", "resolve_dataset_adapter"])
 
     with pytest.raises(Exception) as exc:
-        resolve_fn("dataset-does-not-exist")
+        resolve_fn("dataset_does_not_exist")
 
     not_found = getattr(aerr, "DatasetNotFoundError", None) or getattr(aerr, "AdapterNotFoundError", None)
     if not_found and isinstance(exc.value, not_found):

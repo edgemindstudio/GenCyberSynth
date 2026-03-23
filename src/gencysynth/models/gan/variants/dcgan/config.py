@@ -45,7 +45,7 @@ Design goals
 ------------
 - Stable: defaults should not change frequently once experiments start.
 - Explicit: all important knobs are visible and documented.
-- Override-friendly: every value is plain JSON-serializable types.
+- Override_friendly: every value is plain JSON_serializable types.
 """
 
 from __future__ import annotations
@@ -55,7 +55,7 @@ from typing import Any, Dict, Mapping
 
 
 # =============================================================================
-# Default configuration (variant-scoped)
+# Default configuration (variant_scoped)
 # =============================================================================
 def default_dcgan_config() -> Dict[str, Any]:
     """
@@ -65,11 +65,11 @@ def default_dcgan_config() -> Dict[str, Any]:
     -----
     - These defaults are for small images (e.g., 40x40 grayscale) but should
       generalize to other sizes if the model implementation supports it.
-    - Keep dataset-specific settings out of here unless they are truly DCGAN-specific.
+    - Keep dataset_specific settings out of here unless they are truly DCGAN_specific.
       Prefer dataset.image_hw, dataset.channels, etc. in dataset configs.
     """
     return {
-        # Human-friendly identity (variant-local; orchestration owns run_id)
+        # Human_friendly identity (variant_local; orchestration owns run_id)
         "name": "dcgan",
         "model_tag": "gan/dcgan",
 
@@ -84,7 +84,7 @@ def default_dcgan_config() -> Dict[str, Any]:
             # Discriminator feature base width
             "d_base_channels": 64,
 
-            # Normalization choices (implementation-dependent)
+            # Normalization choices (implementation_dependent)
             "g_use_batchnorm": True,
             "d_use_batchnorm": False,
 
@@ -130,8 +130,8 @@ def default_dcgan_config() -> Dict[str, Any]:
         # ---- Optimizers
         "optim": {
             # DCGAN commonly uses Adam with beta1=0.5
-            "g_lr": 2e-4,
-            "d_lr": 2e-4,
+            "g_lr": 2e_4,
+            "d_lr": 2e_4,
             "adam_beta1": 0.5,
             "adam_beta2": 0.999,
         },
@@ -149,10 +149,10 @@ def default_dcgan_config() -> Dict[str, Any]:
             "expect_input_range": "[-1,1]",
         },
 
-        # ---- Sampling defaults (manifest writing is orchestration-owned)
+        # ---- Sampling defaults (manifest writing is orchestration_owned)
         "sample": {
             # Number of synthetic samples to generate per class (if conditional)
-            # For unconditional DCGAN, orchestration may ignore per-class and just
+            # For unconditional DCGAN, orchestration may ignore per_class and just
             # generate total = K * budget_per_class using label assignment rules.
             "budget_per_class": None,   # leave None; orchestrator/run_meta sets truth
 
@@ -210,7 +210,7 @@ def merge_variant_config(cfg: Mapping[str, Any]) -> Dict[str, Any]:
     """
     out: Dict[str, Any] = deepcopy(dict(cfg)) if isinstance(cfg, dict) else {}
 
-    # Ensure top-level sections exist
+    # Ensure top_level sections exist
     model = out.get("model")
     if not isinstance(model, dict):
         model = {}
@@ -221,7 +221,7 @@ def merge_variant_config(cfg: Mapping[str, Any]) -> Dict[str, Any]:
         params = {}
         model["params"] = params
 
-    # Variant-scoped config lives under model.params.dcgan
+    # Variant_scoped config lives under model.params.dcgan
     user_block = params.get("dcgan")
     if not isinstance(user_block, dict):
         user_block = {}

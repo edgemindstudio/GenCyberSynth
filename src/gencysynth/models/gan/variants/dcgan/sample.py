@@ -19,7 +19,7 @@ Logs MUST go to:
 
 This module provides:
 - sample(cfg, ctx) -> SampleResult  (preferred orchestrator entrypoint)
-- synth(cfg, output_root, seed) -> dict (backward-compatible wrapper)
+- synth(cfg, output_root, seed) -> dict (backward_compatible wrapper)
 
 It does NOT do evaluation; evaluation belongs under gencysynth/eval/.
 """
@@ -73,14 +73,14 @@ def _resolve_samples_per_class(cfg: Mapping[str, Any], default: int = 25) -> int
     Resolve synthesis budget.
 
     Priority:
-      1) synth.n_per_class   (repo-wide key)
+      1) synth.n_per_class   (repo_wide key)
       2) SAMPLES_PER_CLASS   (legacy)
       3) samples_per_class   (legacy)
       4) default
     """
     v = _cfg_get(cfg, "synth.n_per_class", None)
     if v is None:
-        v = cfg.get("SAMPLES_PER_CLASS", cfg.get("samples_per_class", default))  # type: ignore[attr-defined]
+        v = cfg.get("SAMPLES_PER_CLASS", cfg.get("samples_per_class", default))  # type: ignore[attr_defined]
     return int(v)
 
 
@@ -145,7 +145,7 @@ def _resolve_ckpt_dir_for_run(cfg: Mapping[str, Any], ctx: RunContext) -> Path:
     if ctx.run_dir is None:
         raise ValueError("RunContext.run_dir must be set for sampling.")
 
-    # 1) Preferred: run-local checkpoints
+    # 1) Preferred: run_local checkpoints
     run_ckpts = Path(ctx.run_dir) / "checkpoints"
     if run_ckpts.exists():
         return run_ckpts
@@ -160,7 +160,7 @@ def _resolve_ckpt_dir_for_run(cfg: Mapping[str, Any], ctx: RunContext) -> Path:
     if ckpts_root:
         return Path(str(ckpts_root)) / FAMILY / VARIANT / str(ctx.dataset_id) / f"seed_{int(ctx.seed)}"
 
-    # 4) New-ish artifacts/checkpoints layout (kept as compatibility)
+    # 4) New_ish artifacts/checkpoints layout (kept as compatibility)
     artifacts_root = Path(str(_cfg_get(cfg, "paths.artifacts", "artifacts")))
     candidate = artifacts_root / "checkpoints" / FAMILY / VARIANT / str(ctx.dataset_id) / f"seed_{int(ctx.seed)}"
     if candidate.exists():
@@ -222,7 +222,7 @@ def _load_generator_from_checkpoints(
 
 
 # -----------------------------------------------------------------------------
-# Core generation (per-class)
+# Core generation (per_class)
 # -----------------------------------------------------------------------------
 def _generate_class_images_01(
     G: tf.keras.Model,
@@ -270,7 +270,7 @@ def sample(cfg: Dict[str, Any], ctx: RunContext) -> SampleResult:
     run_dir = Path(ctx.run_dir)
     log_dir = Path(ctx.logs_dir)
 
-    # Run-scoped logger: artifacts/logs/<dataset_id>/<model_tag>/<run_id>/run.log
+    # Run_scoped logger: artifacts/logs/<dataset_id>/<model_tag>/<run_id>/run.log
     logger = get_run_logger(name=f"{MODEL_TAG}:{ctx.run_id}:sample", log_dir=log_dir)
     logger.info("=== DCGAN SAMPLE START ===")
     logger.info(f"dataset_id={ctx.dataset_id} model_tag={ctx.model_tag} run_id={ctx.run_id} seed={ctx.seed}")
@@ -287,7 +287,7 @@ def sample(cfg: Dict[str, Any], ctx: RunContext) -> SampleResult:
 
     # Hyperparams only needed to rebuild a compatible generator
     lr_g = _cfg_get(cfg, "gan.LR_G", None)
-    lr = float(lr_g if lr_g is not None else _cfg_get(cfg, "LR", _cfg_get(cfg, "gan.lr", 2e-4)))
+    lr = float(lr_g if lr_g is not None else _cfg_get(cfg, "LR", _cfg_get(cfg, "gan.lr", 2e_4)))
 
     betas = _cfg_get(cfg, "gan.BETAS", None)
     if isinstance(betas, list) and len(betas) >= 1:
@@ -311,7 +311,7 @@ def sample(cfg: Dict[str, Any], ctx: RunContext) -> SampleResult:
     tf.keras.utils.set_random_seed(int(ctx.seed))
 
     # -----------------------------
-    # Load generator weights (prefer run-local checkpoints)
+    # Load generator weights (prefer run_local checkpoints)
     # -----------------------------
     ckpt_dir = _resolve_ckpt_dir_for_run(cfg, ctx)
     G, ckpt_used = _load_generator_from_checkpoints(
@@ -325,14 +325,14 @@ def sample(cfg: Dict[str, Any], ctx: RunContext) -> SampleResult:
     )
 
     # -----------------------------
-    # Generate & write per-class images
+    # Generate & write per_class images
     # -----------------------------
     per_class_counts: Dict[str, int] = {str(k): 0 for k in range(K)}
     paths: List[Dict[str, Any]] = []
 
     for k in range(K):
         # Make sampling deterministic but not identical across classes:
-        # use (seed + 1000*k) as a stable per-class offset.
+        # use (seed + 1000*k) as a stable per_class offset.
         class_seed = int(ctx.seed) + 1000 * int(k)
 
         imgs01 = _generate_class_images_01(
@@ -364,7 +364,7 @@ def sample(cfg: Dict[str, Any], ctx: RunContext) -> SampleResult:
         "run_id": str(ctx.run_id),
         "seed": int(ctx.seed),
 
-        # Variant identity (helpful for cross-checking)
+        # Variant identity (helpful for cross_checking)
         "family": FAMILY,
         "variant": VARIANT,
 
@@ -401,7 +401,7 @@ def sample(cfg: Dict[str, Any], ctx: RunContext) -> SampleResult:
 
 
 # -----------------------------------------------------------------------------
-# Backward-compatible wrapper (old API): synth(cfg, output_root, seed) -> dict
+# Backward_compatible wrapper (old API): synth(cfg, output_root, seed) -> dict
 # -----------------------------------------------------------------------------
 def synth(cfg: Dict[str, Any], output_root: str, seed: int = 42) -> Dict[str, Any]:
     """
@@ -446,7 +446,7 @@ def synth(cfg: Dict[str, Any], output_root: str, seed: int = 42) -> Dict[str, An
     res = sample(resolved.cfg, ctx)
 
     # Return manifest dict for legacy compatibility
-    mp = Path(res.manifest_path) if res.manifest_path else (Path(ctx.run_dir) / "manifest.json")  # type: ignore[arg-type]
+    mp = Path(res.manifest_path) if res.manifest_path else (Path(ctx.run_dir) / "manifest.json")  # type: ignore[arg_type]
     return json.loads(mp.read_text())
 
 

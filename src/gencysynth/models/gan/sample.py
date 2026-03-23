@@ -1,6 +1,6 @@
 # src/gencysynth/models/gan/sample.py
 """
-GenCyberSynth — GAN Family — Sampling Router (non-variant)
+GenCyberSynth — GAN Family — Sampling Router (non_variant)
 =========================================================
 
 This module exposes a stable entrypoint:
@@ -13,13 +13,13 @@ Why this exists
 ---------------
 - Keeps orchestrator/CLI code stable (call gan.sample.synth for any GAN run).
 - Allows adding new variants without changing orchestrator logic.
-- Enforces dataset-aware output layout:
+- Enforces dataset_aware output layout:
     {artifacts}/synth/{dataset_id}/gan/<variant>/...
 
 Important path rule
 -------------------
 The *family router* is responsible for choosing a good default output_root.
-If output_root is provided by an adapter, it should already be dataset-aware.
+If output_root is provided by an adapter, it should already be dataset_aware.
 
 Variant identity
 ----------------
@@ -45,14 +45,14 @@ from .base import (
 # ---------------------------------------------------------------------
 def synth(cfg: Mapping[str, Any], output_root: Optional[str] = None, seed: int = 42) -> Dict[str, Any]:
     """
-    Family-level synth() that routes to variant implementation.
+    Family_level synth() that routes to variant implementation.
 
     Parameters
     ----------
     cfg:
         Full experiment configuration mapping.
     output_root:
-        Where to write outputs. If None, we compute a dataset-aware default:
+        Where to write outputs. If None, we compute a dataset_aware default:
             {artifacts}/synth/{dataset_id}
         The variant will then write under:
             <output_root>/gan/<variant>/...
@@ -70,7 +70,7 @@ def synth(cfg: Mapping[str, Any], output_root: Optional[str] = None, seed: int =
     ident = build_identity(cfg)
     ds_root = resolve_dataset_root(cfg)
 
-    # Choose output_root in a dataset-aware manner if not provided.
+    # Choose output_root in a dataset_aware manner if not provided.
     if output_root is None:
         out_root = resolve_synth_root(cfg)
     else:
@@ -127,7 +127,7 @@ def synth(cfg: Mapping[str, Any], output_root: Optional[str] = None, seed: int =
 
     # Delegate to variant sampler
     try:
-        man = mod.synth(dict(cfg), str(out_root), seed=int(seed))  # type: ignore[attr-defined]
+        man = mod.synth(dict(cfg), str(out_root), seed=int(seed))  # type: ignore[attr_defined]
     except Exception as e:
         print(f"[{ident.tag}][ERROR] Variant synth failed: {type(e).__name__}: {e}")
         man = {

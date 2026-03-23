@@ -3,7 +3,7 @@
 GenCyberSynth — RunContext (where to write)
 =========================================
 
-A RunContext is the resolved, filesystem-aware counterpart to RunSpec.
+A RunContext is the resolved, filesystem_aware counterpart to RunSpec.
 
 RunSpec answers: "what to run?"
 RunContext answers: "where does this run read/write artifacts/logs/eval?"

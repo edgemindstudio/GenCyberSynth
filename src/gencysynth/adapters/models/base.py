@@ -7,12 +7,12 @@ Rule A design goals
 1) Orchestration sees ONE stable interface across all model families.
 2) Each adapter:
    - reads training data from DatasetSplits (standardized arrays)
-   - writes artifacts ONLY under run-scoped artifact roots (run_id)
+   - writes artifacts ONLY under run_scoped artifact roots (run_id)
    - emits run events (optional) to a run_events log
 
 3) Model adapters should not guess paths. They must use:
      - adapters.run_io helpers (canonical run paths)
-     - utils.paths for low-level joins
+     - utils.paths for low_level joins
 
 This file defines:
 - ModelAdapterSpec: stable identity
@@ -41,8 +41,8 @@ class ModelAdapterSpec:
     """
     Stable identity for a model adapter.
 
-    family:  high-level family name (gan, vae, diffusion, rbm, ...)
-    variant: concrete variant folder name (c-vae, c-wgan-gp, c-rbm-bernoulli, ...)
+    family:  high_level family name (gan, vae, diffusion, rbm, ...)
+    variant: concrete variant folder name (c_vae, c_wgan_gp, c_rbm_bernoulli, ...)
     """
     family: str
     variant: str
@@ -54,7 +54,7 @@ class TrainResult:
     """
     Minimal return payload from training.
 
-    Paths should be *run-scoped* (i.e., inside the current run's artifacts root).
+    Paths should be *run_scoped* (i.e., inside the current run's artifacts root).
     """
     checkpoints_dir: str
     summaries_dir: Optional[str] = None
@@ -96,7 +96,7 @@ class ModelAdapter(Protocol):
 
     Each method is expected to:
       - operate deterministically when run_ctx.seed is fixed
-      - write artifacts under run-scoped paths (RunIO)
+      - write artifacts under run_scoped paths (RunIO)
       - avoid global "artifacts/<family>/" paths without run_id separation
 
     run_ctx is intentionally typed as Any to avoid tight coupling:

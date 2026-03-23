@@ -7,7 +7,7 @@ Adapters are the stable interface between:
   - orchestration (run context, run ids, dataset selection)
   - model implementations (GAN/VAE/RBM/etc. variants)
 
-Rule A (dataset-scalable paths)
+Rule A (dataset_scalable paths)
 -------------------------------
 Adapters MUST read/write artifacts using (dataset_id, model_tag, run_id) via
 utils.paths resolvers (never hardcode artifacts/vae/... etc).

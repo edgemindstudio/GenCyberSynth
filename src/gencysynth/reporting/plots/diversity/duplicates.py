@@ -4,14 +4,14 @@ Duplicates plots.
 
 Goal
 ----
-Visualize duplicate / near-duplicate rates produced by the metrics layer.
+Visualize duplicate / near_duplicate rates produced by the metrics layer.
 
 We expect the *metrics* code to have already computed something like:
 - duplicates_rate overall
 - duplicates_rate_per_class
 - (optionally) exact vs near duplicates breakdown
 
-Because schemas evolve, we do best-effort extraction from eval_summary.
+Because schemas evolve, we do best_effort extraction from eval_summary.
 
 Rule A
 ------
@@ -73,7 +73,7 @@ def _extract_duplicates(eval_summary: Dict[str, Any]) -> Tuple[Optional[float], 
     """
     Try to extract:
       - overall duplicate rate (float)
-      - per-class duplicate rate map (dict)
+      - per_class duplicate rate map (dict)
 
     We accept multiple likely paths to keep reporting stable as schemas evolve.
     """
@@ -107,7 +107,7 @@ def _extract_duplicates(eval_summary: Dict[str, Any]) -> Tuple[Optional[float], 
 
 def plot_duplicates(ctx: PlotContext, out_dir: Path, cfg: PlotConfig) -> List[Path]:
     """
-    Plot duplicate rates (overall + per-class if present).
+    Plot duplicate rates (overall + per_class if present).
 
     Returns
     -------
@@ -125,7 +125,7 @@ def plot_duplicates(ctx: PlotContext, out_dir: Path, cfg: PlotConfig) -> List[Pa
     fig = plt.figure(figsize=(10, 5.5))
     ax = fig.add_subplot(1, 1, 1)
 
-    # Per-class bars if available
+    # Per_class bars if available
     if per_class:
         classes = sorted(per_class.keys(), key=lambda s: int(s) if str(s).isdigit() else s)
         vals = np.asarray([per_class[c] for c in classes], dtype=np.float64)
@@ -149,7 +149,7 @@ def plot_duplicates(ctx: PlotContext, out_dir: Path, cfg: PlotConfig) -> List[Pa
                 transform=ax.get_yaxis_transform(),
             )
     else:
-        # Overall-only view
+        # Overall_only view
         ax.bar([0], [overall if overall is not None else 0.0])
         ax.set_xticks([0])
         ax.set_xticklabels(["overall"])

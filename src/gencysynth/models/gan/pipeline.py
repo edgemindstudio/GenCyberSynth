@@ -1,6 +1,6 @@
 # src/gencysynth/models/gan/pipeline.py
 """
-GenCyberSynth — GAN Family — Pipeline Helpers (non-variant)
+GenCyberSynth — GAN Family — Pipeline Helpers (non_variant)
 ==========================================================
 
 This module provides a thin "pipeline" layer for the GAN family.
@@ -37,7 +37,7 @@ def run_train(cfg: Mapping[str, Any]) -> int:
     - cfg.model.variant selects which variant to train
     - variant trainer decides how to use cfg (or config_path if you invoke via CLI)
 
-    Returns: 0 on success, non-zero on failure (variant-defined).
+    Returns: 0 on success, non_zero on failure (variant_defined).
     """
     ident = build_identity(cfg)
     print(f"[{ident.tag}] pipeline: train")
@@ -48,10 +48,10 @@ def run_synth(cfg: Mapping[str, Any], *, output_root: Optional[str] = None, seed
     """
     Run GAN synthesis using family router.
 
-    By default, uses dataset-aware output_root:
+    By default, uses dataset_aware output_root:
       {artifacts}/synth/{dataset_id}
 
-    Returns a manifest dict (variant-defined + enriched by router).
+    Returns a manifest dict (variant_defined + enriched by router).
     """
     ident = build_identity(cfg)
 

@@ -1,6 +1,6 @@
 # src/gencysynth/adapters/datasets/image_folder.py
 """
-Generic image-folder dataset adapter.
+Generic image_folder dataset adapter.
 
 Expected layout
 ---------------
@@ -62,7 +62,7 @@ def _cfg_get(cfg: Dict[str, Any], dotted: str, default=None):
 class ImageFolderDatasetAdapter:
     spec: DatasetSpec = DatasetSpec(
         dataset_id="image_folder",
-        description="Generic image-folder dataset (class subfolders) -> standardized splits",
+        description="Generic image_folder dataset (class subfolders) -> standardized splits",
         default_img_shape=(40, 40, 1),
         default_num_classes=0,
     )

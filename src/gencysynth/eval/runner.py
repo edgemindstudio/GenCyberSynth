@@ -1,6 +1,6 @@
 # src/gencysynth/eval/runner.py
 """
-GenCyberSynth – Evaluation Runner (dataset-scalable)
+GenCyberSynth – Evaluation Runner (dataset_scalable)
 ===================================================
 
 What this runner does
@@ -8,9 +8,9 @@ What this runner does
 Evaluate a *single run* (one model_tag + one run_id) by:
   1) Locating the synthetic manifest that describes generated samples
   2) Loading synthetic images (local robust loader)
-  3) Computing lightweight "synthetic-only" metrics (KID/cFID/etc. only if available;
-     MS-SSIM fallback always possible)
-  4) Writing run-scoped evaluation outputs under a dataset-aware artifacts layout.
+  3) Computing lightweight "synthetic_only" metrics (KID/cFID/etc. only if available;
+     MS_SSIM fallback always possible)
+  4) Writing run_scoped evaluation outputs under a dataset_aware artifacts layout.
 
 Why this file was refactored
 ----------------------------
@@ -18,7 +18,7 @@ The legacy runner assumed a single dataset and stored outputs under:
     artifacts/<model_name>/synthetic/...
     artifacts/<model_name>/summaries/...
 
-GenCyberSynth now supports multiple datasets and needs scalable, collision-free paths.
+GenCyberSynth now supports multiple datasets and needs scalable, collision_free paths.
 This runner therefore writes to:
 
     artifacts/eval/<dataset_id>/<model_tag>/<run_id>/
@@ -29,7 +29,7 @@ This runner therefore writes to:
 And resolves manifests preferably from:
     config["run_meta"]["manifest_path"]  (truth; best for audit)
 
-Or (standard per-run convention):
+Or (standard per_run convention):
     artifacts/runs/<dataset_id>/<model_tag>/<run_id>/manifest.json
 
 With legacy fallback:
@@ -41,7 +41,7 @@ paths:
   artifacts: "artifacts"
 
 dataset:
-  id: "USTC-TFC2016_40x40_gray"     # REQUIRED for scalable layout
+  id: "USTC_TFC2016_40x40_gray"     # REQUIRED for scalable layout
 
 run_meta (injected by CLI/orchestrator; recommended):
   model_tag: "gan/dcgan"
@@ -56,7 +56,7 @@ Seed:
 
 Notes
 -----
-- This runner intentionally does *not* hard-require TensorFlow or any old gcs_core code.
+- This runner intentionally does *not* hard_require TensorFlow or any old gcs_core code.
 - It is robust: missing optional metrics do not crash evaluation; they become warnings.
 """
 
@@ -138,9 +138,9 @@ def _load_manifest_local(manifest_path: str) -> Dict[str, Any]:
 
 def _manifest_for_meta(manifest_path: str) -> Dict[str, Any] | None:
     """
-    Load + normalize manifest then add best-effort derived fields:
+    Load + normalize manifest then add best_effort derived fields:
       - num_fake
-      - budget_per_class (min per-class count)
+      - budget_per_class (min per_class count)
       - per_class_counts if missing
     """
     try:
@@ -192,8 +192,8 @@ def _read_image(
     """
     Minimal image reader -> float32 HWC in [0,1].
 
-    - min_hw=11 matters because TF SSIM/MS-SSIM uses an 11x11 window by default.
-    - target_hw defaults to (40,40) for USTC-TFC2016 malware images; adjust for new datasets.
+    - min_hw=11 matters because TF SSIM/MS_SSIM uses an 11x11 window by default.
+    - target_hw defaults to (40,40) for USTC_TFC2016 malware images; adjust for new datasets.
     """
     try:
         from PIL import Image  # type: ignore
@@ -260,18 +260,18 @@ def _load_images_local(
 
 
 # =============================================================================
-# Robust local MS-SSIM with SSIM fallback
+# Robust local MS_SSIM with SSIM fallback
 # =============================================================================
 def _ms_ssim_intra_class_local(imgs, labels, max_pairs_per_class: int = 200) -> float | None:
     """
-    Intra-class diversity proxy:
-      - Higher similarity (MS-SSIM) => lower diversity
+    Intra_class diversity proxy:
+      - Higher similarity (MS_SSIM) => lower diversity
       - Lower similarity => higher diversity
 
     Returns:
       mean similarity in [0,1], or None if insufficient pairs.
 
-    This is a robust fallback that works without any GenCyberSynth-specific loaders.
+    This is a robust fallback that works without any GenCyberSynth_specific loaders.
     """
     try:
         import numpy as np
@@ -334,13 +334,13 @@ def _ms_ssim_intra_class_local(imgs, labels, max_pairs_per_class: int = 200) -> 
 
 
 # =============================================================================
-# Run identity + path resolution (dataset-scalable)
+# Run identity + path resolution (dataset_scalable)
 # =============================================================================
 @dataclass(frozen=True)
 class RunIdentity:
     """
     Canonical identity for a single evaluation run.
-    This is what makes multi-dataset scaling work reliably.
+    This is what makes multi_dataset scaling work reliably.
     """
     artifacts_root: str
     dataset_id: str
@@ -354,7 +354,7 @@ def _resolve_run_identity(config: Dict[str, Any], model_name: str) -> RunIdentit
     Resolve artifacts_root, dataset_id, model_tag, run_id and seed.
 
     Priority:
-      - model_tag from run_meta.model_tag (preferred; variant-aware)
+      - model_tag from run_meta.model_tag (preferred; variant_aware)
       - else model_tag = model_name (fallback)
 
       - run_id:
@@ -366,8 +366,8 @@ def _resolve_run_identity(config: Dict[str, Any], model_name: str) -> RunIdentit
 
     dataset_id = _cfg_get(config, "dataset.id", None)
     if not isinstance(dataset_id, str) or not dataset_id:
-        # Dataset id is essential for multi-dataset scaling.
-        # We do not hard-crash; we fall back to a stable placeholder.
+        # Dataset id is essential for multi_dataset scaling.
+        # We do not hard_crash; we fall back to a stable placeholder.
         dataset_id = "unknown_dataset"
         _WARNINGS.append("config['dataset']['id'] missing; using dataset_id='unknown_dataset' (not recommended).")
 
@@ -418,7 +418,7 @@ def _resolve_manifest_path(config: Dict[str, Any], ident: RunIdentity, model_nam
     if isinstance(mp, str) and mp and Path(mp).exists():
         return mp
 
-    # 2) new standard per-run manifest location
+    # 2) new standard per_run manifest location
     new_paths = resolve_run_manifest_paths(
         artifacts_root=ident.artifacts_root,
         dataset_id=ident.dataset_id,
@@ -446,18 +446,18 @@ def evaluate_model_suite(
     no_synth: bool = False,
 ) -> Dict[str, Any]:
     """
-    Evaluate a single model run, write outputs to dataset-scalable paths, return record.
+    Evaluate a single model run, write outputs to dataset_scalable paths, return record.
 
     Important:
-    - This runner currently focuses on synth-only metrics + bookkeeping.
-    - Full Phase-1 suite that also uses REAL splits belongs in eval_common.py.
+    - This runner currently focuses on synth_only metrics + bookkeeping.
+    - Full Phase_1 suite that also uses REAL splits belongs in eval_common.py.
     """
     # -------------------------------------------------------------------------
-    # 0) Resolve canonical run identity (dataset-aware)
+    # 0) Resolve canonical run identity (dataset_aware)
     # -------------------------------------------------------------------------
     ident = _resolve_run_identity(config, model_name)
 
-    # Persist identity into run_meta for auditability (non-destructive).
+    # Persist identity into run_meta for auditability (non_destructive).
     rm = config.get("run_meta") if isinstance(config.get("run_meta"), dict) else {}
     rm.setdefault("dataset_id", ident.dataset_id)
     rm.setdefault("model_tag", ident.model_tag)
@@ -466,7 +466,7 @@ def evaluate_model_suite(
     config["run_meta"] = rm
 
     # -------------------------------------------------------------------------
-    # 1) Resolve output locations (dataset-scalable)
+    # 1) Resolve output locations (dataset_scalable)
     # -------------------------------------------------------------------------
     eval_paths = resolve_eval_paths(
         artifacts_root=ident.artifacts_root,
@@ -489,15 +489,15 @@ def evaluate_model_suite(
     have_synth = (not no_synth) and (manifest_path is not None) and Path(manifest_path).exists()
 
     if not have_synth:
-        _WARNINGS.append("No synthetic manifest found (or --no-synth used); synth metrics skipped.")
+        _WARNINGS.append("No synthetic manifest found (or --no_synth used); synth metrics skipped.")
 
     # -------------------------------------------------------------------------
     # 3) Evaluator parameters (configurable)
     # -------------------------------------------------------------------------
     per_class_cap = int(_cfg_get(config, "evaluator.per_class_cap", 200))
 
-    # Dataset-specific resizing (scalable):
-    # - default (40,40) is correct for USTC-TFC2016 malware images
+    # Dataset_specific resizing (scalable):
+    # - default (40,40) is correct for USTC_TFC2016 malware images
     # - for future datasets, set config['dataset']['image_hw'] = [H,W]
     hw = _cfg_get(config, "dataset.image_hw", [40, 40])
     target_hw = None
@@ -527,20 +527,20 @@ def evaluate_model_suite(
         if getattr(imgs, "size", 0) == 0:
             metrics.setdefault("_warnings", []).append("No images loaded from manifest; synth metrics may be empty.")
 
-        # MS-SSIM diversity proxy (local robust)
+        # MS_SSIM diversity proxy (local robust)
         try:
             mss_val = _ms_ssim_intra_class_local(imgs, labels, max_pairs_per_class=200)
             metrics["ms_ssim"] = mss_val
             if mss_val is None:
-                metrics.setdefault("_warnings", []).append("MS-SSIM returned no value (insufficient pairs per class?).")
+                metrics.setdefault("_warnings", []).append("MS_SSIM returned no value (insufficient pairs per class?).")
         except Exception as e:
             metrics["ms_ssim"] = None
-            metrics.setdefault("_warnings", []).append(f"MS-SSIM failed: {type(e).__name__}: {e}")
+            metrics.setdefault("_warnings", []).append(f"MS_SSIM failed: {type(e).__name__}: {e}")
     else:
         metrics["ms_ssim"] = None
 
     # -------------------------------------------------------------------------
-    # 5) Counts (best-effort; scalable)
+    # 5) Counts (best_effort; scalable)
     # -------------------------------------------------------------------------
     num_fake = None
     budget_per_class = None
@@ -569,7 +569,7 @@ def evaluate_model_suite(
     }
 
     # -------------------------------------------------------------------------
-    # 6) Assemble a clean record (schema-friendly + legacy shims)
+    # 6) Assemble a clean record (schema_friendly + legacy shims)
     # -------------------------------------------------------------------------
     rec: Dict[str, Any] = {
         "timestamp": now_iso(),
@@ -586,7 +586,7 @@ def evaluate_model_suite(
         },
 
         "generative": {
-            # This runner currently provides MS-SSIM only (robust local).
+            # This runner currently provides MS_SSIM only (robust local).
             # Full FID/cFID/KID suite that uses REAL splits is owned by eval_common.py.
             "ms_ssim": metrics.get("ms_ssim"),
             "fid": None,
@@ -614,9 +614,9 @@ def evaluate_model_suite(
         rec["run_meta"]["budget_per_class"] = budget_per_class
 
     # -------------------------------------------------------------------------
-    # 7) Write outputs (dataset-scalable paths)
+    # 7) Write outputs (dataset_scalable paths)
     # -------------------------------------------------------------------------
-    # 7.1) Human-readable console log
+    # 7.1) Human_readable console log
     lines = [
         f"[eval] dataset_id={ident.dataset_id}",
         f"[eval] model_tag={ident.model_tag}",
@@ -663,7 +663,7 @@ def main():
     p.add_argument("--config", required=True)
     p.add_argument("--overrides", default=None)
     p.add_argument("--model", required=True)
-    p.add_argument("--no-synth", action="store_true")
+    p.add_argument("--no_synth", action="store_true")
     args = p.parse_args()
 
     cfg = yaml.safe_load(open(args.config, "r"))

@@ -4,11 +4,11 @@ Core types for the GenCyberSynth metrics layer.
 
 Rule A goals
 ------------
-- Stable, typed-ish interfaces for metric computation.
-- JSON-friendly result containers.
+- Stable, typed_ish interfaces for metric computation.
+- JSON_friendly result containers.
 - No heavy dependencies (NumPy only here).
 
-This file deliberately does *not* import project-specific config/hashing/etc.
+This file deliberately does *not* import project_specific config/hashing/etc.
 Those live in gencysynth.utils.* and are used by api/writer/config.
 """
 
@@ -33,7 +33,7 @@ class DatasetMeta:
       Fallback can be derived from cfg["data"]["root"].
 
     img_shape
-      Channels-last shape (H, W, C).
+      Channels_last shape (H, W, C).
     """
     dataset_id: str
     img_shape: Tuple[int, int, int]
@@ -62,11 +62,11 @@ class MetricResult:
     """
     The output of a single metric computation.
 
-    Fields are JSON-serializable:
+    Fields are JSON_serializable:
       - name: metric name (registry key)
       - value: a float scalar (if applicable)
       - details: structured details (dict/list/nums)
-      - artifacts: metric-specific files written (paths, figures, etc.)
+      - artifacts: metric_specific files written (paths, figures, etc.)
     """
     name: str
     value: Optional[float] = None
@@ -93,14 +93,14 @@ class Metric(Protocol):
     Inputs
     ------
     x_real01: float32 in [0,1], shape (N,H,W,C)
-    y_real  : int labels (N,) or one-hot (N,K) OR None (some metrics are unconditional)
+    y_real  : int labels (N,) or one_hot (N,K) OR None (some metrics are unconditional)
 
     x_synth01: float32 in [0,1], shape (M,H,W,C)
-    y_synth  : int labels (M,) or one-hot (M,K) OR None
+    y_synth  : int labels (M,) or one_hot (M,K) OR None
 
     meta: dataset + run metadata for labeling output
 
-    cfg: the full config dict (metric may read metric-specific knobs)
+    cfg: the full config dict (metric may read metric_specific knobs)
 
     Returns
     -------
@@ -135,7 +135,7 @@ def as_float01(x: np.ndarray) -> np.ndarray:
 def as_int_labels(y: Optional[np.ndarray], num_classes: int) -> Optional[np.ndarray]:
     """
     Convert labels to int64 vector if provided.
-    Accepts (N,) ints or (N,K) one-hot.
+    Accepts (N,) ints or (N,K) one_hot.
     """
     if y is None:
         return None

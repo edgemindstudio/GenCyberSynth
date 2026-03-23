@@ -12,9 +12,9 @@ Then bin samples by confidence and compute:
   ECE = sum_b (n_b / N) * |acc_b - conf_b|
 
 This implementation supports:
-- multi-class predicted probabilities (N, K)
-- integer labels (N,) or one-hot labels (N, K)
-- optional adaptive binning (equal-frequency bins) or fixed bins
+- multi_class predicted probabilities (N, K)
+- integer labels (N,) or one_hot labels (N, K)
+- optional adaptive binning (equal_frequency bins) or fixed bins
 
 Rule A
 ------
@@ -37,7 +37,7 @@ def _labels_to_int(y: np.ndarray, num_classes: int) -> np.ndarray:
     Normalize labels to integer class IDs.
     Accepts:
       - (N,) integer labels
-      - (N,K) one-hot labels
+      - (N,K) one_hot labels
     """
     y = np.asarray(y)
     if y.ndim == 1:
@@ -98,7 +98,7 @@ def _ece_fixed_bins(conf: np.ndarray, correct: np.ndarray, n_bins: int) -> Tuple
 
 def _ece_adaptive_bins(conf: np.ndarray, correct: np.ndarray, n_bins: int) -> Tuple[float, Dict]:
     """
-    ECE with equal-frequency (quantile) bins.
+    ECE with equal_frequency (quantile) bins.
     """
     n_bins = int(max(1, n_bins))
     N = conf.shape[0]
@@ -178,7 +178,7 @@ class ECEMetric:
         n_bins = int(opts.get("n_bins", 15))
         scheme = str(opts.get("scheme", "fixed")).lower()
 
-        # ---- Extract prediction payload (framework-provided) ----
+        # ---- Extract prediction payload (framework_provided) ----
         # We do not assume artifact paths; caller must inject these into cfg.
         payload = None
         if isinstance(cfg.get("calibration"), dict) and isinstance(cfg["calibration"].get("probs"), dict):

@@ -1,20 +1,20 @@
 # src/gencysynth/metrics/distribution/__init__.py
 """
-Distribution-level metrics for GenCyberSynth.
+Distribution_level metrics for GenCyberSynth.
 
 Rule A principles
 -----------------
 - Metric computation is pure (inputs -> result) and does not invent paths.
 - Writing to artifacts is handled by gencysynth.metrics.writer via metrics.api.
 - Configuration is taken from cfg["metrics"]["options"][<metric_name>] when present.
-- Safe defaults for smoke tests and end-to-end sanity runs.
+- Safe defaults for smoke tests and end_to_end sanity runs.
 
 Registered metrics
 ------------------
 - distribution.fid          : FID on lightweight features (pixel features by default)
-- distribution.kid          : KID (polynomial-kernel MMD^2) on the same feature space
-- distribution.mmd_rbf      : RBF-kernel MMD^2 on feature space
-- distribution.js_kl_hist   : JS + KL divergences on pixel-intensity histograms
+- distribution.kid          : KID (polynomial_kernel MMD^2) on the same feature space
+- distribution.mmd_rbf      : RBF_kernel MMD^2 on feature space
+- distribution.js_kl_hist   : JS + KL divergences on pixel_intensity histograms
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ from .mmd import MMDMetric
 from .js_kl import JSKLMetrics
 
 
-# NOTE: registry keys should be stable and human-readable (Rule A)
+# NOTE: registry keys should be stable and human_readable (Rule A)
 REGISTRY.register("distribution.fid", FIDMetric())
 REGISTRY.register("distribution.kid", KIDMetric())
 REGISTRY.register("distribution.mmd_rbf", MMDMetric(kernel="rbf"))

@@ -4,8 +4,8 @@ gencysynth.data.fingerprint_writer
 ==================================
 
 Thin convenience layer to:
-  1) compute a dataset fingerprint (quartet-style or arbitrary files)
-  2) write it to the standardized, dataset-scalable artifacts location
+  1) compute a dataset fingerprint (quartet_style or arbitrary files)
+  2) write it to the standardized, dataset_scalable artifacts location
 
 This keeps orchestration/CLI code clean:
     fp_path = write_dataset_fingerprint(cfg, dataset_meta)
@@ -40,7 +40,7 @@ __all__ = [
 
 
 def _cfg_get(cfg: Dict[str, Any], dotted: str, default: Any = None) -> Any:
-    """Small dotted-path getter (kept local so eval/runner doesn't have to import it)."""
+    """Small dotted_path getter (kept local so eval/runner doesn't have to import it)."""
     cur: Any = cfg
     for key in dotted.split("."):
         if not isinstance(cur, dict) or key not in cur:
@@ -58,7 +58,7 @@ def write_dataset_fingerprint(
     out_path: Optional[Union[str, Path]] = None,
 ) -> Path:
     """
-    One-call helper used by loaders/orchestration to persist dataset fingerprint.
+    One_call helper used by loaders/orchestration to persist dataset fingerprint.
 
     Parameters
     ----------
@@ -67,7 +67,7 @@ def write_dataset_fingerprint(
           - cfg["paths"]["artifacts"] (default "artifacts")
     dataset_meta:
         A dict with at least:
-          - dataset_id: stable identifier, e.g. "USTC-TFC2016_40x40_gray"
+          - dataset_id: stable identifier, e.g. "USTC_TFC2016_40x40_gray"
           - dataset_root: directory where data files live
 
         Optional quartet overrides:
@@ -77,7 +77,7 @@ def write_dataset_fingerprint(
 
         Rule:
           - If dataset_meta["files"] is provided => fingerprint those
-          - Else => assume quartet-style .npy dataset
+          - Else => assume quartet_style .npy dataset
     compute_full_hash:
         Full sha256 for each file (strong audit; slower on huge files).
     compute_quick_hash:
@@ -107,7 +107,7 @@ def write_dataset_fingerprint(
     # Decide fingerprint mode
     files = dataset_meta.get("files", None)
     if isinstance(files, (list, tuple)) and len(files) > 0:
-        # Arbitrary-layout datasets
+        # Arbitrary_layout datasets
         fp = fingerprint_dataset_files(
             dataset_id=dataset_id,
             dataset_root=dataset_root,
@@ -116,7 +116,7 @@ def write_dataset_fingerprint(
             compute_quick_hash=compute_quick_hash,
         )
     else:
-        # Quartet-style datasets (default GenCyberSynth format)
+        # Quartet_style datasets (default GenCyberSynth format)
         fp = fingerprint_npy_quartet(
             dataset_id=dataset_id,
             dataset_root=dataset_root,
@@ -147,7 +147,7 @@ def write_dataset_fingerprint_quartet(
     out_path: Optional[Union[str, Path]] = None,
 ) -> Path:
     """
-    Explicit quartet-only wrapper (useful when you don't want dataset_meta dicts).
+    Explicit quartet_only wrapper (useful when you don't want dataset_meta dicts).
     """
     meta = {
         "dataset_id": dataset_id,
@@ -177,7 +177,7 @@ def write_dataset_fingerprint_files(
     out_path: Optional[Union[str, Path]] = None,
 ) -> Path:
     """
-    Explicit arbitrary-files wrapper.
+    Explicit arbitrary_files wrapper.
     """
     meta = {
         "dataset_id": dataset_id,

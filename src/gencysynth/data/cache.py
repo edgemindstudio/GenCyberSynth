@@ -1,6 +1,6 @@
 # src/gencysynth/data/cache.py
 """
-GenCyberSynth — Dataset Cache (Scalable, Dataset-Scoped)
+GenCyberSynth — Dataset Cache (Scalable, Dataset_Scoped)
 
 Why this exists
 ---------------
@@ -13,7 +13,7 @@ We store cached dataset artifacts under:
 
   <artifacts_root>/datasets/<dataset_id>/cache/
 
-This keeps caches dataset-scoped (no collisions between datasets), and makes it
+This keeps caches dataset_scoped (no collisions between datasets), and makes it
 easy to purge or version dataset caches independently.
 
 What is cached
@@ -23,10 +23,10 @@ What is cached
 
 Cache key
 ---------
-The cache_key is a JSON-serializable dict. We hash it (SHA1) to get a stable filename.
+The cache_key is a JSON_serializable dict. We hash it (SHA1) to get a stable filename.
 
 Example cache file:
-  artifacts/datasets/USTC-TFC2016_40x40_gray/cache/arrays_<sha1>.npz
+  artifacts/datasets/USTC_TFC2016_40x40_gray/cache/arrays_<sha1>.npz
 """
 
 from __future__ import annotations
@@ -61,7 +61,7 @@ def _stable_json(obj: Any) -> str:
 
 
 def _sha1_text(s: str) -> str:
-    return hashlib.sha1(s.encode("utf-8")).hexdigest()
+    return hashlib.sha1(s.encode("utf_8")).hexdigest()
 
 
 @dataclass(frozen=True)
@@ -73,11 +73,11 @@ class DatasetCachePaths:
 
 class DatasetCache:
     """
-    Dataset-scoped cache helper.
+    Dataset_scoped cache helper.
 
     This class is intentionally simple:
     - It does not attempt eviction policies.
-    - It does not attempt file locks (HPC users may prefer deterministic pre-warming).
+    - It does not attempt file locks (HPC users may prefer deterministic pre_warming).
     """
 
     def __init__(self, *, artifacts_root: Path, dataset_id: str):
@@ -101,7 +101,7 @@ class DatasetCache:
     # -------------------------------------------------------------------------
     def cache_dir(self) -> Path:
         """
-        Dataset-scoped cache directory:
+        Dataset_scoped cache directory:
           <artifacts_root>/datasets/<dataset_id>/cache/
         """
         return self.artifacts_root / "datasets" / self.dataset_id / "cache"
@@ -110,7 +110,7 @@ class DatasetCache:
         """
         Map cache_key -> deterministic file paths.
 
-        We hash the key so filenames stay short and filesystem-safe.
+        We hash the key so filenames stay short and filesystem_safe.
         """
         key_json = _stable_json(cache_key)
         h = _sha1_text(key_json)
@@ -153,7 +153,7 @@ class DatasetCache:
         Save dataset arrays to cache (npz + key.json).
 
         Notes:
-        - This is an overwrite-safe operation: writing npz is atomic enough for most cases
+        - This is an overwrite_safe operation: writing npz is atomic enough for most cases
           (but if you want strict atomicity, we can route via gencysynth.utils.io later).
         """
         paths = self._paths_for_key(cache_key)
@@ -175,6 +175,6 @@ class DatasetCache:
         if write_json is not None:
             write_json(paths.key_path, payload, indent=2, sort_keys=True, atomic=True)
         else:
-            paths.key_path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
+            paths.key_path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf_8")
 
         return paths

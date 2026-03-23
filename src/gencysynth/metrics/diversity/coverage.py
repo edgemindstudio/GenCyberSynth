@@ -7,13 +7,13 @@ Goal
 Coverage should answer: "How much of the real distribution is represented
 by synthetic samples?"
 
-A full coverage metric can be complex. For end-to-end repo sanity and scalable
+A full coverage metric can be complex. For end_to_end repo sanity and scalable
 evaluation, we implement a strong *proxy*:
 
 - Extract lightweight features (pixel subsample, deterministic)
-- Compute nearest-neighbor distance from each real sample -> closest synthetic
+- Compute nearest_neighbor distance from each real sample -> closest synthetic
 - Report quantiles + mean distance (lower means better coverage)
-- Optionally compute per-class coverage if labels exist
+- Optionally compute per_class coverage if labels exist
 
 Rule A
 ------
@@ -135,10 +135,10 @@ class CoverageMetric:
             "n_real_used": int(fr.shape[0]),
             "n_synth_used": int(fs.shape[0]),
             "distance": summary,
-            "note": "Coverage proxy via NN distances on lightweight pixel features (smoke-test).",
+            "note": "Coverage proxy via NN distances on lightweight pixel features (smoke_test).",
         }
 
-        # Optional per-class coverage proxy
+        # Optional per_class coverage proxy
         if per_class and (yr is not None) and (ys is not None):
             K = int(dataset.num_classes)
             per = {}

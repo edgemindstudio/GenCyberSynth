@@ -4,17 +4,17 @@ repo_tree.py — Print a complete repository tree from the *current directory* d
 
 This version is optimized for sharing in chats:
 - Includes hidden files by default
-- Skips noisy/huge directories by default: .git, artifacts, logs, USTC-TFC2016_malware
+- Skips noisy/huge directories by default: .git, artifacts, logs, USTC_TFC2016_malware
 - Does not walk above the current directory
 - Robust permission handling (fails fast and explains how to rerun)
 
 Usage:
   python3 repo_tree.py
   python3 repo_tree.py --output repo_tree.txt
-  python3 repo_tree.py --max-depth 6
+  python3 repo_tree.py --max_depth 6
   python3 repo_tree.py --exclude .git,artifacts,logs
-  python3 repo_tree.py --follow-symlinks        # Not recommended unless you know there are no cycles
-  python3 repo_tree.py --include-sizes          # Adds sizes for regular files
+  python3 repo_tree.py --follow_symlinks        # Not recommended unless you know there are no cycles
+  python3 repo_tree.py --include_sizes          # Adds sizes for regular files
 """
 
 from __future__ import annotations
@@ -26,7 +26,7 @@ from dataclasses import dataclass
 from typing import Iterable, List, Optional, Set, Tuple
 
 
-DEFAULT_EXCLUDES = {".git", "artifacts", "logs", "USTC-TFC2016_malware"}
+DEFAULT_EXCLUDES = {".git", "artifacts", "logs", "USTC_TFC2016_malware"}
 
 
 @dataclass(frozen=True)
@@ -162,16 +162,16 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Print a full tree of the current directory (including hidden entries), with excludes."
     )
-    parser.add_argument("--max-depth", type=int, default=None,
+    parser.add_argument("--max_depth", type=int, default=None,
                         help="Maximum depth to print (1 means only direct children). Default: unlimited.")
-    parser.add_argument("--follow-symlinks", action="store_true",
+    parser.add_argument("--follow_symlinks", action="store_true",
                         help="Follow symlinks for directory traversal. Default: off (safer).")
-    parser.add_argument("--include-sizes", action="store_true",
-                        help="Include human-readable sizes for files. Default: off.")
+    parser.add_argument("--include_sizes", action="store_true",
+                        help="Include human_readable sizes for files. Default: off.")
     parser.add_argument("--output", type=str, default=None,
                         help="Write output to a file instead of stdout.")
     parser.add_argument("--exclude", type=str, default="",
-                        help="Comma-separated names to exclude (e.g., .git,artifacts,logs).")
+                        help="Comma_separated names to exclude (e.g., .git,artifacts,logs).")
 
     args = parser.parse_args()
 
@@ -195,7 +195,7 @@ def main() -> int:
             f"Reason: {e}",
             "",
             "Recommendation:",
-            "  Re-run with elevated privileges to include restricted paths:",
+            "  Re_run with elevated privileges to include restricted paths:",
             "    sudo python3 repo_tree.py",
             "",
             "If you do NOT want admin privileges, remove/relocate restricted files",
@@ -207,7 +207,7 @@ def main() -> int:
     output_text = "\n".join(lines) + "\n"
     if opts.output:
         try:
-            with open(opts.output, "w", encoding="utf-8") as f:
+            with open(opts.output, "w", encoding="utf_8") as f:
                 f.write(output_text)
             print(f"Wrote repository tree to: {opts.output}")
         except PermissionError:

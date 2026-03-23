@@ -4,21 +4,21 @@ Sanity checks: shape, dtype, and basic validity for image datasets and labels.
 
 Why this exists
 ---------------
-For end-to-end "smoke tests" (e.g., <5 epochs across multiple model families),
+For end_to_end "smoke tests" (e.g., <5 epochs across multiple model families),
 we want fast checks that catch the most common pipeline failures early:
 
 - wrong image shape (missing channel dim, wrong H/W)
 - dtype issues (uint8 vs float, float64, etc.)
-- invalid ranges (e.g., model expects [-1,1] but gets [0,1], or vice-versa)
+- invalid ranges (e.g., model expects [-1,1] but gets [0,1], or vice_versa)
 - NaN/Inf contamination
-- label shape mismatches (int vs one-hot confusion)
+- label shape mismatches (int vs one_hot confusion)
 - class id out of range
 
 Design goals
 ------------
 - Zero ML framework dependencies (NumPy only).
 - Safe on huge arrays: supports optional subsampling.
-- Returns a structured dict that can be merged into run-level eval summaries
+- Returns a structured dict that can be merged into run_level eval summaries
   (Rule A friendly). No file I/O here; a separate writer can persist results.
 
 Typical usage
@@ -241,8 +241,8 @@ def check_labels(
 
     Supported forms
     ---------------
-    - int labels: shape (N,), values in [0, K-1]
-    - one-hot:    shape (N,K) with rows summing to 1 (tolerant)
+    - int labels: shape (N,), values in [0, K_1]
+    - one_hot:    shape (N,K) with rows summing to 1 (tolerant)
 
     Returns a dict: {ok, errors, warnings, observed, expected}
     """
@@ -261,7 +261,7 @@ def check_labels(
 
     if y.ndim == 1:
         if not allow_int:
-            errors.append("integer labels are not allowed here (expected one-hot).")
+            errors.append("integer labels are not allowed here (expected one_hot).")
         if not np.issubdtype(y.dtype, np.integer):
             # could be float ints; warn not fail
             warnings.append(f"labels are 1D but dtype is {y.dtype}; expected integer ids.")
@@ -270,13 +270,13 @@ def check_labels(
             y_max = int(np.max(ys))
             observed.update({"min": y_min, "max": y_max})
             if y_min < 0 or y_max >= int(num_classes):
-                errors.append(f"label ids out of range: min={y_min}, max={y_max}, expected [0,{num_classes-1}]")
+                errors.append(f"label ids out of range: min={y_min}, max={y_max}, expected [0,{num_classes_1}]")
 
     elif y.ndim == 2:
         if not allow_onehot:
-            errors.append("one-hot labels are not allowed here (expected integer ids).")
+            errors.append("one_hot labels are not allowed here (expected integer ids).")
         if num_classes is not None and y.shape[1] != int(num_classes):
-            errors.append(f"one-hot width mismatch: got K={y.shape[1]} but expected K={num_classes}")
+            errors.append(f"one_hot width mismatch: got K={y.shape[1]} but expected K={num_classes}")
 
         if np.issubdtype(y.dtype, np.number) and ys.size > 0:
             # check row sums ~ 1 and values ~ {0,1}
@@ -286,7 +286,7 @@ def check_labels(
             observed.update({"row_sum_min": rs_min, "row_sum_max": rs_max})
 
             if rs_min < 0.5 or rs_max > 1.5:
-                warnings.append("one-hot rows do not appear to sum to ~1. (Are these soft labels?)")
+                warnings.append("one_hot rows do not appear to sum to ~1. (Are these soft labels?)")
 
             # check argmax range if K provided
             if num_classes is not None:
@@ -294,7 +294,7 @@ def check_labels(
                 y_min = int(np.min(ids)) if ids.size else 0
                 y_max = int(np.max(ids)) if ids.size else 0
                 if y_min < 0 or y_max >= int(num_classes):
-                    errors.append(f"argmax ids out of range: min={y_min}, max={y_max}, expected [0,{num_classes-1}]")
+                    errors.append(f"argmax ids out of range: min={y_min}, max={y_max}, expected [0,{num_classes_1}]")
     else:
         errors.append(f"labels must be 1D (N,) or 2D (N,K). got ndim={y.ndim}, shape={y.shape}")
 

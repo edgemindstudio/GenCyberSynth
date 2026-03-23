@@ -25,7 +25,7 @@ class RunIdParts:
 
 def make_run_id(config: str, seed: int, extra: Optional[str] = None) -> str:
     """
-    Create a filesystem-safe run id.
+    Create a filesystem_safe run id.
 
     Examples:
       make_run_id("A", 42) -> "A_seed42"

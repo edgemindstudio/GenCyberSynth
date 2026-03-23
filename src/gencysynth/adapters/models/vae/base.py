@@ -9,8 +9,8 @@ VAE conventions
 
 This base class:
 - standardizes train inputs to [-1,1]
-- enforces synth outputs in [0,1] + one-hot labels
-- writes evaluator contract files into run-scoped synthetic dir
+- enforces synth outputs in [0,1] + one_hot labels
+- writes evaluator contract files into run_scoped synthetic dir
 """
 
 from __future__ import annotations
@@ -39,10 +39,10 @@ from gencysynth.adapters.datasets.splits import DatasetSplits
 
 def _ensure_nhwc_best_effort(x: np.ndarray, *, cfg: Dict[str, Any]) -> np.ndarray:
     """
-    Best-effort ensure NHWC.
+    Best_effort ensure NHWC.
 
     Accepts:
-      - (N,H,W,C) -> returned as-is
+      - (N,H,W,C) -> returned as_is
       - (N, H*W*C) -> reshapes using cfg['dataset']['image_hw'] + channels=1 by default
 
     If you want guaranteed behavior across datasets, set:
@@ -74,7 +74,7 @@ def _ensure_nhwc_best_effort(x: np.ndarray, *, cfg: Dict[str, Any]) -> np.ndarra
 
 class VAEAdapterBase(BaseModelAdapter):
     """
-    Base adapter for VAE-family variants.
+    Base adapter for VAE_family variants.
 
     Variants should subclass and implement:
       - _train_impl(...)
@@ -99,7 +99,7 @@ class VAEAdapterBase(BaseModelAdapter):
         return self._run_root(run_ctx) / "summaries"
 
     def synthetic_dir(self, run_ctx: Any) -> Path:
-        # Keep synth contract files run-scoped and predictable
+        # Keep synth contract files run_scoped and predictable
         return self._run_root(run_ctx) / "synthetic"
 
     # ---- inputs ----
@@ -107,7 +107,7 @@ class VAEAdapterBase(BaseModelAdapter):
         """
         Returns:
           x_m11: float32 NHWC in [-1,1]
-          y1h  : float32 (N,K) one-hot
+          y1h  : float32 (N,K) one_hot
 
         Expects DatasetSplits.train.x01 and .y_onehot, but does not assume x01 shape.
         """
@@ -133,7 +133,7 @@ class VAEAdapterBase(BaseModelAdapter):
           - gen_class_{k}.npy
           - labels_class_{k}.npy
           - x_synth.npy
-          - y_synth.npy   (one-hot)
+          - y_synth.npy   (one_hot)
         """
         out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -148,7 +148,7 @@ class VAEAdapterBase(BaseModelAdapter):
         y1h = ensure_onehot(y1h, num_classes=K)
         y_int = np.argmax(y1h, axis=1).astype(np.int32)
 
-        # Per-class contract
+        # Per_class contract
         for k in range(K):
             idx = (y_int == k)
             np.save(out_dir / f"gen_class_{k}.npy", x01[idx])
@@ -224,6 +224,6 @@ class VAEAdapterBase(BaseModelAdapter):
         """
         Must return:
           x01: float32 NHWC in [0,1]
-          y1h: float32 one-hot (N,K)
+          y1h: float32 one_hot (N,K)
         """
         raise NotImplementedError

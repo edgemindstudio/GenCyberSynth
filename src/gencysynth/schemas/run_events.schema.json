@@ -33,7 +33,7 @@
     "model_tag": {
       "type": "string",
       "description": "Variant-aware model tag (family/model). Used in artifacts paths.",
-      "examples": ["gan/dcgan", "restrictedboltzmann/c-rbm-bernoulli", "vae/c-vae"]
+      "examples": ["gan/dcgan", "restrictedboltzmann/c_rbm_bernoulli", "vae/c_vae"]
     },
     "run_id": {
       "type": "string",
@@ -93,8 +93,8 @@
       "additionalProperties": { "type": "string" },
       "examples": [
         {
-          "checkpoint": "artifacts/runs/USTC-TFC2016_40x40_gray/vae/c-vae/seed42_smoke/checkpoints/D_best.weights.h5",
-          "manifest": "artifacts/runs/USTC-TFC2016_40x40_gray/vae/c-vae/seed42_smoke/manifest.json"
+          "checkpoint": "artifacts/runs/USTC-TFC2016_40x40_gray/vae/c_vae/seed42_smoke/checkpoints/D_best.weights.h5",
+          "manifest": "artifacts/runs/USTC-TFC2016_40x40_gray/vae/c_vae/seed42_smoke/manifest.json"
         }
       ]
     },
@@ -138,4 +138,5 @@
   },
   "additionalProperties": true
 }
+
 

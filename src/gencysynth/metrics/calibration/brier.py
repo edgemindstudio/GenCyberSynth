@@ -1,11 +1,11 @@
 # src/gencysynth/metrics/calibration/brier.py
 """
-Brier score (multi-class).
+Brier score (multi_class).
 
 Definition
 ----------
-For multi-class classification with probabilities p_i over K classes,
-and one-hot true vector y_i:
+For multi_class classification with probabilities p_i over K classes,
+and one_hot true vector y_i:
 
   Brier = mean_i sum_k (p_i[k] - y_i[k])^2
 
@@ -60,7 +60,7 @@ class BrierMetric:
       - p_pred
 
     Options (cfg.metrics.options.calibration.brier):
-      reduce: "mean"  # reserved for future (e.g., per-class)
+      reduce: "mean"  # reserved for future (e.g., per_class)
       per_class: false
     """
 
@@ -121,7 +121,7 @@ class BrierMetric:
             "mean": float(score),
         }
 
-        # Optional per-class brier (useful for imbalanced datasets)
+        # Optional per_class brier (useful for imbalanced datasets)
         if per_class:
             y_int = np.argmax(y1h, axis=1)
             byc = {}

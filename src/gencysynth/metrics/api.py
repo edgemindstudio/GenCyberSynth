@@ -8,7 +8,7 @@ Rule A behavior
 ---------------
 - Normalizes dataset_id + run_id
 - Writes one directory per (dataset_id, run_id)
-- Writes per-metric JSON + summary.json + optional events.jsonl
+- Writes per_metric JSON + summary.json + optional events.jsonl
 
 This module does not assume a specific generator family. It only needs:
 - real arrays

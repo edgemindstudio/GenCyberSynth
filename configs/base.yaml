@@ -1,0 +1,25 @@
+# configs/base.yaml
+# Shared defaults for all runs (train/synth/eval). Other configs overlay this.
+
+paths:
+  artifacts: artifacts
+
+dataset:
+  # Overridden by configs/datasets.yaml or per_run configs
+  id: USTC_TFC2016_40x40_gray_nhwc
+  type: npy_ustc
+  root: /home/bruno.fonkeng/gencys/data/USTC_TFC2016_malware_nhwc
+  image_hw: [40, 40]
+  channels: 1
+  num_classes: 9
+
+# Global run controls
+SEED: 42
+
+# Default synth budget (overridden by smoke)
+synth:
+  n_per_class: 100
+
+# Evaluation caps (overridden by smoke)
+evaluator:
+  per_class_cap: 200

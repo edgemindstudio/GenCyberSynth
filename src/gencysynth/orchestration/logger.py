@@ -1,10 +1,10 @@
 # src/gencysynth/orchestration/logger.py
 """
-GenCyberSynth — Run logger (per-run logs to artifacts/logs)
+GenCyberSynth — Run logger (per_run logs to artifacts/logs)
 ==========================================================
 
 We want logs to be:
-- per-run (no collisions)
+- per_run (no collisions)
 - easy to tail on HPC
 - written to both console and a file
 
@@ -16,7 +16,7 @@ Layout (Rule A)
 
 This module provides:
 - get_run_logger(...) -> python logging.Logger configured for a run
-- log_event_jsonl(...) -> append structured events (multi-process friendly)
+- log_event_jsonl(...) -> append structured events (multi_process friendly)
 """
 
 from __future__ import annotations
@@ -37,7 +37,7 @@ def get_run_logger(
     level: int = logging.INFO,
 ) -> logging.Logger:
     """
-    Create or reuse a logger that writes to both console + a run-scoped file.
+    Create or reuse a logger that writes to both console + a run_scoped file.
     Safe to call multiple times (won't duplicate handlers).
     """
     ensure_dir(log_dir)
@@ -74,8 +74,8 @@ def log_event_jsonl(
     filename: str = "events.jsonl",
 ) -> Path:
     """
-    Append a single structured JSON event to a per-run JSONL file.
-    Non-atomic by design (multi-process logging).
+    Append a single structured JSON event to a per_run JSONL file.
+    Non_atomic by design (multi_process logging).
     """
     ensure_dir(log_dir)
     return append_jsonl(Path(log_dir) / filename, event)

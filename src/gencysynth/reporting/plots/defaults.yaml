@@ -1,7 +1,7 @@
 # src/gencysynth/reporting/plots/defaults.yaml
 
 # gencysynth.reporting.plots defaults
-# These defaults are intentionally conservative and artifact-friendly.
+# These defaults are intentionally conservative and artifact_friendly.
 
 enabled_groups:
   core: true

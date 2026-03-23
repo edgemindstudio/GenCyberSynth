@@ -1,6 +1,6 @@
 # src/gencysynth/adapters/datasets/npy_ustc.py
 """
-USTC-TFC2016 NPY dataset adapter.
+USTC_TFC2016 NPY dataset adapter.
 
 This bridges the legacy / existing loader(s) in gencysynth.data.* into the
 standard DatasetSplits contract.
@@ -64,7 +64,7 @@ def _cfg_get(cfg: Dict[str, Any], dotted: str, default=None):
 class UstcNpyDatasetAdapter:
     spec: DatasetSpec = DatasetSpec(
         dataset_id="ustc_tfc2016_npy",
-        description="USTC-TFC2016 malware images stored as train/test .npy arrays",
+        description="USTC_TFC2016 malware images stored as train/test .npy arrays",
         default_img_shape=(40, 40, 1),
         default_num_classes=9,
     )

@@ -11,7 +11,7 @@ What lives here
 
 Registering metrics
 -------------------
-Metric plugins are registered at import-time in gencysynth.metrics.registry
+Metric plugins are registered at import_time in gencysynth.metrics.registry
 by importing gencysynth.metrics (or gencysynth.metrics.registry bootstrap).
 
 In this package we register a small default set of metrics:
@@ -26,7 +26,7 @@ from .registry import REGISTRY, MetricRegistry
 from . import calibration, distribution, diversity, sanity, utility, privacy  # noqa
 
 
-# Side-effect imports that register default metrics
+# Side_effect imports that register default metrics
 from . import preprocess as _preprocess  # noqa: F401
 from . import contracts as _contracts    # noqa: F401
 from . import features as _features      # noqa: F401

@@ -15,8 +15,8 @@ from typing import Optional
 
 def now_iso() -> str:
     """
-    Return a UTC timestamp in RFC3339 / ISO-8601 with 'Z' suffix (no microseconds).
-    Example: '2026-02-08T11:23:45Z'
+    Return a UTC timestamp in RFC3339 / ISO_8601 with 'Z' suffix (no microseconds).
+    Example: '2026_02_08T11:23:45Z'
     """
     return _dt.datetime.now(tz=_dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
@@ -26,7 +26,7 @@ def set_global_seed(seed: int = 42, *, tf_deterministic: bool = False) -> None:
     Set RNG seeds for reproducibility across NumPy and TensorFlow.
 
     tf_deterministic:
-      - If True, attempt to enable deterministic TF ops (best-effort).
+      - If True, attempt to enable deterministic TF ops (best_effort).
       - On some systems/kernels this may be ignored.
     """
     import numpy as np
@@ -37,7 +37,7 @@ def set_global_seed(seed: int = 42, *, tf_deterministic: bool = False) -> None:
         import tensorflow as tf
         tf.random.set_seed(int(seed))
         if tf_deterministic:
-            # Best-effort determinism flag
+            # Best_effort determinism flag
             try:
                 tf.config.experimental.enable_op_determinism()
             except Exception:

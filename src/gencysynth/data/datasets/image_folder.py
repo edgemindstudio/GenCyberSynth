@@ -22,7 +22,7 @@ Datasets stored as folders of images with class subfolders, typically like:
 
 This loader converts the folder structure into arrays:
   - x_* float32 in [0,1] NHWC
-  - y_* int labels (N,) by default (optionally one-hot)
+  - y_* int labels (N,) by default (optionally one_hot)
 
 Config contract
 ---------------
@@ -154,7 +154,7 @@ class ImageFolderDataset(BaseDataset):
     ImageFolder dataset implementation.
 
     The primary goal is clarity + scalability:
-    - raw data lives somewhere dataset-specific
+    - raw data lives somewhere dataset_specific
     - dataset artifacts/caches live under artifacts/datasets/<dataset_id>/
     """
 
@@ -162,7 +162,7 @@ class ImageFolderDataset(BaseDataset):
         super().__init__(dataset_id)
 
     def info(self) -> DatasetInfo:
-        # NOTE: full metadata is usually config-driven for image folder datasets,
+        # NOTE: full metadata is usually config_driven for image folder datasets,
         # because classes and shapes depend on the actual files.
         # We return placeholders here; the loader fills concrete values.
         return DatasetInfo(
@@ -214,7 +214,7 @@ class ImageFolderDataset(BaseDataset):
         want_one_hot = bool(dcfg.get("one_hot", False))
 
         # ---------------------------------------------------------------------
-        # 0) Optional cache (dataset-scoped artifacts)
+        # 0) Optional cache (dataset_scoped artifacts)
         # ---------------------------------------------------------------------
         cache_cfg = dcfg.get("cache") if isinstance(dcfg.get("cache"), dict) else {}
         cache_enabled = bool(cache_cfg.get("enabled", True))

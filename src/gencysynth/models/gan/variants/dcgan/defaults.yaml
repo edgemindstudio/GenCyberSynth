@@ -7,11 +7,11 @@
 #
 # Key design goals:
 # - Variant identity is explicit (family + variant).
-# - Paths are variant-scoped to prevent collisions with other GAN variants.
-# - Works on CPU-only machines and GPU machines without code changes.
+# - Paths are variant_scoped to prevent collisions with other GAN variants.
+# - Works on CPU_only machines and GPU machines without code changes.
 # - Compatible with Keras 3 weight naming: *.weights.h5
 #
-# NOTE: Dataset paths are *environment-specific*; prefer overriding paths.data_root
+# NOTE: Dataset paths are *environment_specific*; prefer overriding paths.data_root
 # in a run config (or via environment variables in your HPC launcher).
 
 # -------------------------------------------------------------------
@@ -41,8 +41,8 @@ run:
 data:
   # Prefer overriding this in your experiment config.
   # Should point to folder containing the dataset .npy files expected by load_dataset_npy(...)
-  # Example: "/scratch/<user>/datasets/USTC-TFC2016_malware"
-  root: "data/USTC-TFC2016_malware"
+  # Example: "/scratch/<user>/datasets/USTC_TFC2016_malware"
+  root: "data/USTC_TFC2016_malware"
 
   # Train/val split control (load_dataset_npy uses this to split the original "test" into val+test)
   val_fraction: 0.5
@@ -85,17 +85,17 @@ train:
     d_weights: null
 
 # -------------------------------------------------------------------
-# Synthesis defaults (post-train and standalone sample.py synth)
+# Synthesis defaults (post_train and standalone sample.py synth)
 # -------------------------------------------------------------------
 synth:
   samples_per_class: 1000
 
-  # output format: "png" for sample.py (per-image) and "npy" for pipeline post-train dumps
+  # output format: "png" for sample.py (per_image) and "npy" for pipeline post_train dumps
   # (your code supports both styles; keep as documentation + future router hint)
   format: ["png", "npy"]
 
 # -------------------------------------------------------------------
-# Paths (professional, collision-proof)
+# Paths (professional, collision_proof)
 # -------------------------------------------------------------------
 paths:
   # Global artifact root for the dissertation repo (override per environment)
@@ -109,7 +109,7 @@ paths:
   data_root: null
 
 artifacts:
-  # Canonical variant-scoped layout (run_id is required for collision-proof runs)
+  # Canonical variant_scoped layout (run_id is required for collision_proof runs)
   #
   # NOTE: Your code can either:
   # - compute these from (paths.artifacts, identity, run.run_id), OR
@@ -140,7 +140,7 @@ runtime:
   force_cpu: false
 
 # -------------------------------------------------------------------
-# Optional callbacks/integration hooks (router-owned)
+# Optional callbacks/integration hooks (router_owned)
 # -------------------------------------------------------------------
 hooks:
   # Optional logging callback used by pipeline.py: LOG_CB(epoch, d_loss|(d_loss,d_acc), g_loss)

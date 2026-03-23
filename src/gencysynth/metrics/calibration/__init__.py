@@ -8,12 +8,12 @@ Rule A
 ------
 - Pure computations only: inputs -> MetricResult.
 - No I/O and no artifact path assumptions.
-- Dataset-agnostic: accepts integer or one-hot labels, any K classes.
+- Dataset_agnostic: accepts integer or one_hot labels, any K classes.
 
 Registered metrics
 ------------------
 - calibration.ece   : Expected Calibration Error (ECE), lower is better
-- calibration.brier : Brier score (multi-class), lower is better
+- calibration.brier : Brier score (multi_class), lower is better
 """
 
 from __future__ import annotations

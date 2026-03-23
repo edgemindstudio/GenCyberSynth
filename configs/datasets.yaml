@@ -1,9 +1,9 @@
 # configs/datasets.yaml
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$schema": "http://json_schema.org/draft_07/schema#",
   "$id": "schemas/dataset_registry.schema.json",
   "title": "GenCyberSynth Dataset Registry",
-  "description": "Optional registry listing all datasets available in the repo. Useful for multi-dataset orchestration and validation.",
+  "description": "Optional registry listing all datasets available in the repo. Useful for multi_dataset orchestration and validation.",
   "type": "object",
   "required": ["datasets"],
   "properties": {

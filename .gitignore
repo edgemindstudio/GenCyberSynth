@@ -117,3 +117,11 @@ slurm-*.err
 USTC-TFC2016_malware/
 data/raw/
 data/processed/
+
+uv.lock
+
+
+# local transport bundles
+*.bundle
+rename_variants.bundle
+rename_variants_v2.bundle

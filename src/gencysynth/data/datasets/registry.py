@@ -4,7 +4,7 @@ GenCyberSynth — Dataset Registry (Scalable)
 
 Purpose
 -------
-A dataset registry lets the rest of the codebase remain dataset-agnostic.
+A dataset registry lets the rest of the codebase remain dataset_agnostic.
 
 Instead of writing:
     if dataset == "ustc": ...
@@ -18,14 +18,14 @@ we do:
 This is essential for scalability when you add:
 - new datasets
 - new raw layouts (NPY, image folders, LMDB, webdataset, etc.)
-- per-dataset options (image shape, class names, split policies)
+- per_dataset options (image shape, class names, split policies)
 
 Config contract
 ---------------
 dataset:
-  id: "USTC-TFC2016_40x40_gray"          # REQUIRED for scalable artifacts layout
+  id: "USTC_TFC2016_40x40_gray"          # REQUIRED for scalable artifacts layout
   type: "npy_ustc"                       # REQUIRED (selects loader)
-  raw_root: "data/ustc"                  # dataset-specific
+  raw_root: "data/ustc"                  # dataset_specific
 
 We treat dataset_id as *the* stable identity for:
   artifacts/datasets/<dataset_id>/...
@@ -101,7 +101,7 @@ def register_dataset_type(
     """
     key = str(dataset_type).strip().lower()
     if not key:
-        raise ValueError("dataset_type must be a non-empty string.")
+        raise ValueError("dataset_type must be a non_empty string.")
 
     _REGISTRY[key] = DatasetRegistryEntry(factory=factory, description=description or key)
 
@@ -128,7 +128,7 @@ def known_dataset_types() -> Dict[str, str]:
 
 def _register_defaults() -> None:
     """
-    Register built-in dataset types.
+    Register built_in dataset types.
 
     Keep this list small and stable.
     Additional datasets can be registered by:
@@ -138,7 +138,7 @@ def _register_defaults() -> None:
     register_dataset_type(
         "npy_ustc",
         lambda dataset_id: NpyUSTCDataset(dataset_id),
-        description="USTC-style .npy quartet: train_data/train_labels/test_data/test_labels (+ val split)",
+        description="USTC_style .npy quartet: train_data/train_labels/test_data/test_labels (+ val split)",
         aliases=["ustc_npy", "ustc", "npy"],
     )
 
@@ -172,7 +172,7 @@ def _require_dataset_id(cfg: Dict[str, Any]) -> str:
     if not isinstance(dataset_id, str) or not dataset_id.strip():
         raise ValueError(
             "Missing required config['dataset']['id']. "
-            "This must be a stable identifier, e.g. 'USTC-TFC2016_40x40_gray'."
+            "This must be a stable identifier, e.g. 'USTC_TFC2016_40x40_gray'."
         )
     return dataset_id.strip()
 
@@ -199,7 +199,7 @@ def make_dataset_from_config(cfg: Dict[str, Any]) -> Dataset:
     This is the standard entrypoint used by:
     - orchestration code
     - evaluation split loaders
-    - any pipeline that wants dataset-agnostic behavior
+    - any pipeline that wants dataset_agnostic behavior
 
     Raises
     ------
@@ -220,7 +220,7 @@ def make_dataset_from_config(cfg: Dict[str, Any]) -> Dataset:
 
     # Defensive sanity: ensure it looks like a dataset implementation
     if not hasattr(ds, "load_arrays"):
-        raise TypeError(f"Dataset factory for '{dataset_type}' did not return a Dataset-like object.")
+        raise TypeError(f"Dataset factory for '{dataset_type}' did not return a Dataset_like object.")
 
     return ds
 

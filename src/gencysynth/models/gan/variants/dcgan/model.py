@@ -34,20 +34,20 @@ Variant summary
 This is a *conditional* DCGAN:
 - Generator takes:
     z : (latent_dim,)
-    y : (num_classes,) one-hot label
+    y : (num_classes,) one_hot label
   and outputs:
     x_fake : img_shape, with tanh activation -> values in [-1, 1]
 
 - Discriminator takes:
     x : img_shape
-    y : (num_classes,) one-hot label
+    y : (num_classes,) one_hot label
   and outputs:
     p_real : scalar sigmoid probability
 
 Conditioning strategy
 ---------------------
-We condition both G and D by projecting the one-hot label into a spatial map,
-then concatenating it channel-wise with feature maps / images. This keeps the
+We condition both G and D by projecting the one_hot label into a spatial map,
+then concatenating it channel_wise with feature maps / images. This keeps the
 conditioning mechanism consistent for grayscale or RGB images.
 
 Compatibility notes
@@ -63,7 +63,7 @@ from typing import Dict, Tuple
 import tensorflow as tf
 from tensorflow.keras import layers, models
 
-# Keras 3: use standard (non-legacy) Adam
+# Keras 3: use standard (non_legacy) Adam
 Adam = tf.keras.optimizers.Adam
 
 
@@ -83,9 +83,9 @@ def build_generator(
     latent_dim:
         Dimensionality of the latent noise vector z.
     num_classes:
-        Number of classes; y is expected to be one-hot of shape (num_classes,).
+        Number of classes; y is expected to be one_hot of shape (num_classes,).
     img_shape:
-        Output image shape (H, W, C). For USTC-TFC2016 this is typically (40, 40, 1).
+        Output image shape (H, W, C). For USTC_TFC2016 this is typically (40, 40, 1).
 
     Returns
     -------
@@ -104,14 +104,14 @@ def build_generator(
     z_in = layers.Input(shape=(latent_dim,), name="z")
     y_in = layers.Input(shape=(num_classes,), name="y_onehot")
 
-    # ---- Project latent vector into a low-resolution feature grid ----
+    # ---- Project latent vector into a low_resolution feature grid ----
     x = layers.Dense(5 * 5 * 256, use_bias=False, name="gen_dense_z")(z_in)
     x = layers.BatchNormalization(name="gen_bn_z")(x)
     x = layers.LeakyReLU(negative_slope=0.2, name="gen_lrelu_z")(x)
     x = layers.Reshape((5, 5, 256), name="gen_reshape_z")(x)
 
     # ---- Project label to a small spatial map and concatenate ----
-    # We use a single-channel label map so conditioning works for grayscale or RGB.
+    # We use a single_channel label map so conditioning works for grayscale or RGB.
     y_map = layers.Dense(5 * 5 * 1, use_bias=False, name="gen_dense_y")(y_in)
     y_map = layers.Reshape((5, 5, 1), name="gen_reshape_y")(y_map)
 
@@ -162,7 +162,7 @@ def build_discriminator(
     img_shape:
         Input image shape (H, W, C).
     num_classes:
-        Number of classes; y is expected to be one-hot of shape (num_classes,).
+        Number of classes; y is expected to be one_hot of shape (num_classes,).
 
     Returns
     -------
@@ -171,7 +171,7 @@ def build_discriminator(
 
     Conditioning strategy
     ---------------------
-    - Project y_onehot to an HxW single-channel map
+    - Project y_onehot to an HxW single_channel map
     - Concatenate with x along channels to form (H, W, C+1)
     """
     H, W, C = img_shape
@@ -187,7 +187,7 @@ def build_discriminator(
     # Concatenate image with conditioning map: (H, W, C+1)
     xy = layers.Concatenate(axis=-1, name="disc_concat_xy")([x_in, y_map])
 
-    # Standard DCGAN-style conv downsampling
+    # Standard DCGAN_style conv downsampling
     x = layers.Conv2D(64, 4, strides=2, padding="same", name="disc_conv1")(xy)
     x = layers.LeakyReLU(negative_slope=0.2, name="disc_lrelu1")(x)
     x = layers.Dropout(0.3, name="disc_drop1")(x)
@@ -210,7 +210,7 @@ def build_models(
     latent_dim: int,
     num_classes: int,
     img_shape: Tuple[int, int, int],
-    lr: float = 2e-4,
+    lr: float = 2e_4,
     beta_1: float = 0.5,
 ) -> Dict[str, tf.keras.Model]:
     """
@@ -235,8 +235,8 @@ def build_models(
 
     Notes
     -----
-    - D is trained with binary cross-entropy + accuracy metric.
-    - GAN is trained with binary cross-entropy with D frozen.
+    - D is trained with binary cross_entropy + accuracy metric.
+    - GAN is trained with binary cross_entropy with D frozen.
     """
     # Build component models
     G = build_generator(latent_dim=latent_dim, num_classes=num_classes, img_shape=img_shape)

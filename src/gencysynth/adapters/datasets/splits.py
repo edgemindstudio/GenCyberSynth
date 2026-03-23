@@ -66,6 +66,7 @@ class DatasetSplits:
             out["test"] = self.test
         return out
 
+<<<<<<< HEAD
 
     @staticmethod
     def _to_x01_nhwc(x: np.ndarray) -> np.ndarray:
@@ -175,3 +176,38 @@ class DatasetSplits:
             test = _mk_split(getattr(arrays, "x_test"), getattr(arrays, "y_test"))
 
         return cls(train=train, val=val, test=test)
+=======
+from dataclasses import dataclass
+import numpy as np
+from typing import Optional
+
+@dataclass
+class Split:
+    x01: np.ndarray
+    y_onehot: np.ndarray
+    y_int: np.ndarray
+
+@dataclass
+class DatasetSplits:
+    train: Split
+    val: Optional[Split] = None
+    test: Optional[Split] = None
+
+    @staticmethod
+    def from_dataset_arrays(arrays):
+        def _make(x, y):
+            y = np.asarray(y)
+            if y.ndim == 2:
+                y_onehot = y.astype("float32", copy=False)
+                y_int = y.argmax(axis=1).astype("int32")
+            else:
+                y_int = y.astype("int32", copy=False)
+                K = int(y_int.max()) + 1
+                y_onehot = np.eye(K, dtype="float32")[y_int]
+            return Split(x01=np.asarray(x, dtype="float32"), y_onehot=y_onehot, y_int=y_int)
+
+        train = _make(arrays.x_train, arrays.y_train)
+        val = _make(arrays.x_val, arrays.y_val) if getattr(arrays, "x_val", None) is not None else None
+        test = _make(arrays.x_test, arrays.y_test) if getattr(arrays, "x_test", None) is not None else None
+        return DatasetSplits(train=train, val=val, test=test)
+>>>>>>> origin/integrate/talon-smoke

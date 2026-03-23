@@ -3,7 +3,7 @@
 GAN family adapters.
 
 This package contains:
-- GANAdapterBase: shared logic for GAN-like models (train + synth conventions)
+- GANAdapterBase: shared logic for GAN_like models (train + synth conventions)
 - registry helpers to register/resolve GAN variants
 
 Variants register themselves under:

@@ -6,7 +6,7 @@ Why MMD matters
 ---------------
 MMD measures how different two distributions are using kernel embeddings.
 Here we provide:
-- a small, dependency-minimal implementation (NumPy only)
+- a small, dependency_minimal implementation (NumPy only)
 - kernels: RBF and polynomial
 - unbiased MMD^2 estimator (common for KID and for generic MMD checks)
 
@@ -39,11 +39,11 @@ def _pairwise_sq_dists(x: np.ndarray, y: np.ndarray) -> np.ndarray:
 
 def rbf_kernel(x: np.ndarray, y: np.ndarray, sigma: float) -> np.ndarray:
     """
-    RBF kernel k(x,y)=exp(-||x-y||^2/(2*sigma^2)).
+    RBF kernel k(x,y)=exp(-||x_y||^2/(2*sigma^2)).
     """
     d2 = _pairwise_sq_dists(x, y)
     s2 = float(sigma) ** 2
-    return np.exp(-d2 / (2.0 * s2 + 1e-12))
+    return np.exp(-d2 / (2.0 * s2 + 1e_12))
 
 
 def poly_kernel(x: np.ndarray, y: np.ndarray, degree: int = 3, gamma: float = 1.0, coef0: float = 1.0) -> np.ndarray:
@@ -94,7 +94,7 @@ def median_heuristic_sigma(x: np.ndarray, max_pairs: int = 2000, rng: Optional[n
     # take upper triangle without diagonal
     triu = d2[np.triu_indices(d2.shape[0], k=1)]
     med = np.median(triu) if triu.size else 1.0
-    sigma = float(np.sqrt(max(med, 1e-12)))
+    sigma = float(np.sqrt(max(med, 1e_12)))
     return sigma
 
 
@@ -116,7 +116,7 @@ def _default_features(x01: np.ndarray, out_dim: int = 256) -> np.ndarray:
     if out_dim is None or out_dim <= 0 or out_dim >= d:
         return flat.astype(np.float64)
 
-    # Deterministic stride-based subsample (no randomness; stable across runs)
+    # Deterministic stride_based subsample (no randomness; stable across runs)
     step = max(1, d // int(out_dim))
     feat = flat[:, ::step][:, : int(out_dim)]
     return feat.astype(np.float64)
@@ -150,7 +150,7 @@ class MMDMetric:
     ) -> MetricResult:
         name = "distribution.mmd_rbf" if self.kernel == "rbf" else "distribution.mmd_poly"
 
-        # Read metric-specific options (Rule A: from cfg)
+        # Read metric_specific options (Rule A: from cfg)
         opts = (((cfg.get("metrics") or {}).get("options") or {}).get(name) or {})
         max_samples = int(opts.get("max_samples", 4096))
         feat_dim = int(opts.get("feature_dim", 256))

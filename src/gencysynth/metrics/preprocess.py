@@ -4,7 +4,7 @@ Preprocessing for metrics.
 
 Metrics should consume a standardized representation:
 - images in float32 [0,1]
-- channels-last (N,H,W,C)
+- channels_last (N,H,W,C)
 - labels either int (N,) or None
 
 This file keeps transformations small and explicit.

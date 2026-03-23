@@ -1,10 +1,10 @@
 # src/gencysynth/reporting/plots/diversity/nn_distance.py
 """
-Nearest-neighbor distance plots (diversity/privacy diagnostic).
+Nearest_neighbor distance plots (diversity/privacy diagnostic).
 
 Goal
 ----
-Visualize distributions of nearest-neighbor distances that were computed and saved
+Visualize distributions of nearest_neighbor distances that were computed and saved
 by the metrics layer.
 
 Typical precomputed artifacts (examples; exact names may differ):
@@ -106,12 +106,12 @@ def plot_nn_distance(ctx: PlotContext, out_dir: Path, cfg: PlotConfig) -> List[P
     # If no arrays exist, we can still attempt to plot summary stats if present.
     # But we avoid fabricating distributions.
     if not series:
-        # Optional: plot a tiny summary box if eval_summary has nn-distance stats
+        # Optional: plot a tiny summary box if eval_summary has nn_distance stats
         stats = _cfg_get(es, "metrics.nn_distance", None) or _cfg_get(es, "privacy.nn_distance", None)
         if not isinstance(stats, dict) or not stats:
             return []
 
-        # Best-effort: show min/median/mean/max if present
+        # Best_effort: show min/median/mean/max if present
         keys = ["min", "p50", "median", "mean", "p95", "max"]
         items = [(k, stats.get(k, None)) for k in keys if isinstance(stats.get(k, None), (int, float))]
         if not items:
@@ -149,7 +149,7 @@ def plot_nn_distance(ctx: PlotContext, out_dir: Path, cfg: PlotConfig) -> List[P
     for label, arr in series:
         ax.hist(arr, bins=bins, histtype="step", density=True, label=label)
 
-    ax.set_title("Nearest-Neighbor Distance Distributions (precomputed)")
+    ax.set_title("Nearest_Neighbor Distance Distributions (precomputed)")
     ax.set_xlabel("distance")
     ax.set_ylabel("density")
     ax.legend(loc="best")

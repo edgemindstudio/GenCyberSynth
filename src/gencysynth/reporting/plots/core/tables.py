@@ -2,7 +2,7 @@
 """
 Render evaluation metric tables to images (optional but very handy).
 
-This is a visualization-only layer:
+This is a visualization_only layer:
 - It reads eval_summary
 - It renders a small table image (PNG) under reporting/plots/core/
 
@@ -27,11 +27,11 @@ from .context import PlotContext
 
 def _extract_table_rows(eval_summary: Dict[str, Any]) -> List[Tuple[str, str]]:
     """
-    Convert eval_summary into a simple 2-column table:
+    Convert eval_summary into a simple 2_column table:
       metric_name | value
 
     We intentionally keep it generic:
-    - flatten numeric values from common containers and top-level
+    - flatten numeric values from common containers and top_level
     """
     rows: List[Tuple[str, str]] = []
 
@@ -43,7 +43,7 @@ def _extract_table_rows(eval_summary: Dict[str, Any]) -> List[Tuple[str, str]]:
                 if isinstance(val, (int, float, str)):
                     rows.append((f"{container_key}.{k}", str(val)))
 
-    # Then top-level numeric/string values
+    # Then top_level numeric/string values
     for k, val in eval_summary.items():
         if isinstance(val, (int, float, str)):
             rows.append((str(k), str(val)))

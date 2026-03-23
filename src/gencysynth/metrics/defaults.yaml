@@ -2,7 +2,7 @@
 # Default metrics suite for GenCyberSynth.
 #
 # Rule A:
-# - These are lightweight, dependency-minimal checks suitable for smoke tests.
+# - These are lightweight, dependency_minimal checks suitable for smoke tests.
 # - Heavier metrics (FID/cFID, deep feature distances) can be added later as plugins.
 
   options:
@@ -35,7 +35,7 @@ metrics:
   options:
     distribution.js_kl_hist:
       bins: 32
-      eps: 1e-8
+      eps: 1e_8
       per_class: false
     distribution.mmd_rbf:
       max_samples: 4096
@@ -55,7 +55,7 @@ metrics:
   binarize: false
   bin_threshold: 0.5
 
-  # Per-metric options live here
+  # Per_metric options live here
   options:
     distribution.pixel_hist_l1:
       bins: 32

@@ -2,7 +2,7 @@
 """
 gencysynth.reporting.plots
 
-Run-level plotting orchestration.
+Run_level plotting orchestration.
 
 This package is intentionally thin:
 - It provides stable entrypoints (plot_all, plot_groups, plot_group).
