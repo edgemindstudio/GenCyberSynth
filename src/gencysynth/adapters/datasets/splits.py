@@ -17,8 +17,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, Optional
-from typing import Any, Tuple
+from typing import Any, Dict, Optional, Tuple
+
 import numpy as np
 
 
@@ -46,6 +46,7 @@ class SplitArrays:
     def n(self) -> int:
         return int(self.x01.shape[0])
 
+
 @dataclass(frozen=True)
 class DatasetSplits:
     """
@@ -65,8 +66,6 @@ class DatasetSplits:
         if self.test is not None:
             out["test"] = self.test
         return out
-
-<<<<<<< HEAD
 
     @staticmethod
     def _to_x01_nhwc(x: np.ndarray) -> np.ndarray:
@@ -136,12 +135,10 @@ class DatasetSplits:
           2) cfg['dataset']['channels'] (NOT num_classes) -> ignored
           3) infer from y_train if possible (fallback)
         """
-        # 1) num_classes
         dcfg = cfg.get("dataset", {}) if isinstance(cfg.get("dataset"), dict) else {}
         K = dcfg.get("num_classes", None)
 
         if K is None:
-            # best-effort infer from train labels
             ytr = getattr(arrays, "y_train", None)
             if ytr is None:
                 raise ValueError("Cannot infer num_classes: cfg.dataset.num_classes missing and arrays.y_train missing.")
@@ -159,14 +156,12 @@ class DatasetSplits:
             y_int, y_onehot = cls._to_y_int_onehot(np.asarray(y), num_classes=K)
             return SplitArrays(x01=x01, y_int=y_int, y_onehot=y_onehot)
 
-        # 2) required train
         x_train = getattr(arrays, "x_train", None)
         y_train = getattr(arrays, "y_train", None)
         if x_train is None or y_train is None:
             raise ValueError("DatasetArrays must provide x_train and y_train.")
         train = _mk_split(x_train, y_train)
 
-        # 3) optional val/test
         val = None
         if getattr(arrays, "x_val", None) is not None and getattr(arrays, "y_val", None) is not None:
             val = _mk_split(getattr(arrays, "x_val"), getattr(arrays, "y_val"))
@@ -176,38 +171,3 @@ class DatasetSplits:
             test = _mk_split(getattr(arrays, "x_test"), getattr(arrays, "y_test"))
 
         return cls(train=train, val=val, test=test)
-=======
-from dataclasses import dataclass
-import numpy as np
-from typing import Optional
-
-@dataclass
-class Split:
-    x01: np.ndarray
-    y_onehot: np.ndarray
-    y_int: np.ndarray
-
-@dataclass
-class DatasetSplits:
-    train: Split
-    val: Optional[Split] = None
-    test: Optional[Split] = None
-
-    @staticmethod
-    def from_dataset_arrays(arrays):
-        def _make(x, y):
-            y = np.asarray(y)
-            if y.ndim == 2:
-                y_onehot = y.astype("float32", copy=False)
-                y_int = y.argmax(axis=1).astype("int32")
-            else:
-                y_int = y.astype("int32", copy=False)
-                K = int(y_int.max()) + 1
-                y_onehot = np.eye(K, dtype="float32")[y_int]
-            return Split(x01=np.asarray(x, dtype="float32"), y_onehot=y_onehot, y_int=y_int)
-
-        train = _make(arrays.x_train, arrays.y_train)
-        val = _make(arrays.x_val, arrays.y_val) if getattr(arrays, "x_val", None) is not None else None
-        test = _make(arrays.x_test, arrays.y_test) if getattr(arrays, "x_test", None) is not None else None
-        return DatasetSplits(train=train, val=val, test=test)
->>>>>>> origin/integrate/talon-smoke
