@@ -20,7 +20,7 @@ SEED: 42
 random_seeds: [42, 43, 44]
 
 # Dataset root (NHWC .npy layout expected by your shared loader)
-DATA_DIR: "/home/bruno.fonkeng/gencys/data/USTC_TFC2016_malware_nhwc"
+DATA_DIR: "/home/bruno.fonkeng/gencys/data/USTC-TFC2016_malware_nhwc"
 
 # -----------------------------------------------------------------------------
 # Paths

@@ -49,30 +49,71 @@ class GMMDiagAdapter(GaussianMixtureAdapterBase):
         K = int(y1h.shape[1])
         n_per_class = int(cfg.get("synth", {}).get("n_per_class", 10))
         gm_cfg = cfg.get("gaussianmixture", {}) if isinstance(cfg.get("gaussianmixture"), dict) else {}
-        n_components = int(gm_cfg.get("n_components", 8))
-        max_iter = int(gm_cfg.get("max_iter", 25))
+
+        # n_components = int(gm_cfg.get("n_components", 8))
+        # max_iter = int(gm_cfg.get("max_iter", 25))
+        # seed = int(cfg.get("SEED", 42))
+        #
+        # rng = np.random.default_rng(seed)
+        #
+        # xs, ys = [], []
+        # for k in range(K):
+        #     idx = np.where(y_int == k)[0]
+        #     if len(idx) < max(10, n_components):
+        #         # smoke_safe fallback: resample real examples if class too small
+        #         if len(idx) == 0:
+        #             continue
+        #         pick = rng.choice(idx, size=n_per_class, replace=True)
+        #         xk = x_flat[pick]
+        #     else:
+        #         gmm = GaussianMixture(
+        #             n_components=n_components,
+        #             covariance_type="diag",
+        #             max_iter=max_iter,
+        #             random_state=seed + k,
+        #         )
+        #         gmm.fit(x_flat[idx])
+        #         xk, _ = gmm.sample(n_per_class)
+
+        n_components = int(gm_cfg.get("n_components", 2))
+        max_iter = int(gm_cfg.get("max_iter", 50))
+        reg_covar = float(gm_cfg.get("reg_covar", 1e-3))
         seed = int(cfg.get("SEED", 42))
 
         rng = np.random.default_rng(seed)
 
+        # sklearn GMM is numerically safer in float64
+        x_flat = x_flat.astype(np.float64, copy=False)
+
         xs, ys = [], []
         for k in range(K):
             idx = np.where(y_int == k)[0]
-            if len(idx) < max(10, n_components):
-                # smoke_safe fallback: resample real examples if class too small
-                if len(idx) == 0:
-                    continue
+
+            if len(idx) == 0:
+                continue
+
+            # smoke-safe fallback for tiny classes
+            if len(idx) < 2:
                 pick = rng.choice(idx, size=n_per_class, replace=True)
                 xk = x_flat[pick]
             else:
-                gmm = GaussianMixture(
-                    n_components=n_components,
-                    covariance_type="diag",
-                    max_iter=max_iter,
-                    random_state=seed + k,
-                )
-                gmm.fit(x_flat[idx])
-                xk, _ = gmm.sample(n_per_class)
+                # never ask for more components than the class can support
+                class_n_components = min(n_components, len(idx))
+
+                try:
+                    gmm = GaussianMixture(
+                        n_components=class_n_components,
+                        covariance_type="diag",
+                        max_iter=max_iter,
+                        reg_covar=reg_covar,
+                        random_state=seed + k,
+                    )
+                    gmm.fit(x_flat[idx])
+                    xk, _ = gmm.sample(n_per_class)
+                except ValueError:
+                    # final smoke-safe fallback if fitting is still unstable
+                    pick = rng.choice(idx, size=n_per_class, replace=True)
+                    xk = x_flat[pick]
 
             xs.append(xk)
             ys.append(np.full((xk.shape[0],), k, dtype=np.int32))
