@@ -1,4 +1,3 @@
-
 paths:
 
   artifacts: artifacts
@@ -11,7 +10,7 @@ dataset:
 
   type: npy_ustc
 
-  root: /home/bruno.fonkeng/gencys/data/USTC_TFC2016_malware_nhwc
+  root: /home/bruno.fonkeng/gencys/data/USTC-TFC2016_malware_nhwc
 
   image_hw: [40, 40]
 
@@ -28,7 +27,12 @@ SEED: 42
 synth:
 
   n_per_class: 10
-
+  
+  
+gaussianmixture:
+  n_components: 2
+  max_iter: 50
+  reg_covar: 1.0e-3
 
 
 evaluator:
